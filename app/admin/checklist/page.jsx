@@ -14,70 +14,248 @@ const OWNER = {
   both: { label: "Together", icon: "🤝", color: P.green, soft: P.greenSoft },
 };
 
+// sections → items → subtasks. Each subtask has its own owner + a "how" note.
 const SECTIONS = [
   {
     key: "now", title: "Now", when: "the next few weeks", accent: P.rosa,
     blurb: "Start earning and stand up the first content. Nothing here waits on the full book.",
     items: [
-      { id: "title", owner: "you", text: "Lock the book title & subtitle", note: "Leaning: “The Geography of a Richer Life.”" },
-      { id: "aff-viator", owner: "you", text: "Sign up: Viator + GetYourGuide (tours & experiences)", note: "Feeds the itinerary builder." },
-      { id: "aff-booking", owner: "you", text: "Sign up: Booking.com affiliate (hotels & stays)" },
-      { id: "aff-wise", owner: "you", text: "Sign up: Wise affiliate (USD→MXN transfers)" },
-      { id: "aff-sw", owner: "you", text: "Sign up: SafetyWing (travel + expat health cover)" },
-      { id: "photos", owner: "you", text: "Gather first batch of original photos / drone shots", note: "For the launch set of Local Picks." },
-      { id: "ch4", owner: "claude", text: "Rewrite Book Ch 4 (taxes) — facts-only, house voice", note: "Delivered as book/ch4.md for your review." },
-      { id: "voice", owner: "claude", text: "Lock the house-voice style guide", note: "Approved — captured." },
-      { id: "plan-scaffold", owner: "claude", text: "Build the “Plan Your Trip” section scaffold + page template" },
-      { id: "picks5", owner: "both", text: "Choose the first 5 Local Picks to feature with your media" },
-      { id: "ch4-review", owner: "both", text: "Review the Ch 4 rewrite together, set the neutrality bar" },
+      {
+        id: "title", title: "Lock the book title & subtitle",
+        why: "Everything downstream — book pages, the “Move to SMA” pillar, the ebook cover — keys off this.",
+        subs: [
+          { id: "title-choose", owner: "both", text: "Pick the final title + subtitle", how: "Done: “The Geography of a Richer Life: How Choosing Where You Live Changes Your Money, Your Time, and Who You Get to Be.”" },
+          { id: "title-record", owner: "claude", text: "Record it across the project", how: "Done — saved to memory; I’ll reuse it on every book page." },
+        ],
+      },
+      {
+        id: "aff-viator", title: "Set up Viator + GetYourGuide (tours & experiences)",
+        why: "Highest-intent visitor revenue and the payload for the itinerary builder.",
+        subs: [
+          { id: "viator-prep", owner: "claude", text: "Prep the exact steps + which program to join", how: "I’ll hand you a one-page walkthrough: which partner tier, what info to have ready, link format." },
+          { id: "viator-acct", owner: "you", text: "Create the two accounts", how: "Needs your identity/email/tax details — I can’t create accounts for you." },
+          { id: "viator-wire", owner: "claude", text: "Wire your affiliate IDs into the site", how: "Paste me the IDs (or drop them in a config) and I’ll build the tracked links." },
+        ],
+      },
+      {
+        id: "aff-booking", title: "Set up Booking.com affiliate (hotels & stays)",
+        why: "Pairs with every “where to stay” page.",
+        subs: [
+          { id: "booking-prep", owner: "claude", text: "Prep the signup + partner-program choice", how: "I’ll tell you exactly which Booking partner product fits a content site." },
+          { id: "booking-acct", owner: "you", text: "Create the account", how: "Your identity + payout details required." },
+          { id: "booking-wire", owner: "claude", text: "Wire it into the stay pages", how: "I build the search/deep links once I have your ID." },
+        ],
+      },
+      {
+        id: "aff-wise", title: "Set up Wise affiliate (USD→MXN transfers)",
+        why: "Every visitor and mover needs this — strong, universal payouts.",
+        subs: [
+          { id: "wise-prep", owner: "claude", text: "Prep the application", how: "Wise uses Partnerize/Impact — I’ll point you to the right one and what to say." },
+          { id: "wise-acct", owner: "you", text: "Apply & get approved", how: "You submit; approval is out of our hands." },
+          { id: "wise-wire", owner: "claude", text: "Place the links on money/relocation pages", how: "I’ll add them where they convert." },
+        ],
+      },
+      {
+        id: "aff-sw", title: "Set up SafetyWing (travel + expat health)",
+        why: "Covers both lanes; recurring commissions.",
+        subs: [
+          { id: "sw-prep", owner: "claude", text: "Prep the signup", how: "I’ll give you the affiliate URL + what to enter." },
+          { id: "sw-acct", owner: "you", text: "Create the account", how: "Your details required." },
+          { id: "sw-wire", owner: "claude", text: "Wire into healthcare/insurance pages", how: "I build the pages and drop the links in." },
+        ],
+      },
+      {
+        id: "photos", title: "Capture the first batch of photos / drone",
+        why: "Original media is a real moat — for SEO and for trust.",
+        subs: [
+          { id: "photos-shotlist", owner: "claude", text: "Give you a shot list + specs", how: "Per Local Pick: angles, aspect ratios, resolution, a golden-hour note." },
+          { id: "photos-capture", owner: "you", text: "Shoot the photos & drone footage", how: "Only you can — you’re the one on the ground in SMA." },
+          { id: "photos-process", owner: "claude", text: "Optimize + wire images into the site", how: "You upload raw; I resize, compress, and place them." },
+        ],
+      },
+      {
+        id: "ch4", title: "Rewrite Book Ch 4 (taxes) — facts-only, house voice",
+        why: "The sensitive one — proves the neutrality bar for the whole rewrite.",
+        subs: [
+          { id: "ch4-draft", owner: "claude", text: "Draft book/ch4.md", how: "I write the full neutral rewrite in your voice." },
+          { id: "ch4-check", owner: "you", text: "Check tax accuracy + tone", how: "You’re the domain expert — flag anything off." },
+          { id: "ch4-revise", owner: "claude", text: "Revise to your notes", how: "I turn your edits around fast." },
+        ],
+      },
+      {
+        id: "voice", title: "Lock the house-voice style guide",
+        why: "The contract that keeps all 23 chapters sounding like you.",
+        subs: [
+          { id: "voice-agree", owner: "both", text: "Agree the voice guide", how: "Done — approved." },
+          { id: "voice-capture", owner: "claude", text: "Keep it captured for every rewrite", how: "Done — saved." },
+        ],
+      },
+      {
+        id: "plan-scaffold", title: "Build the “Plan Your Trip” section + template",
+        why: "Gives the visitor affiliate links somewhere to live and earn.",
+        subs: [
+          { id: "plan-design", owner: "claude", text: "Design the section + reusable page template", how: "I build it end to end." },
+          { id: "plan-first", owner: "claude", text: "Ship the first page (“3 days in San Miguel”)", how: "With affiliate slots baked in." },
+          { id: "plan-review", owner: "you", text: "Review & tell me tweaks", how: "Quick look; I handle the changes." },
+        ],
+      },
+      {
+        id: "picks5", title: "Choose the first 5 Local Picks to feature",
+        why: "The launch set that shows off the insider voice + your media.",
+        subs: [
+          { id: "picks-propose", owner: "claude", text: "Propose candidates + spot gaps", how: "From what’s already in the DB plus category gaps." },
+          { id: "picks-pick", owner: "you", text: "Make the final 5 calls", how: "Your taste — the insider judgment is the product." },
+          { id: "picks-write", owner: "claude", text: "Draft their bilingual write-ups", how: "I write EN + ES; you approve." },
+        ],
+      },
+      {
+        id: "ch4-review", title: "Set the neutrality bar together",
+        why: "Once we agree how Ch 4 reads, I apply the same bar everywhere.",
+        subs: [
+          { id: "review-read", owner: "you", text: "Read the Ch 4 draft", how: "The one judgment call I need you for." },
+          { id: "review-bar", owner: "both", text: "Agree the bar", how: "We lock what “facts-only” means in practice." },
+        ],
+      },
     ],
   },
   {
     key: "next", title: "Next", when: "1–3 months", accent: P.cobalt,
     blurb: "Convert the book, run the SEO/GEO pass, and turn on the higher-value affiliate pages.",
     items: [
-      { id: "book-convert", owner: "claude", text: "Rewrite & convert Ch 5–23 into clustered pages" },
-      { id: "seo", owner: "claude", text: "SEO/GEO pass: server-render, schema.org, sitemap, llms.txt, hreflang" },
-      { id: "aff-pages", owner: "claude", text: "Build healthcare/insurance + housing affiliate pages" },
-      { id: "es-parity", owner: "claude", text: "Spanish parity on the top-traffic pages" },
-      { id: "re-deals", owner: "you", text: "Line up real-estate + immigration referral deals (local, direct)" },
-      { id: "es-review", owner: "you", text: "Source a native Mexican-Spanish reviewer for top pages" },
-      { id: "shoots", owner: "both", text: "Plan photo & drone shoots for the Local Picks library" },
+      {
+        id: "book-convert", title: "Rewrite & convert Ch 5–23 into web pages",
+        why: "The content moat and the mover lane.",
+        subs: [
+          { id: "conv-rewrite", owner: "claude", text: "Rewrite each chapter (voice + facts-only where needed)", how: "I do the writing; delivered chapter by chapter." },
+          { id: "conv-review", owner: "you", text: "Review each for accuracy/tone", how: "Skim + flag; I revise." },
+          { id: "conv-pages", owner: "claude", text: "Convert approved chapters into clustered pages", how: "Hub-and-spoke, fully built by me." },
+        ],
+      },
+      {
+        id: "seo", title: "SEO / GEO technical pass",
+        why: "Makes Google rank it and AI agents cite it.",
+        subs: [
+          { id: "seo-build", owner: "claude", text: "Server-render + schema.org + sitemap + llms.txt + hreflang", how: "Entirely me — no action needed from you." },
+          { id: "seo-approve", owner: "you", text: "Approve going live", how: "One thumbs-up." },
+        ],
+      },
+      {
+        id: "aff-pages", title: "Build healthcare/insurance + housing pages",
+        why: "The highest-value mover conversions.",
+        subs: [
+          { id: "affp-build", owner: "claude", text: "Build the pages", how: "I write and build them." },
+          { id: "affp-pick", owner: "you", text: "Confirm which insurers/agents to feature", how: "Your call on who we recommend." },
+        ],
+      },
+      {
+        id: "es-parity", title: "Spanish parity on top-traffic pages",
+        why: "The bilingual edge most competitors don’t attempt.",
+        subs: [
+          { id: "es-produce", owner: "claude", text: "Produce Mexican-Spanish versions", how: "I draft high-quality ES for the top pages." },
+          { id: "es-native", owner: "you", text: "Have a native reviewer check them", how: "See the reviewer item below." },
+        ],
+      },
+      {
+        id: "re-deals", title: "Line up real-estate + immigration referral deals",
+        why: "Highest $/lead — but relationship-driven, so it’s yours.",
+        subs: [
+          { id: "re-outreach", owner: "claude", text: "Draft outreach + a shortlist of SMA partners", how: "I write the pitch and research candidates." },
+          { id: "re-close", owner: "you", text: "Have the conversations & close the deals", how: "The relationship + terms are you." },
+        ],
+      },
+      {
+        id: "es-review", title: "Bring on a native Mexican-Spanish reviewer",
+        why: "Authenticity with true locals — machine ES won’t win them.",
+        subs: [
+          { id: "esr-brief", owner: "claude", text: "Write the reviewer brief + where to find candidates", how: "I define the role and scope." },
+          { id: "esr-hire", owner: "you", text: "Hire / assign the reviewer", how: "Your hire." },
+        ],
+      },
+      {
+        id: "shoots", title: "Plan the Local Picks photo/drone library",
+        why: "Scale the original-media moat.",
+        subs: [
+          { id: "shoot-plan", owner: "claude", text: "Produce a shot list + schedule by location", how: "I plan the routes and shots." },
+          { id: "shoot-do", owner: "you", text: "Do the shoots", how: "On the ground — you." },
+        ],
+      },
     ],
   },
   {
     key: "later", title: "Later", when: "3–6 months+", accent: P.green,
     blurb: "Scale the moat once traffic and content are compounding.",
     items: [
-      { id: "itinerary", owner: "claude", text: "AI itinerary builder (retrieval-grounded, real rows only)" },
-      { id: "directory", owner: "claude", text: "Light relocation directory — the paid / lead-gen lane" },
-      { id: "automation", owner: "claude", text: "Automate daily source crawls → normalize → publish" },
-      { id: "ebook", owner: "both", text: "Package the finished book as a paid PDF behind email capture" },
-      { id: "editorial", owner: "you", text: "Bring in editorial help as volume grows" },
+      {
+        id: "itinerary", title: "AI itinerary builder",
+        why: "The visitor conversion engine into bookable experiences.",
+        subs: [
+          { id: "itin-build", owner: "claude", text: "Build it end to end (retrieval-grounded on real rows)", how: "All me — never hallucinates venues." },
+          { id: "itin-review", owner: "you", text: "Sanity-check the outputs", how: "You confirm quality." },
+        ],
+      },
+      {
+        id: "directory", title: "Light relocation directory (paid lane)",
+        why: "The Phase-2 paid/lead-gen revenue tied to movers.",
+        subs: [
+          { id: "dir-build", owner: "claude", text: "Build the directory + admin flow", how: "Reuses the Local Picks infra — I build it." },
+          { id: "dir-price", owner: "you", text: "Set pricing + approve listings", how: "Your business calls." },
+        ],
+      },
+      {
+        id: "automation", title: "Automate daily source crawls",
+        why: "Freshness at scale without manual work.",
+        subs: [
+          { id: "auto-build", owner: "claude", text: "Build crawl → normalize → publish pipeline", how: "Fully automated by me." },
+          { id: "auto-sources", owner: "you", text: "Approve the sources", how: "You OK the list." },
+        ],
+      },
+      {
+        id: "ebook", title: "Package the book as a paid PDF + capture",
+        why: "Owned product; you keep 100% and the audience.",
+        subs: [
+          { id: "ebook-build", owner: "claude", text: "Assemble the PDF + email capture + delivery", how: "I format and build the whole funnel." },
+          { id: "ebook-price", owner: "you", text: "Set the price + approve", how: "Your call." },
+        ],
+      },
+      {
+        id: "editorial", title: "Bring in editorial help",
+        why: "When volume outgrows the family.",
+        subs: [
+          { id: "ed-recruit", owner: "you", text: "Recruit the help", how: "Your hire." },
+          { id: "ed-onboard", owner: "claude", text: "Onboard them to the admin + voice guide", how: "I set them up." },
+        ],
+      },
     ],
   },
 ];
 
-const STORAGE_KEY = "qp_checklist_v1";
+const STORAGE_KEY = "qp_checklist_v2";
+const ALL_SUBS = SECTIONS.flatMap((s) => s.items.flatMap((i) => i.subs.map((x) => x.id)));
+const DEFAULT_DONE = { "title-choose": true, "title-record": true, "voice-agree": true, "voice-capture": true };
 const field = { width: "100%", padding: "9px 11px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", color: P.ink, background: "#fff", boxSizing: "border-box" };
-const ALL_IDS = SECTIONS.flatMap((s) => s.items.map((i) => i.id));
 
 export default function Checklist() {
   const [pw, setPw] = useState("");
   const [authed, setAuthed] = useState(false);
   const [done, setDone] = useState({});
+  const [open, setOpen] = useState({});
 
   useEffect(() => {
     const saved = sessionStorage.getItem("qp_admin_pw");
     if (saved) { setPw(saved); setAuthed(true); }
-    try { setDone(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")); } catch { setDone({}); }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setDone(JSON.parse(raw));
+      else { setDone(DEFAULT_DONE); localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DONE)); }
+    } catch { setDone(DEFAULT_DONE); }
   }, []);
 
-  const toggle = (id) => setDone((d) => {
+  const toggleSub = (id) => setDone((d) => {
     const next = { ...d, [id]: !d[id] };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
     return next;
   });
+  const toggleOpen = (id) => setOpen((o) => ({ ...o, [id]: !o[id] }));
 
   if (!authed) {
     return (
@@ -97,12 +275,12 @@ export default function Checklist() {
     );
   }
 
-  const totalDone = ALL_IDS.filter((id) => done[id]).length;
-  const pct = Math.round((totalDone / ALL_IDS.length) * 100);
+  const totalDone = ALL_SUBS.filter((id) => done[id]).length;
+  const pct = Math.round((totalDone / ALL_SUBS.length) * 100);
 
   return (
     <div style={{ minHeight: "100vh", background: P.plaster, color: P.ink, fontFamily: "system-ui, sans-serif" }}>
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "20px 18px 70px" }}>
+      <div style={{ maxWidth: 820, margin: "0 auto", padding: "20px 18px 70px" }}>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <Link href="/admin" style={{ color: P.cobalt, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Back to admin</Link>
@@ -110,59 +288,84 @@ export default function Checklist() {
         </div>
 
         <h1 style={{ fontFamily: "Georgia, serif", fontSize: 30, margin: "0 0 6px", letterSpacing: "-.01em" }}>Execution checklist</h1>
-        <p style={{ color: P.inkSoft, margin: "0 0 18px", fontSize: 15 }}>Exactly what each of us does to fulfill the roadmap. Checks save on this device.</p>
+        <p style={{ color: P.inkSoft, margin: "0 0 6px", fontSize: 15 }}>Tap any item to expand its steps. Check off subtasks as you go — progress saves in this browser.</p>
+        <p style={{ color: P.inkSoft, margin: "0 0 18px", fontSize: 13 }}>Wherever it says <strong style={{ color: P.rosa }}>🤖 Claude</strong>, I do the work. <strong style={{ color: P.cobalt }}>🧑 You</strong> marks the few steps only you can do (accounts, your identity, being on the ground).</p>
 
-        {/* overall progress */}
-        <div style={{ background: "#fff", border: `1px solid ${P.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
+        <div style={{ background: "#fff", border: `1px solid ${P.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 22 }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
-            <span>Overall progress</span><span style={{ fontFamily: "ui-monospace, Menlo, monospace" }}>{totalDone}/{ALL_IDS.length} · {pct}%</span>
+            <span>Overall progress</span><span style={{ fontFamily: "ui-monospace, Menlo, monospace" }}>{totalDone}/{ALL_SUBS.length} steps · {pct}%</span>
           </div>
           <div style={{ height: 9, background: P.plaster, borderRadius: 999, overflow: "hidden" }}>
             <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg, ${P.rosa}, ${P.marigold})`, transition: "width .25s" }} />
           </div>
         </div>
 
-        {/* legend */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
-          {Object.values(OWNER).map((o) => (
-            <span key={o.label} style={{ fontSize: 12.5, fontWeight: 600, padding: "4px 10px", borderRadius: 999, background: o.soft, color: o.color }}>
-              {o.icon} {o.label}
-            </span>
-          ))}
-        </div>
-
         {SECTIONS.map((sec) => {
-          const secDone = sec.items.filter((i) => done[i.id]).length;
+          const secSubs = sec.items.flatMap((i) => i.subs.map((x) => x.id));
+          const secDone = secSubs.filter((id) => done[id]).length;
           return (
-            <section key={sec.key} style={{ marginBottom: 26 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+            <section key={sec.key} style={{ marginBottom: 28 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
                 <span style={{ width: 10, height: 10, borderRadius: "50%", background: sec.accent, boxShadow: `0 0 0 4px ${sec.accent}22` }} />
                 <h2 style={{ fontFamily: "Georgia, serif", fontSize: 21, margin: 0 }}>{sec.title}</h2>
                 <span style={{ color: P.inkSoft, fontSize: 13 }}>· {sec.when}</span>
-                <span style={{ marginLeft: "auto", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, color: P.inkSoft }}>{secDone}/{sec.items.length}</span>
+                <span style={{ marginLeft: "auto", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, color: P.inkSoft }}>{secDone}/{secSubs.length}</span>
               </div>
-              <p style={{ color: P.inkSoft, fontSize: 13.5, margin: "0 0 12px 20px" }}>{sec.blurb}</p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
                 {sec.items.map((it) => {
-                  const o = OWNER[it.owner];
-                  const isDone = !!done[it.id];
+                  const subDone = it.subs.filter((s) => done[s.id]).length;
+                  const complete = subDone === it.subs.length;
+                  const isOpen = !!open[it.id];
+                  const owners = [...new Set(it.subs.map((s) => s.owner))];
                   return (
-                    <label key={it.id} style={{
-                      display: "grid", gridTemplateColumns: "22px 1fr auto", gap: 12, alignItems: "start",
-                      background: "#fff", border: `1px solid ${isDone ? P.line : P.line}`, borderRadius: 12, padding: "12px 14px",
-                      cursor: "pointer", opacity: isDone ? 0.62 : 1, transition: "opacity .15s",
-                    }}>
-                      <input type="checkbox" checked={isDone} onChange={() => toggle(it.id)}
-                        style={{ width: 18, height: 18, marginTop: 2, accentColor: sec.accent, cursor: "pointer" }} />
-                      <div>
-                        <div style={{ fontSize: 14.5, fontWeight: 600, textDecoration: isDone ? "line-through" : "none", color: P.ink }}>{it.text}</div>
-                        {it.note && <div style={{ fontSize: 12.5, color: P.inkSoft, marginTop: 2 }}>{it.note}</div>}
-                      </div>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 999, background: o.soft, color: o.color, whiteSpace: "nowrap" }}>
-                        {o.icon} {o.label}
-                      </span>
-                    </label>
+                    <div key={it.id} style={{ background: "#fff", border: `1px solid ${complete ? sec.accent + "66" : P.line}`, borderRadius: 12, overflow: "hidden" }}>
+                      <button onClick={() => toggleOpen(it.id)} style={{
+                        width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer",
+                        padding: "13px 15px", display: "grid", gridTemplateColumns: "18px 1fr auto", gap: 11, alignItems: "center",
+                      }}>
+                        <span style={{ fontSize: 12, color: P.inkSoft, transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .15s" }}>▶</span>
+                        <span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: P.ink, textDecoration: complete ? "line-through" : "none", opacity: complete ? 0.6 : 1 }}>
+                            {complete ? "✓ " : ""}{it.title}
+                          </span>
+                          <span style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "wrap" }}>
+                            {owners.map((o) => (
+                              <span key={o} style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 7px", borderRadius: 999, background: OWNER[o].soft, color: OWNER[o].color }}>
+                                {OWNER[o].icon} {OWNER[o].label}
+                              </span>
+                            ))}
+                          </span>
+                        </span>
+                        <span style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11.5, color: complete ? sec.accent : P.inkSoft, fontWeight: 700, whiteSpace: "nowrap" }}>
+                          {subDone}/{it.subs.length}
+                        </span>
+                      </button>
+
+                      {isOpen && (
+                        <div style={{ padding: "0 15px 14px 44px", borderTop: `1px solid ${P.line}` }}>
+                          <p style={{ fontSize: 13, color: P.inkSoft, fontStyle: "italic", margin: "12px 0 12px" }}>{it.why}</p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {it.subs.map((s) => {
+                              const o = OWNER[s.owner];
+                              const dn = !!done[s.id];
+                              return (
+                                <label key={s.id} style={{ display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 10, alignItems: "start", cursor: "pointer", opacity: dn ? 0.6 : 1 }}>
+                                  <input type="checkbox" checked={dn} onChange={() => toggleSub(s.id)} style={{ width: 17, height: 17, marginTop: 2, accentColor: sec.accent, cursor: "pointer" }} />
+                                  <span>
+                                    <span style={{ fontSize: 14, fontWeight: 600, color: P.ink, textDecoration: dn ? "line-through" : "none" }}>{s.text}</span>
+                                    <span style={{ display: "block", fontSize: 12.5, color: P.inkSoft, marginTop: 2 }}>{s.how}</span>
+                                  </span>
+                                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 7px", borderRadius: 999, background: o.soft, color: o.color, whiteSpace: "nowrap" }}>
+                                    {o.icon} {o.label}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -171,7 +374,7 @@ export default function Checklist() {
         })}
 
         <p style={{ color: P.inkSoft, fontSize: 12, marginTop: 30, paddingTop: 16, borderTop: `1px solid ${P.line}` }}>
-          Progress is stored in this browser only. Ask Claude to add, re-word, or re-assign items anytime.
+          Progress is stored in this browser only (same device, same browser). It survives refreshes and closing the tab; it won’t sync to your phone until we add accounts. Ask Claude to add, re-word, or re-assign any step anytime.
         </p>
       </div>
     </div>
