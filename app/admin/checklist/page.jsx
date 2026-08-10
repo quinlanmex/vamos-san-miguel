@@ -29,42 +29,6 @@ const SECTIONS = [
         ],
       },
       {
-        id: "aff-viator", title: "Set up Viator + GetYourGuide (tours & experiences)",
-        why: "Highest-intent visitor revenue and the payload for the itinerary builder.",
-        subs: [
-          { id: "viator-prep", owner: "claude", text: "Prep the exact steps + which program to join", how: "I’ll hand you a one-page walkthrough: which partner tier, what info to have ready, link format." },
-          { id: "viator-acct", owner: "you", text: "Create the two accounts", how: "Needs your identity/email/tax details — I can’t create accounts for you." },
-          { id: "viator-wire", owner: "claude", text: "Wire your affiliate IDs into the site", how: "Paste me the IDs (or drop them in a config) and I’ll build the tracked links." },
-        ],
-      },
-      {
-        id: "aff-booking", title: "Set up Booking.com affiliate (hotels & stays)",
-        why: "Pairs with every “where to stay” page.",
-        subs: [
-          { id: "booking-prep", owner: "claude", text: "Prep the signup + partner-program choice", how: "I’ll tell you exactly which Booking partner product fits a content site." },
-          { id: "booking-acct", owner: "you", text: "Create the account", how: "Your identity + payout details required." },
-          { id: "booking-wire", owner: "claude", text: "Wire it into the stay pages", how: "I build the search/deep links once I have your ID." },
-        ],
-      },
-      {
-        id: "aff-wise", title: "Set up Wise affiliate (USD→MXN transfers)",
-        why: "Every visitor and mover needs this — strong, universal payouts.",
-        subs: [
-          { id: "wise-prep", owner: "claude", text: "Prep the application", how: "Wise uses Partnerize/Impact — I’ll point you to the right one and what to say." },
-          { id: "wise-acct", owner: "you", text: "Apply & get approved", how: "You submit; approval is out of our hands." },
-          { id: "wise-wire", owner: "claude", text: "Place the links on money/relocation pages", how: "I’ll add them where they convert." },
-        ],
-      },
-      {
-        id: "aff-sw", title: "Set up SafetyWing (travel + expat health)",
-        why: "Covers both lanes; recurring commissions.",
-        subs: [
-          { id: "sw-prep", owner: "claude", text: "Prep the signup", how: "I’ll give you the affiliate URL + what to enter." },
-          { id: "sw-acct", owner: "you", text: "Create the account", how: "Your details required." },
-          { id: "sw-wire", owner: "claude", text: "Wire into healthcare/insurance pages", how: "I build the pages and drop the links in." },
-        ],
-      },
-      {
         id: "photos", title: "Capture the first batch of photos / drone",
         why: "Original media is a real moat — for SEO and for trust.",
         subs: [
@@ -160,8 +124,18 @@ const SECTIONS = [
   },
   {
     key: "next", title: "Next", when: "1–3 months", accent: P.cobalt,
-    blurb: "Convert the book, run the SEO/GEO pass, and turn on the higher-value affiliate pages.",
+    blurb: "Once the site is worth promoting: sign up affiliates, convert the book, run the SEO/GEO pass, and turn on the money pages.",
     items: [
+      {
+        id: "aff-note", title: "Affiliate signups (after design + content are ready)",
+        why: "No point driving traffic to a site that isn’t ready to impress. These come after the design pass and content integration.",
+        subs: [
+          { id: "aff-viator", owner: "you", text: "Viator + GetYourGuide (tours & experiences)", how: "I prep the walkthrough; you create the accounts; I wire the IDs into the site." },
+          { id: "aff-booking", owner: "you", text: "Booking.com (hotels & stays)", how: "I prep the partner-program choice; you create the account; I wire the links." },
+          { id: "aff-wise", owner: "you", text: "Wise (USD→MXN transfers)", how: "I point you to the right network; you apply; I place the links." },
+          { id: "aff-sw", owner: "you", text: "SafetyWing (travel + expat health)", how: "I give you the signup; you create the account; I wire it into the insurance pages." },
+        ],
+      },
       {
         id: "book-convert", title: "Rewrite & convert Ch 5–23 into web pages",
         why: "The content moat and the mover lane.",
