@@ -78,7 +78,8 @@ const SECTIONS = [
         why: "The sensitive one — proves the neutrality bar for the whole rewrite.",
         subs: [
           { id: "ch4-draft", owner: "claude", text: "Draft book/ch4.md", how: "I write the full neutral rewrite in your voice." },
-          { id: "ch4-check", owner: "you", text: "Check tax accuracy + tone", how: "You’re the domain expert — flag anything off." },
+          { id: "ch4-deaiism", owner: "claude", text: "Strip AI-isms (em-dashes, “not X but Y”, filler)", how: "Done — clean pass applied and saved as the standard for every chapter." },
+          { id: "ch4-check", owner: "you", text: "Check tax accuracy + tone", how: "You’re the domain expert; flag anything off." },
           { id: "ch4-revise", owner: "claude", text: "Revise to your notes", how: "I turn your edits around fast." },
         ],
       },
@@ -114,6 +115,45 @@ const SECTIONS = [
         subs: [
           { id: "review-read", owner: "you", text: "Read the Ch 4 draft", how: "The one judgment call I need you for." },
           { id: "review-bar", owner: "both", text: "Agree the bar", how: "We lock what “facts-only” means in practice." },
+        ],
+      },
+      {
+        id: "chips-fix", title: "Fix filter chips running off-screen",
+        why: "A visible UX bug that made the site read as unfinished.",
+        subs: [
+          { id: "chips-wrap", owner: "claude", text: "Wrap the filter row instead of hidden scroll", how: "Done — chips now wrap cleanly on every screen size." },
+        ],
+      },
+      {
+        id: "design-pass", title: "Prime-time design polish",
+        why: "The site feels flat today. Real images plus a styling pass fix that.",
+        subs: [
+          { id: "design-build", owner: "claude", text: "Rework cards, type scale, header depth, talavera motif, dark mode", how: "I do the styling; biggest lift lands once real photos are flowing." },
+          { id: "design-review", owner: "you", text: "React to a first pass", how: "Tell me what feels right and what doesn’t." },
+        ],
+      },
+      {
+        id: "places-api", title: "Set up Google Places for real images",
+        why: "A temporary image source (with attribution) until your own photos replace it.",
+        subs: [
+          { id: "places-key", owner: "you", text: "Create the API key + add GOOGLE_MAPS_API_KEY to Vercel", how: "Google Cloud → enable Places API (New) → billing → key → paste into Vercel env (not in chat)." },
+          { id: "places-build", owner: "claude", text: "Build the fetch + attribution + own-photo override", how: "Once the key’s in Vercel, all me." },
+        ],
+      },
+      {
+        id: "gmaps-import", title: "Import your Google Maps picks",
+        why: "Your list seeds Local Picks and is where the kids start.",
+        subs: [
+          { id: "gmaps-export", owner: "you", text: "Export your list (Google Takeout) + send me the file", how: "Takeout → Saved / Maps (your places) → download → send it over." },
+          { id: "gmaps-load", owner: "claude", text: "Parse + enrich via Places, load as Local Picks", how: "I resolve each place to coords, address, and a photo, then insert them." },
+        ],
+      },
+      {
+        id: "crew-page", title: "Build the crew photo/drone tracker",
+        why: "A shareable page so your teens see what’s shot and what’s left.",
+        subs: [
+          { id: "crew-build", owner: "claude", text: "Build map + list + status + location-ordered routes + shared progress", how: "Writes status to the database so all kids see the same truth. Needs the picks imported first." },
+          { id: "crew-share", owner: "you", text: "Share the link with the kids", how: "One link; they check places off as they shoot." },
         ],
       },
     ],
@@ -229,9 +269,12 @@ const SECTIONS = [
   },
 ];
 
-const STORAGE_KEY = "qp_checklist_v2";
+const STORAGE_KEY = "qp_checklist_v3";
 const ALL_SUBS = SECTIONS.flatMap((s) => s.items.flatMap((i) => i.subs.map((x) => x.id)));
-const DEFAULT_DONE = { "title-choose": true, "title-record": true, "voice-agree": true, "voice-capture": true };
+const DEFAULT_DONE = {
+  "title-choose": true, "title-record": true, "voice-agree": true, "voice-capture": true,
+  "ch4-draft": true, "ch4-deaiism": true, "chips-wrap": true,
+};
 const field = { width: "100%", padding: "9px 11px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", color: P.ink, background: "#fff", boxSizing: "border-box" };
 
 export default function Checklist() {
