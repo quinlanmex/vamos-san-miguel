@@ -415,8 +415,7 @@ export default function App() {
         .card { transition: transform .16s ease, box-shadow .16s ease; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(21,83,154,.12); }
         .chip { transition: background .14s ease, color .14s ease, border-color .14s ease; }
-        .catrow { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -ms-overflow-style: none; }
-        .catrow::-webkit-scrollbar { display: none; }
+        .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
         button:focus-visible, [tabindex]:focus-visible { outline: 3px solid ${P.marigold}; outline-offset: 2px; border-radius: 10px; }
         .leaflet-container { font-family: inherit; border-radius: 16px; }
         @keyframes qpUp { from { transform: translateY(14px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
