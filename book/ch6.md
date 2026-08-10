@@ -126,7 +126,7 @@ This is the Goldilocks zone. Highs sit in the low-to-mid 80s year-round, morning
 | Mazunte | May | 88 | 73 | 70% | May to Oct |
 | Mérida | May | 96 | 75 | 75% | May to Oct |
 
-These are the hottest destinations in the book, and Mérida is the standout: it regularly clears 100°F in May with high humidity behind it. They are also deeply authentic and surprisingly affordable. Budget for the AC bills and accept that mid-afternoon movement slows to a crawl. This tier suits people who value culture and cost more than climate control.
+These are the hottest destinations in the book, and Mérida is the standout: it regularly clears 100°F in May with high humidity behind it. [3] They are also deeply authentic and surprisingly affordable. Budget for the AC bills and accept that mid-afternoon movement slows to a crawl. This tier suits people who value culture and cost more than climate control.
 
 **Mountain cool (high-altitude culture, low costs)**
 
@@ -144,7 +144,7 @@ Cool nights the whole year, so pack sweaters. Altitude runs from 5,500 to 8,000 
 | --- | --- | --- | --- | --- | --- |
 | Mexico City (Roma / Condesa / Polanco) | May | 80 | 56 | 40% | May to Sept |
 
-Mexico City sits at 7,382 feet with genuinely pleasant weather year-round. It also contends with dry-season air quality and the sheer complexity of a capital of more than 20 million people.
+Mexico City sits at 7,382 feet [1] with genuinely pleasant weather year-round. It also contends with dry-season air quality and the sheer complexity of a capital of more than 20 million people. [2]
 
 ### What Climate Actually Teaches You
 
@@ -275,3 +275,17 @@ You do not need to name your destination this week. You need to stop treating th
 1. **Write down your two or three priorities and your hard deal-breakers.** This alone eliminates most of Mexico from your list and saves you months of researching places you were never going to choose.
 2. **Join Facebook groups for three to five candidates and DM current residents.** Ask what surprised them and what they underestimated. Collect real answers, not brochure answers.
 3. **Book one four-week trial in your top candidate, timed to its worst month.** Rent a normal apartment, live your ordinary life, and let the place show you its real face before you commit to it.
+
+## Sources
+
+[1] Mexico City elevation (about 2,240 m / 7,350 ft). Wikipedia, "Mexico City," 2026. https://en.wikipedia.org/wiki/Mexico_City
+
+[2] Greater Mexico City metropolitan population (21,804,515). Wikipedia, "Mexico City," 2026. https://en.wikipedia.org/wiki/Mexico_City
+
+[3] Mérida is the hottest of these destinations, with May the hottest month (average high about 99°F and daily peaks above 104°F). Climates to Travel, "Mérida climate: seasons, when to go." https://www.climatestotravel.com/climate/mexico/merida
+
+## To verify
+
+- **The detailed climate tables** (average highs and lows, humidity, and rain-season months for roughly 30 destinations) contain many specific figures that were not individually source-checked. Spot checks against outside climate references (Mexico City and Mérida) were consistent, but if precise numbers matter, the author should confirm each table against a single authoritative climate reference (for example Weather Atlas or Climates to Travel), since station-to-station and source-to-source values vary by a few degrees.
+- **Elevation range "5,500 to 8,000 feet" for the mountain-cool towns** was not verified town by town. San Cristóbal de las Casas (about 7,200 ft) is consistent with the range, but the endpoints should be confirmed if stated as fact.
+- **The "Savings vs. U.S." percentages and arbitrage tiers** are presented as the authors' own estimates/framework rather than sourced statistics, so they were left uncited. If any are meant to be read as researched figures, they would need a source.

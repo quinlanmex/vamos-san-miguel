@@ -12,13 +12,13 @@ We were not in trouble. Not even a little. What that email kicked off was the di
 
 Mexico wants foreign residents with stable incomes. It designed a system to bring them in: people who are financially independent, location-independent, contributing to the local economy without taking a job away from anyone. That is a fairly precise description of you, probably. The information was never hidden. You just have to know it is there to go looking for it.
 
-Over a million Americans live in Mexico, the largest U.S. expat population anywhere in the world. A large share of them now hold some form of legal residency, and for a clean case with complete paperwork, approval is routine. This chapter is the part of that story nobody handed us at 2:47 a.m.: what the paths are, what they cost, how long they take, and where the process actually snags.
+Over a million Americans live in Mexico, [1] the largest U.S. expat population anywhere in the world. [2] A large share of them now hold some form of legal residency, and for a clean case with complete paperwork, approval is routine. This chapter is the part of that story nobody handed us at 2:47 a.m.: what the paths are, what they cost, how long they take, and where the process actually snags.
 
 ## Am I eligible? A quick check
 
 Before the mechanics, a simple sort. Four routes lead to residency, and most people take the first one.
 
-**Path 1: Income or savings (the common one).** For temporary residency, expect your consulate to want roughly US$4,000 to $4,400 a month in provable monthly deposits, or around US$70,000 or more in savings and investments held consistently over 12 months. The income has to come from outside Mexico, and you will need a clean criminal background. For permanent residency, many consulates look for roughly US$7,000 to $7,300 a month in deposits, or savings in the high US$200,000s, unless you qualify through the four-years-as-temporary-resident route. Exact thresholds swing hard by consulate and exchange rate. Those are the 2025-era ballparks, nothing more.
+**Path 1: Income or savings (the common one).** For temporary residency, expect your consulate to want roughly US$4,000 to $4,400 a month in provable monthly deposits, or around US$70,000 or more in savings and investments held consistently over 12 months. The income has to come from outside Mexico, and you will need a clean criminal background. For permanent residency, many consulates look for roughly US$7,000 to $7,300 a month in deposits, or savings in the high US$200,000s, unless you qualify through the four-years-as-temporary-resident route. [3] Exact thresholds swing hard by consulate and exchange rate. Those are the 2025-era ballparks, nothing more.
 
 **Path 2: Property (niche, high-asset).** Own debt-free Mexican property above a high threshold value, typically calculated in tens of thousands of UMA or minimum-wage days. In practice that usually means a high six-figure USD property, fully paid off, backed by official valuations and deeds in your name. This is not the "I bought a modest house" route.
 
@@ -34,7 +34,7 @@ Mexico offers a clean two-tier structure, and the mechanics are nearly identical
 
 **Temporary Resident Visa (1 to 4 years, renewable).** Lets you live in Mexico full-time. You can keep receiving income from a foreign employer or a foreign business while you are resident, as long as you are not taking Mexican-based employment. Most expats structure their income so both the paying entity and the clients stay abroad. To work for a Mexican employer or earn Mexican-sourced income, you need additional authorization or a different route. Temporary residency is also the on-ramp to permanent residency.
 
-**Permanent Resident Visa (indefinite).** Never expires. It becomes your platform for naturalization after several years of residency, commonly five, and shorter if you are married to a Mexican citizen.
+**Permanent Resident Visa (indefinite).** Never expires. It becomes your platform for naturalization after several years of residency, commonly five, and shorter if you are married to a Mexican citizen. [4]
 
 Most people start temporary and upgrade later. It is often the easier entry, and it buys you time to decide whether you want to stay for good.
 
@@ -95,7 +95,7 @@ You are not changing any facts. Mexican immigration law assumes people are emplo
 
 ### Phase 3: Entry and finalization (2 to 4 weeks)
 
-Once the visa sticker is in your passport, you have 180 days to enter Mexico. After you arrive, you have 30 days to visit an INM (immigration) office inside Mexico, submit the final paperwork and photos, pay the processing fees, and receive your physical residency card.
+Once the visa sticker is in your passport, you have 180 days to enter Mexico. After you arrive, you have 30 days to visit an INM (immigration) office inside Mexico, submit the final paperwork and photos, pay the processing fees, and receive your physical residency card. [5]
 
 **Total timeline: 8 to 18 weeks** from the first document to a residency card in your hand.
 
@@ -154,3 +154,21 @@ You do not have to finish this in a week. You do need to get the machine moving,
 1. **Check your eligibility against current numbers.** Line up your income or savings against the thresholds in this chapter, decide between temporary and permanent residency, and pick your pathway. Then confirm the actual figures with the specific consulate you plan to use, because the ones here drift every year.
 2. **Start the slow documents now.** Confirm the exact background check your target consulate wants, and only that one. Gather six months of bank statements, and locate the birth and marriage certificates you will need to apostille. The background check and apostilles are the long poles, so begin them first.
 3. **Get one professional conversation on the calendar.** Schedule a consultation with an immigration facilitator, ask for a timeline and cost estimate for your exact situation, and have them help you build a backup consulate plan. Even if you ultimately go DIY, one honest conversation tells you whether your case is simple or not.
+
+## Sources
+
+[1] The U.S. State Department estimates roughly 1.6 million American citizens live in Mexico. Remitly, "How Many Americans Live in Mexico? Updated Stats and Trends," citing the U.S. State Department. https://www.remitly.com/blog/immigration/how-many-americans-live-in-mexico-updated-stats-and-trends/
+
+[2] Mexico hosts the largest population of American expatriates of any country (about 26% of all U.S. expats, far ahead of the second-place country). World Population Review, "American Expats by Country." https://worldpopulationreview.com/country-rankings/american-expats-by-country
+
+[3] Consulate financial thresholds (2025/2026): temporary residency about US$4,400/month income or about US$74,000 in savings; permanent residency about US$7,400/month income or about US$298,000 in savings, calculated as multiples of Mexico's UMA. Mexperience, "Financial Criteria for Legal Residency in Mexico." https://www.mexperience.com/financial-criteria-for-residency-in-mexico/
+
+[4] Naturalization generally requires five consecutive years of legal residency (reduced to two years for those married to a Mexican national). Mexperience, "Becoming a Naturalized Mexican." https://www.mexperience.com/becoming-a-naturalized-mexican/
+
+[5] After the consular visa is issued you have up to 180 days to enter Mexico, and 30 days after entry to begin the exchange (canje) at INM for the physical residency card. Mexpro, "Complete Guide on How to Get a Mexico Resident Visa." https://www.mexpro.com/blog/mexican-residency-visas/
+
+## To verify
+
+- **Consulate application fees ("typically $50 to $200")** and the various government/processing fees were not independently source-checked. These vary by consulate and visa type and drift with the UMA and exchange rate; this is consistent with the chapter's own opening caveat to confirm current figures directly with the processing consulate.
+- **The property-based path threshold** (property valued "in tens of thousands of UMA or minimum-wage days," typically a high six-figure USD property) was not independently verified against a current official multiple. The general structure (a UMA-based valuation floor) is accurate, but the specific magnitude should be confirmed with the consulate or an attorney.
+- **Permanent-residency monthly income "US$7,000 to $7,300"**: the closest current published figure found is about US$7,400/month (see source [3]). The chapter's range is slightly below that. The difference is within normal exchange-rate and consulate variation, but the author may wish to align the number with the current UMA-based figure.
