@@ -1,5 +1,5 @@
 export const metadata = {
-  metadataBase: new URL("https://vamossanmiguel.com"),
+  metadataBase: new URL("https://www.vamossanmiguel.com"),
   title: "Vamos San Miguel — San Miguel de Allende, Gto.",
   description:
     "The insider's guide to San Miguel de Allende — what's on and what's good. Events, news, and hand-picked local favorites, in English and Spanish.",
