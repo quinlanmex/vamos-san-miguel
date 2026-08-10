@@ -81,8 +81,11 @@ export default function Admin() {
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 18px 60px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <h1 style={{ fontSize: 22, margin: 0 }}>Vamos SMA — Admin</h1>
-          <button onClick={() => { sessionStorage.removeItem("qp_admin_pw"); setAuthed(false); }}
-            style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Sign out</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <a href="/admin/roadmap" style={{ color: P.cobalt, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>📋 Roadmap</a>
+            <button onClick={() => { sessionStorage.removeItem("qp_admin_pw"); setAuthed(false); }}
+              style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Sign out</button>
+          </div>
         </div>
 
         {/* Event / Local Pick toggle */}
