@@ -6,7 +6,7 @@ const EVENT_COLS = ["status", "title_en", "title_es", "blurb_en", "blurb_es", "p
   "category", "audience", "start_date", "end_date", "start_time", "recurring", "venue", "area",
   "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng"];
 const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_es", "category",
-  "audience", "diet", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
+  "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
   "source_ref", "photo_url"];
 
 function clean(record, cols) {

@@ -7,6 +7,9 @@ const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comun
 const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
 const AUD = [["family", "Family"], ["teens", "Teens"]];
 const DIET = [["vegetarian", "Vegetarian"], ["vegan", "Vegan"]];
+const CUISINE = [["mexican", "Mexican"], ["italian", "Italian & Pizza"], ["asian", "Asian"], ["peruvian", "Peruvian"],
+  ["argentinian", "Argentinian"], ["burgers", "Burgers & Sandwiches"], ["breakfast", "Breakfast"], ["cafe", "Café & Coffee"],
+  ["bakery", "Bakery"], ["dessert", "Dessert"]];
 const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
 const STATUS_COLOR = { published: "#2F7A63", hidden: "#B4791F", draft: "#6E604F", archived: "#9A8F7E" };
 const STATUS_LABEL = Object.fromEntries(STATUS);
@@ -115,7 +118,7 @@ export default function Manage() {
         {!editing && (
           <>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
-              <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
+              <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], cuisine: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
                 style={btn(P.coral)}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${allRows.length} ${isPlace ? "picks" : "events"}…`}
                 style={{ ...field, flex: 1, minWidth: 180, maxWidth: 320 }} />
@@ -138,7 +141,7 @@ export default function Manage() {
                     style={{ ...field, width: "auto", padding: "7px 9px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                     {STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
                   </select>
-                  <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [] })} style={btn(P.navy)}>Edit</button>
+                  <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [] })} style={btn(P.navy)}>Edit</button>
                   <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
                 </div>
                 );
@@ -164,6 +167,7 @@ export default function Manage() {
                   <div><label style={label}>Category</label><select style={field} value={editing.category || ""} onChange={(e) => upd("category", e.target.value)}>{CATS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
                   <div><label style={label}>Audience</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{AUD.map(([k, l]) => <button key={k} onClick={() => toggle("audience", k)} style={chip((editing.audience || []).includes(k), P.navy)}>{l}</button>)}</div></div>
                   <div><label style={label}>Dietary</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{DIET.map(([k, l]) => <button key={k} onClick={() => toggle("diet", k)} style={chip((editing.diet || []).includes(k), P.green)}>{l}</button>)}</div></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Cuisine <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(restaurant sub-filters)</span></label><div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>{CUISINE.map(([k, l]) => <button key={k} onClick={() => toggle("cuisine", k)} style={chip((editing.cuisine || []).includes(k), P.coral)}>{l}</button>)}</div></div>
                   <div><label style={label}>Area</label><input style={field} value={editing.area || ""} onChange={(e) => upd("area", e.target.value)} /></div>
                   <div><label style={label}>Website</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} /></div>
                 </>

@@ -41,6 +41,20 @@ async function enrich(cand, key) {
   };
 }
 
+// Source list names -> cuisine facet keys (must match CUISINES in App.jsx).
+const CUISINE_MAP = {
+  "Best Mexican Food": ["mexican"], "Best Italian": ["italian"], "Best Pizza": ["italian"],
+  "Best Asian": ["asian"], "Best Peruvian": ["peruvian"], "Best Argentinian": ["argentinian"],
+  "Best sandwiches_burgers": ["burgers"], "Best breakfasts": ["breakfast"],
+  "Cafe for working": ["cafe"], "Best coffee": ["cafe"], "Best bakeries": ["bakery"], "Dessert": ["dessert"],
+};
+function cuisineOf(cand) {
+  const lists = Array.isArray(cand.sourceList) ? cand.sourceList : [cand.sourceList].filter(Boolean);
+  const set = new Set();
+  lists.forEach((l) => (CUISINE_MAP[l] || []).forEach((c) => set.add(c)));
+  return [...set];
+}
+
 function rowFrom(r) {
   const c = r.cand;
   const tags = c.inferredTags || [];
@@ -53,6 +67,7 @@ function rowFrom(r) {
     category: c.inferredCategory || "mercados",
     audience: tags.filter((t) => t === "family" || t === "teens"),
     diet: tags.filter((t) => t === "vegetarian" || t === "vegan"),
+    cuisine: cuisineOf(c),
     area: "San Miguel de Allende",
     lat: r.lat != null ? r.lat : null,
     lng: r.lng != null ? r.lng : null,

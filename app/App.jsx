@@ -56,6 +56,28 @@ const DIET = {
   vegan:      { es: "Vegano",      en: "Vegan",      Icon: Sprout },
 };
 
+/* Cuisine facet — a restaurant sub-filter, only shown when Restaurants is selected. */
+const CUISINES = {
+  mexican:     { en: "Mexican",              es: "Mexicana" },
+  italian:     { en: "Italian & Pizza",      es: "Italiana y pizza" },
+  asian:       { en: "Asian",                es: "Asiática" },
+  peruvian:    { en: "Peruvian",             es: "Peruana" },
+  argentinian: { en: "Argentinian",          es: "Argentina" },
+  burgers:     { en: "Burgers & Sandwiches", es: "Hamburguesas y sándwiches" },
+  breakfast:   { en: "Breakfast",            es: "Desayuno" },
+  cafe:        { en: "Café & Coffee",        es: "Café" },
+  bakery:      { en: "Bakery",               es: "Panadería" },
+  dessert:     { en: "Dessert",              es: "Postres" },
+};
+
+/* Top-level Local Picks type facets, in display order (Restaurants first). */
+const TYPE_ORDER = ["rest", "bar", "live"];
+const TYPE_LABEL_PLURAL = {
+  rest: { en: "Restaurants", es: "Restaurantes" },
+  bar:  { en: "Bars",        es: "Bares" },
+  live: { en: "Venues",      es: "Lugares" },
+};
+
 /* Seed / offline fallback — the app loads live data from Supabase and only
  * uses these if the fetch is unavailable or empty.
  * `src` is the internal "discovered-via" aggregator — never shown in the UI.
@@ -328,9 +350,10 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
   const [aud, setAud] = useState(new Set());
-  const [favCats, setFavCats] = useState(new Set());
+  const [favType, setFavType] = useState("");        // "" = all, or list_key: rest/bar/live
   const [favAud, setFavAud] = useState(new Set());
   const [favDiet, setFavDiet] = useState(new Set());
+  const [favCuisine, setFavCuisine] = useState(new Set());
   const [dateF, setDateF] = useState("all");
   const [saved, setSaved] = useState(() => loadSet("qp_saved_events"));
   const [savedPlaces, setSavedPlaces] = useState(() => loadSet("qp_saved_places"));
@@ -379,13 +402,21 @@ export default function App() {
 
   const anyFilter = cats.size || aud.size || dateF !== "all" || query.trim();
 
+  // Restaurants-only sub-filters (cuisine + diet) apply only when a type is chosen.
   const favFiltered = favLists
-    .filter((l) => !favCats.size || favCats.has(l.cat))
+    .filter((l) => !favType || l.key === favType)
     .map((l) => ({ ...l, items: l.items.filter((it) =>
-      (!favAud.size || it.audience.some((a) => favAud.has(a))) &&
-      (!favDiet.size || (it.diet || []).some((x) => favDiet.has(x)))
+      (!favAud.size || (it.audience || []).some((a) => favAud.has(a))) &&
+      (!favDiet.size || (it.diet || []).some((x) => favDiet.has(x))) &&
+      (!favCuisine.size || (it.cuisine || []).some((c) => favCuisine.has(c)))
     ) }))
     .filter((l) => l.items.length);
+
+  // Which cuisines actually exist among restaurant picks (so we never show an empty filter).
+  const restCuisines = new Set(
+    (favLists.find((l) => l.key === "rest")?.items || []).flatMap((it) => it.cuisine || [])
+  );
+  const availCuisines = Object.keys(CUISINES).filter((k) => restCuisines.has(k));
 
   const savedEvents = useMemo(
     () => events.filter((e) => saved.has(e.id)).sort((a, b) => d(a.start) - d(b.start)), [saved, events]);
@@ -584,7 +615,7 @@ export default function App() {
           <>
             {/* Editorial page header */}
             <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
-              {lang === "es" ? "Recomendaciones locales" : "Local Picks"}
+              San Miguel de Allende <span style={{ color: P.inkSoft }}>· {lang === "es" ? "Recomendaciones locales" : "Local Picks"}</span>
             </p>
             <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(26px, 4.2vw, 38px)", margin: "0 0 8px", letterSpacing: "-.01em", lineHeight: 1.06 }}>
               {lang === "es" ? "Los lugares a los que mandamos a nuestros amigos." : "The places we send our friends to."}
@@ -630,52 +661,55 @@ export default function App() {
               );
             })()}
 
-            {/* Favorites audience + category filters */}
-            <div className="catrow" style={{ marginBottom: 18 }}>
-              {Object.entries(AUDIENCES).map(([k, a]) => {
-                const on = favAud.has(k);
-                const Ic = a.Icon;
-                return (
-                  <button key={k} onClick={() => toggle(setFavAud, favAud, k)} className="chip"
-                    style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-                      display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-                      border: `1px solid ${on ? P.cobalt : P.line}`, background: on ? P.cobalt : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                    <Ic size={13} /> {a[lang]}
-                  </button>
-                );
-              })}
-              {Object.entries(DIET).map(([k, dt]) => {
-                const on = favDiet.has(k);
-                const Ic = dt.Icon;
-                return (
-                  <button key={k} onClick={() => toggle(setFavDiet, favDiet, k)} className="chip"
-                    style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-                      display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-                      border: `1px solid ${on ? "#2F7A63" : P.line}`, background: on ? "#2F7A63" : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                    <Ic size={13} /> {dt[lang]}
-                  </button>
-                );
-              })}
-              <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />
-              <button onClick={() => setFavCats(new Set())} className="chip"
-                style={{ cursor: "pointer", padding: "5px 13px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
-                  border: `1px solid ${favCats.size === 0 ? P.cobalt : P.line}`,
-                  background: favCats.size === 0 ? P.cobalt : P.chipBg, color: favCats.size === 0 ? "#fff" : P.inkSoft }}>
+            {/* Primary type filter — Restaurants first. Selecting a type reveals its sub-filters. */}
+            <div className="catrow" style={{ marginBottom: favType === "rest" ? 9 : 18 }}>
+              <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavAud(new Set()); }} className="chip"
+                style={{ cursor: "pointer", padding: "7px 15px", borderRadius: 999, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0,
+                  border: `1px solid ${favType === "" ? P.cobalt : P.line}`, background: favType === "" ? P.cobalt : P.chipBg, color: favType === "" ? "#fff" : P.ink }}>
                 {t.all}
               </button>
-              {Object.entries(CATS).map(([k, c]) => {
-                const on = favCats.has(k);
-                const Ic = c.Icon;
+              {TYPE_ORDER.map((k) => {
+                const on = favType === k;
+                const Ic = PLACE_TYPE[k].Icon;
                 return (
-                  <button key={k} onClick={() => toggle(setFavCats, favCats, k)} className="chip"
-                    style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-                      display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-                      border: `1px solid ${on ? c.c : P.line}`, background: on ? c.c : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                    <Ic size={13} /> {c[lang]}
+                  <button key={k} onClick={() => { setFavType(on ? "" : k); if (k !== "rest") { setFavCuisine(new Set()); setFavDiet(new Set()); } }} className="chip"
+                    style={{ cursor: "pointer", padding: "7px 15px", borderRadius: 999, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap",
+                      display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                      border: `1px solid ${on ? P.cobalt : P.line}`, background: on ? P.cobalt : P.chipBg, color: on ? "#fff" : P.ink }}>
+                    <Ic size={15} /> {TYPE_LABEL_PLURAL[k][lang]}
                   </button>
                 );
               })}
             </div>
+
+            {/* Restaurant sub-filters: cuisine + dietary. Only when Restaurants is selected. */}
+            {favType === "rest" && (
+              <div className="catrow" style={{ marginBottom: 18, paddingLeft: 2 }}>
+                {availCuisines.map((k) => {
+                  const on = favCuisine.has(k);
+                  return (
+                    <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
+                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                        border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                      {CUISINES[k][lang]}
+                    </button>
+                  );
+                })}
+                {(availCuisines.length > 0) && <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />}
+                {Object.entries(DIET).map(([k, dt]) => {
+                  const on = favDiet.has(k);
+                  const Ic = dt.Icon;
+                  return (
+                    <button key={k} onClick={() => toggle(setFavDiet, favDiet, k)} className="chip"
+                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
+                        display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+                        border: `1px solid ${on ? "#2F7A63" : P.line}`, background: on ? "#2F7A63" : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                      <Ic size={13} /> {dt[lang]}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {favFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: P.inkSoft }}>
