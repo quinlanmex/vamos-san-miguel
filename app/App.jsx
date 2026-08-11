@@ -5,6 +5,7 @@ import {
   Music, Clapperboard, Footprints, Users, MessagesSquare, ShoppingBasket, Waves,
   Map as MapIcon, List as ListIcon, CalendarPlus, Share2, ExternalLink,
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
+  Utensils, Wine, Palette,
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -406,6 +407,10 @@ export default function App() {
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(13,20,40,.10), 0 22px 44px rgba(13,20,40,.14); }
         .chip { transition: background .14s ease, color .14s ease, border-color .14s ease; }
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
+        .viewnav-top { display: none; }
+        @media (min-width: 680px) { .viewnav-top { display: flex; } }
+        .viewnav-bottom { display: none; }
+        @media (max-width: 679px) { .viewnav-bottom { display: flex; } main { padding-bottom: 82px !important; } }
         button:focus-visible, [tabindex]:focus-visible { outline: 3px solid ${P.marigold}; outline-offset: 2px; border-radius: 10px; }
         .leaflet-container { font-family: inherit; border-radius: 16px; }
         @keyframes qpUp { from { transform: translateY(14px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
@@ -448,25 +453,23 @@ export default function App() {
           <p style={{ margin: "10px 0 0", opacity: .92, fontSize: 15, display: "flex", alignItems: "center", gap: 7 }}>
             <Globe size={15} /> {t.tagline}
           </p>
+          <nav className="viewnav-top" style={{ marginTop: 12, gap: 26, alignItems: "center" }}>
+            {[["events", t.events], ["faves", t.faves], ["saved", t.savedTab]].map(([k, label]) => (
+              <button key={k} onClick={() => setView(k)}
+                style={{ border: "none", cursor: "pointer", background: "transparent", fontSize: 15, fontWeight: 700, padding: "5px 0",
+                  color: view === k ? "#fff" : "rgba(255,255,255,.62)", borderBottom: view === k ? "3px solid #E06A63" : "3px solid transparent",
+                  display: "flex", alignItems: "center", gap: 6 }}>
+                {label}
+                {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "#E06A63", borderRadius: 999, padding: "1px 7px" }}>{saved.size + savedPlaces.size}</span>}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "16px 18px 60px" }}>
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-          {[["events", t.events], ["faves", t.faves], ["saved", t.savedTab]].map(([k, label]) => (
-            <button key={k} onClick={() => setView(k)} className="disp"
-              style={{ border: "none", cursor: "pointer", fontSize: 16, fontWeight: 700, padding: "8px 4px", marginRight: 10,
-                background: "transparent", color: view === k ? P.ink : P.inkSoft,
-                borderBottom: view === k ? `3px solid ${P.rosa}` : "3px solid transparent",
-                display: "flex", alignItems: "center", gap: 6 }}>
-              {label}
-              {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#fff", background: P.rosa, borderRadius: 999, padding: "1px 7px" }}>
-                  {saved.size + savedPlaces.size}</span>}
-            </button>
-          ))}
-        </div>
+        {/* view tabs live in the header (desktop) and a bottom bar (mobile) */}
 
         {view === "events" ? (
           <>
@@ -697,6 +700,22 @@ export default function App() {
         <p style={{ textAlign: "center", fontSize: 12, color: P.inkSoft, marginTop: 34, lineHeight: 1.6 }}>{t.footer}</p>
       </main>
 
+      {/* Mobile bottom tab bar */}
+      <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
+        background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
+        justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
+        {[["events", t.events, Clock], ["faves", t.faves, MapPin], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => (
+          <button key={k} onClick={() => setView(k)} aria-pressed={view === k}
+            style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+              color: view === k ? P.coral : P.inkSoft, fontSize: 11, fontWeight: 700, position: "relative", minWidth: 66 }}>
+            <Ic size={21} fill={k === "saved" && view === k ? P.coral : "none"} />
+            {label}
+            {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
+              <span style={{ position: "absolute", top: -3, right: 14, fontSize: 10, fontWeight: 700, color: "#fff", background: P.coral, borderRadius: 999, padding: "0 5px" }}>{saved.size + savedPlaces.size}</span>}
+          </button>
+        ))}
+      </nav>
+
       {detail && (
         <EventDetail e={detail} lang={lang} t={t} P={P} saved={saved.has(detail.id)}
           onSave={() => toggle(setSaved, saved, detail.id)} onClose={() => setDetail(null)} />
@@ -802,11 +821,15 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
 
 /* ---- Place card (Local Picks + Saved) ---------------------------- */
 function PlaceCard({ it, lang, t, P, saved, onSave }) {
-  const cat = CATS[it.cat] || { c: P.coral, es: "", en: "" };
+  const cat = CATS[it.cat] || { c: P.coral, es: "", en: "", Icon: Utensils };
+  const Bi = it.list === "bar" ? Wine : it.list === "live" ? Palette : it.cat === "mercados" ? Utensils : (cat.Icon || Utensils);
   return (
     <div className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative" }}>
         <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
+        <span title={cat[lang]} style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
+          <Bi size={15} color={cat.c} />
+        </span>
         <button onClick={onSave} aria-label={t.savedTip} aria-pressed={saved}
           style={{ position: "absolute", top: 10, right: 10, border: "none", cursor: "pointer",
             width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.92)",
