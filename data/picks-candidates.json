@@ -23,7 +23,9 @@
       "inferredCategory": "bienestar",
       "inferredTags": [
         "outdoors"
-      ]
+      ],
+      "desc_en": "A tranquil thermal springs park about fifteen minutes out on the Dolores Hidalgo road, where a chain of warm indoor pools under brick-vaulted ceilings gets progressively hotter as you wade deeper, plus garden pools and picnic grounds outside.",
+      "desc_es": "Un tranquilo parque de aguas termales a unos quince minutos por la carretera a Dolores Hidalgo, donde una serie de albercas techadas bajo bóvedas de ladrillo se va calentando conforme avanzas, además de albercas al aire libre y áreas para día de campo."
     },
     {
       "name": "La Burger",
@@ -39,7 +41,9 @@
       "inferredTags": [
         "family",
         "sandwiches"
-      ]
+      ],
+      "desc_en": "Mesquite-grilled burgers and Chilean-style steaks cooked over a wood fire in an open-air kitchen, set on a big outdoor patio just outside town toward Dolores Hidalgo.",
+      "desc_es": "Hamburguesas y cortes al estilo chileno asados sobre leña de mezquite en una cocina abierta, en un amplio patio al aire libre a las afueras del pueblo rumbo a Dolores Hidalgo."
     },
     {
       "name": "Lanzafuegos",
@@ -55,7 +59,9 @@
       "inferredTags": [
         "pizza",
         "family"
-      ]
+      ],
+      "desc_en": "Wood-fired pizza in a relaxed, pet-friendly spot surrounded by greenery, with Thursday pizza deals and local art on the walls.",
+      "desc_es": "Pizza al horno de leña en un lugar relajado y pet friendly rodeado de vegetación, con promociones de pizza los jueves y arte local en las paredes."
     },
     {
       "name": "Restaurante Patria",
@@ -71,7 +77,9 @@
       "inferredTags": [
         "family",
         "cafe"
-      ]
+      ],
+      "desc_en": "White-tablecloth breakfasts, lunches and dinners served among the vines at Viñedo Patria, a lush winery setting with mesquite shade and water features a few minutes outside centro.",
+      "desc_es": "Desayunos, comidas y cenas de mantel largo servidos entre viñas en Viñedo Patria, un frondoso entorno vinícola con sombra de mezquites y espejos de agua a unos minutos del centro."
     },
     {
       "name": "Amorino",
@@ -85,7 +93,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "dessert"
-      ]
+      ],
+      "desc_en": "Italian gelato scooped into the shape of a flower petal by petal, along with macarons, crepes and coffee, right in centro and open late on weekends.",
+      "desc_es": "Gelato italiano servido en forma de flor, pétalo por pétalo, junto con macarons, crepas y café, en pleno centro y abierto hasta tarde los fines de semana."
     },
     {
       "name": "Antaño Cuatro",
@@ -101,7 +111,9 @@
       "inferredTags": [
         "mexican",
         "family"
-      ]
+      ],
+      "desc_en": "Home-style Mexican cooking with hand-made corn tortillas, served in an eighty-year-old family casa around a pretty central patio with live music on weekends.",
+      "desc_es": "Cocina mexicana casera con tortillas de maíz hechas a mano, servida en una casa familiar de ochenta años alrededor de un bonito patio central con música en vivo los fines de semana."
     },
     {
       "name": "Arriba Abajo",
@@ -115,7 +127,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "Modern Mexican cooking on Relox with a rooftop terraza and cabana lounge, good for a leisurely breakfast or the all-day Sunday brunch.",
+      "desc_es": "Cocina mexicana moderna en Relox con terraza en la azotea y lounge tipo cabaña, ideal para un desayuno sin prisas o el brunch dominical de todo el día."
     },
     {
       "name": "Art Garden Cafe",
@@ -130,7 +144,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A cozy garden-patio cafe tucked inside Boutique Hotel Casa Camellia in San Antonio, serving breakfast and lunch amid original art and bright textiles.",
+      "desc_es": "Un acogedor café de patio-jardín escondido dentro del Boutique Hotel Casa Camellia en San Antonio, con desayunos y comidas entre arte original y textiles coloridos."
     },
     {
       "name": "AURORA 51",
@@ -142,7 +158,10 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": null,
+      "desc_es": null,
+      "needsReview": true
     },
     {
       "name": "Bakery Sucré, SMA.",
@@ -160,7 +179,9 @@
       "inferredTags": [
         "dessert",
         "cafe"
-      ]
+      ],
+      "desc_en": "A neighborhood bakery-cafe in Colonia Guadalupe turning out European sourdough loaves, bagels and pastries alongside good coffee.",
+      "desc_es": "Una panadería-café de barrio en la Colonia Guadalupe que hornea panes de masa madre europea, bagels y repostería, acompañados de buen café."
     },
     {
       "name": "Bocaciega",
@@ -174,7 +195,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "date-night"
-      ]
+      ],
+      "desc_en": "A warm spot for date night serving Greek and Lebanese Mediterranean plates, from fattoush and zucchini flowers to slow-cooked lamb.",
+      "desc_es": "Un lugar cálido para una cita, con platillos mediterráneos griegos y libaneses, desde fattoush y flores de calabaza hasta cordero cocido a fuego lento."
     },
     {
       "name": "Café 1910",
@@ -191,7 +214,9 @@
       "inferredTags": [
         "mexican",
         "cafe"
-      ]
+      ],
+      "desc_en": "A cozy spot for Mexican breakfast and brunch like chilaquiles and machaca, now settled into a roomy new space with live music.",
+      "desc_es": "Un lugar acogedor para desayunar y hacer brunch a la mexicana, con chilaquiles y machaca, ahora instalado en un espacio nuevo y amplio con música en vivo."
     },
     {
       "name": "Café Murmullo",
@@ -205,7 +230,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A coffee shop in a historic San Antonio building with a magical stone-walled patio full of murals and plants, serving chilaquiles, French toast and good coffee with live music a couple of nights a week.",
+      "desc_es": "Una cafetería en un edificio histórico de San Antonio con un patio mágico de muros de piedra lleno de murales y plantas, donde sirven chilaquiles, pan francés y buen café, con música en vivo un par de noches por semana."
     },
     {
       "name": "Casa Nostra Restaurant, Terrace and Rooftop",
@@ -219,7 +246,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "date-night"
-      ]
+      ],
+      "desc_en": "A romantic rooftop in centro with two terraces looking out to the Parroquia, serving homemade pasta and wood-fired grill dishes alongside a wine cellar of 145-plus labels.",
+      "desc_es": "Una romántica azotea en el centro con dos terrazas frente a la Parroquia, donde sirven pasta casera y platillos a la parrilla de leña junto a una cava de más de 145 etiquetas."
     },
     {
       "name": "Cañada de la Virgen",
@@ -233,7 +262,9 @@
       "inferredCategory": "tours",
       "inferredTags": [
         "outdoors"
-      ]
+      ],
+      "desc_en": "An Otomí archaeological site about 25 kilometers west of town, where a scenic uphill walk leads to a pyramid built for astronomical observation, best visited on a guided tour.",
+      "desc_es": "Un sitio arqueológico otomí a unos 25 kilómetros al oeste del pueblo, donde una caminata escénica cuesta arriba lleva a una pirámide construida para la observación astronómica, que se visita mejor en un recorrido guiado."
     },
     {
       "name": "CHURRERÍA PORFIRIO SAN MIGUEL DE ALLENDE",
@@ -247,7 +278,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "dessert"
-      ]
+      ],
+      "desc_en": "Fresh, warm churros dusted in sugar and paired with thick hot chocolate, served in a nostalgic 1910s-style cafeteria on Relox.",
+      "desc_es": "Churros recién hechos, calientitos y espolvoreados con azúcar, acompañados de un chocolate caliente espeso, en una nostálgica cafetería estilo 1910 en Relox."
     },
     {
       "name": "COMUDE PICKLEBALL",
@@ -261,7 +294,9 @@
       "inferredCategory": "bienestar",
       "inferredTags": [
         "outdoors"
-      ]
+      ],
+      "desc_en": "Public pickleball courts at the municipal sports grounds, with morning open play that draws San Miguel's fast-growing pickleball crowd.",
+      "desc_es": "Canchas públicas de pickleball en la unidad deportiva municipal, con juego libre por las mañanas que reúne a la creciente comunidad de pickleball de San Miguel."
     },
     {
       "name": "Comunidad by Our Habitas",
@@ -277,7 +312,9 @@
       "inferredTags": [
         "family",
         "cafe"
-      ]
+      ],
+      "desc_en": "The countryside restaurant at Our Habitas, about ten minutes out, cooking contemporary Mexican dishes with Middle Eastern touches over wood fire, with a Saturday sunset grill and Sunday brunch.",
+      "desc_es": "El restaurante campestre de Our Habitas, a unos diez minutos, con cocina mexicana contemporánea de toques medio-orientales al fuego de leña, parrilla al atardecer los sábados y brunch los domingos."
     },
     {
       "name": "CORTADO",
@@ -291,7 +328,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A brunch spot with a Mediterranean, Spanish-leaning menu that has quickly caught on for breakfast in San Miguel.",
+      "desc_es": "Un lugar de brunch con un menú mediterráneo de inspiración española que rápidamente se ha vuelto popular para desayunar en San Miguel."
     },
     {
       "name": "Cumpanio",
@@ -309,7 +348,9 @@
         "mexican",
         "family",
         "cafe"
-      ]
+      ],
+      "desc_en": "A French-Italian bistro, bar and bakery on Correo since 2011, known for artisanal bread, croissants and long breakfasts (the name is Latin for 'where bread is shared').",
+      "desc_es": "Un bistró, bar y panadería franco-italiano en Correo desde 2011, reconocido por su pan artesanal, croissants y desayunos con calma (su nombre viene del latín, 'donde se comparte el pan')."
     },
     {
       "name": "Daniel Rueffert",
@@ -321,7 +362,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "The Sollano gallery of Daniel Rueffert, a longtime painter of Mexican street life whose quick, plein-air brushwork captures the energy of San Miguel.",
+      "desc_es": "La galería en Sollano de Daniel Rueffert, pintor de larga trayectoria de la vida callejera mexicana, cuya pincelada rápida al aire libre capta la energía de San Miguel."
     },
     {
       "name": "Divino Cielo Café",
@@ -335,7 +378,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A relaxed café pouring Chiapas coffee, with a terrace made for lingering over a drink and a view.",
+      "desc_es": "Un café relajado que sirve café de Chiapas, con una terraza hecha para disfrutar con calma una bebida y una vista."
     },
     {
       "name": "Don Taco Tequila",
@@ -350,7 +395,9 @@
       "inferredTags": [
         "vegetarian",
         "vegan"
-      ]
+      ],
+      "desc_en": "A tiny, charming centro spot serving creative vegan takes on Mexican food, from corn ribs to mayahuel lettuce tacos, with cocktails to match (reservations help, since it seats only about twenty).",
+      "desc_es": "Un lugar pequeño y encantador en el centro con versiones veganas creativas de la comida mexicana, desde corn ribs hasta tacos de lechuga mayahuel, y coctelería a la altura (conviene reservar, pues caben unas veinte personas)."
     },
     {
       "name": "Dôce 18 Concept House",
@@ -366,7 +413,9 @@
       "inferredTags": [
         "mexican",
         "date-night"
-      ]
+      ],
+      "desc_en": "A concept house near the jardín gathering Mexican design boutiques, food and bars under one restored 200-year-old roof, with a rooftop and boutique hotel above.",
+      "desc_es": "Una concept house cerca del jardín que reúne boutiques de diseño mexicano, propuestas gastronómicas y bares bajo un mismo techo restaurado de 200 años, con azotea y hotel boutique arriba."
     },
     {
       "name": "El bosque deportivo",
@@ -380,7 +429,9 @@
       "inferredCategory": "bienestar",
       "inferredTags": [
         "outdoors"
-      ]
+      ],
+      "desc_en": "San Miguel's largest sports park, a 42-hectare municipal space up on the hill with tennis, pickleball and basketball courts, a lake for canoeing and an outdoor concert forum.",
+      "desc_es": "El parque deportivo más grande de San Miguel, un espacio municipal de 42 hectáreas en la parte alta con canchas de tenis, pickleball y basquetbol, un lago para remar y un foro al aire libre para conciertos."
     },
     {
       "name": "El Café Instituto Allende Casa Museo",
@@ -394,7 +445,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A café set inside the historic Instituto Allende, where you can have breakfast or coffee among murals and colonial arches with views toward the Parroquia.",
+      "desc_es": "Un café dentro del histórico Instituto Allende, donde puedes desayunar o tomar café entre murales y arcos coloniales con vistas hacia la Parroquia."
     },
     {
       "name": "Fari Trattoria",
@@ -410,7 +463,9 @@
       "inferredTags": [
         "date-night",
         "italian"
-      ]
+      ],
+      "desc_en": "A cozy trattoria for Neapolitan pizza, homemade pasta and Italian street-food plates, with a menu shaped with help from Cien Fuegos chef Davide Giribaldi.",
+      "desc_es": "Una trattoria acogedora de pizza napolitana, pasta casera y antojitos italianos, con un menú desarrollado con la ayuda del chef de Cien Fuegos, Davide Giribaldi."
     },
     {
       "name": "Firenze Restaurant - San Miguel de Allende",
@@ -426,7 +481,9 @@
       "inferredTags": [
         "date-night",
         "italian"
-      ]
+      ],
+      "desc_en": "A warm Italian dining room on Recreo where chef Antonio Arrieta turns out homemade pasta, risotto and braised meats (reservations recommended, closed Sundays).",
+      "desc_es": "Un cálido comedor italiano en Recreo donde el chef Antonio Arrieta prepara pasta casera, risotto y carnes braseadas (se recomienda reservar; cierra los domingos)."
     },
     {
       "name": "Florios San Miguel",
@@ -442,7 +499,9 @@
       "inferredTags": [
         "argentinian",
         "date-night"
-      ]
+      ],
+      "desc_en": "A rooftop Italo-Argentine grill atop Hotel Clandestino, known for its ribeye and Parroquia views, often with live music and an open kitchen.",
+      "desc_es": "Una parrilla ítalo-argentina en la azotea del Hotel Clandestino, reconocida por su ribeye y sus vistas a la Parroquia, con frecuencia con música en vivo y cocina abierta."
     },
     {
       "name": "Galería - Estudio Juan Zaragoza",
@@ -454,7 +513,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "The gallery-studio of Juan Zaragoza on Hernández Macías, filled with his watercolor and oil landscapes of San Miguel and the countryside around it.",
+      "desc_es": "La galería-estudio de Juan Zaragoza en Hernández Macías, llena de sus paisajes en acuarela y óleo de San Miguel y sus alrededores."
     },
     {
       "name": "Galería Ascender",
@@ -466,7 +527,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "A contemporary gallery on Hidalgo showing painting and hand-painted ceramics, founded by Mexican artists and centered on the work of David Vázquez.",
+      "desc_es": "Una galería contemporánea en Hidalgo que exhibe pintura y cerámica pintada a mano, fundada por artistas mexicanos y centrada en la obra de David Vázquez."
     },
     {
       "name": "Hecho en México",
@@ -480,7 +543,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "mexican"
-      ]
+      ],
+      "desc_en": "A long-running Mexican restaurant on Ancha de San Antonio with a flowering courtyard, dependable classics like arrachera, and live music on weekend evenings.",
+      "desc_es": "Un restaurante mexicano de muchos años en la Ancha de San Antonio, con un patio florido, clásicos confiables como la arrachera y música en vivo los fines de semana por la noche."
     },
     {
       "name": "Inside Cafe",
@@ -494,7 +559,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A multi-level brunch spot near Plaza Cívica with a rooftop terrace looking to the church, mixing Mexican and Asian flavors in dishes like its savory French toast and good cold brew.",
+      "desc_es": "Un lugar de brunch de varios niveles cerca de la Plaza Cívica, con terraza en la azotea frente a la iglesia, que mezcla sabores mexicanos y asiáticos en platillos como su pan francés salado y un buen cold brew."
     },
     {
       "name": "KAFFI",
@@ -508,7 +575,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A little coffee-and-sourdough cafe in Colonia Guadalupe, great for a morning of well-made coffee and fresh pastries on a colorful street.",
+      "desc_es": "Un pequeño café de especialidad y masa madre en la Colonia Guadalupe, ideal para una mañana de buen café y repostería fresca en una calle llena de color."
     },
     {
       "name": "La Cabra Iluminada",
@@ -525,7 +594,9 @@
         "vegetarian",
         "vegan",
         "cafe"
-      ]
+      ],
+      "desc_en": "A vegan cafe around a leafy central courtyard in centro, with plant-based takes on Mexican dishes like enchiladas verdes plus raw desserts and good coffee.",
+      "desc_es": "Un café vegano en torno a un frondoso patio central en el centro, con versiones vegetales de platillos mexicanos como enchiladas verdes, además de postres crudos y buen café."
     },
     {
       "name": "La Frontera Restaurant",
@@ -541,7 +612,9 @@
       "inferredTags": [
         "mexican",
         "family"
-      ]
+      ],
+      "desc_en": "A casual San Antonio spot for Mexican-American comfort food like fish tacos and taco salads, with indoor-outdoor seating and live music in the evenings.",
+      "desc_es": "Un lugar casual en San Antonio de comida reconfortante mexicano-americana, como tacos de pescado y ensaladas de taco, con mesas adentro y afuera y música en vivo por las noches."
     },
     {
       "name": "La Sacristía",
@@ -555,7 +628,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "Breakfast and lunch in a 1743 house on Canal, served on a patio shaded by fruit trees around a fountain, with a bar of fresh juices and smoothies.",
+      "desc_es": "Desayunos y comidas en una casa de 1743 en Canal, servidos en un patio a la sombra de árboles frutales alrededor de una fuente, con una barra de jugos y smoothies frescos."
     },
     {
       "name": "Lavanda Café de Especialidad",
@@ -570,7 +645,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A specialty coffee roaster near centro since 2013, working with small Mexican producers and known for its lavender latte and artisanal breakfasts.",
+      "desc_es": "Un café de especialidad y tostador cerca del centro desde 2013, que trabaja con pequeños productores mexicanos y es conocido por su latte de lavanda y sus desayunos artesanales."
     },
     {
       "name": "Lima - Cocina Realmente Peruana",
@@ -584,7 +661,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "peruvian"
-      ]
+      ],
+      "desc_en": "A laid-back Peruvian kitchen with a green patio, turning out ceviches, causas, lomo saltado and pisco cocktails you won't easily find elsewhere in town.",
+      "desc_es": "Una cocina peruana relajada con un patio verde, que prepara ceviches, causas, lomo saltado y cocteles de pisco difíciles de encontrar en otro lugar del pueblo."
     },
     {
       "name": "Lukrezia Breakfast and Brunch",
@@ -598,7 +677,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A leafy courtyard brunch spot behind Hotel Sautto, serving contemporary Mexican plates like white chilaquiles and poblano eggs benedict, complete with a resident parrot.",
+      "desc_es": "Un lugar de brunch en un frondoso patio detrás del Hotel Sautto, con platillos mexicanos contemporáneos como chilaquiles blancos y huevos benedictinos al poblano, y hasta un perico residente."
     },
     {
       "name": "Mamá Mía",
@@ -612,7 +693,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A San Miguel institution since 1975 in a big colonial casona, mixing Italian and Mexican food across patios, a rooftop and a lively bar with live music most days.",
+      "desc_es": "Una institución sanmiguelense desde 1975 en una gran casona colonial, que mezcla comida italiana y mexicana entre patios, una azotea y un animado bar con música en vivo casi todos los días."
     },
     {
       "name": "MARQUESA DE MANCERA",
@@ -624,7 +707,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "A gallery and showroom on Cuna de Allende filled with handmade pottery, small sculptures, paintings and restored antique furniture.",
+      "desc_es": "Una galería y showroom en Cuna de Allende repleta de cerámica hecha a mano, pequeñas esculturas, pintura y muebles antiguos restaurados."
     },
     {
       "name": "Mi Bistro 300",
@@ -641,7 +726,9 @@
       "inferredTags": [
         "family",
         "cafe"
-      ]
+      ],
+      "desc_en": "A cozy spot on Quebrada street blending Mediterranean and Mexican flavors, strong on ceviches, seafood cocktails and shrimp tacos, with local art on the walls.",
+      "desc_es": "Un lugar acogedor en la calle Quebrada que mezcla sabores mediterráneos y mexicanos, con buenos ceviches, cocteles de mariscos y tacos de camarón, y arte local en las paredes."
     },
     {
       "name": "NY Style Deli - District",
@@ -655,7 +742,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "sandwiches"
-      ]
+      ],
+      "desc_en": "An authentic New York-style deli that opened in 2024, handcrafting bagels, pastrami and brisket sandwiches and matzah ball soup from a family's generations-old recipes.",
+      "desc_es": "Un deli auténtico al estilo neoyorquino que abrió en 2024, con bagels, sándwiches de pastrami y brisket y sopa de bolas de matzá hechos a mano según recetas familiares de varias generaciones."
     },
     {
       "name": "Panina",
@@ -671,7 +760,9 @@
       "inferredTags": [
         "dessert",
         "cafe"
-      ]
+      ],
+      "desc_en": "A sun-filled artisanal bakery run by a small team of women, beloved for its sourdough, croissants and bagels (arrive before eleven, and note the Thursday sourdough-pizza nights).",
+      "desc_es": "Una panadería artesanal llena de luz llevada por un pequeño equipo de mujeres, querida por su masa madre, croissants y bagels (llega antes de las once, y no te pierdas las noches de pizza de masa madre los jueves)."
     },
     {
       "name": "PANIO Luciernaga",
@@ -689,7 +780,9 @@
         "dessert",
         "cafe",
         "sandwiches"
-      ]
+      ],
+      "desc_en": "A French-Italian bakery and café in the Luciérnaga area with a three-generation pastry legacy, turning out croissants, pain au chocolat, éclairs and savory quiches.",
+      "desc_es": "Una panadería y café franco-italiano en La Luciérnaga con un legado repostero de tres generaciones, que hornea croissants, pain au chocolat, éclairs y quiches saladas."
     },
     {
       "name": "Petit Four",
@@ -704,7 +797,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A long-loved European-style patisserie on Mesones, in business 25 years, with cakes, éclairs, truffles and quiches around a sunlit courtyard.",
+      "desc_es": "Una querida pastelería estilo europeo en Mesones, con 25 años de trayectoria, que ofrece pasteles, éclairs, trufas y quiches alrededor de un patio soleado."
     },
     {
       "name": "Posada Corazón",
@@ -720,7 +815,9 @@
       "inferredTags": [
         "family",
         "cafe"
-      ]
+      ],
+      "desc_en": "A garden inn half a block from the jardín whose century-old organic orchard and hen coop supply a prix-fixe breakfast open to the public in a wonderfully calm setting.",
+      "desc_es": "Una posada con jardín a media cuadra del jardín principal, cuyo huerto orgánico centenario y gallinero abastecen un desayuno de precio fijo abierto al público, en un entorno maravillosamente tranquilo."
     },
     {
       "name": "Raíces Restaurante SMA",
@@ -736,7 +833,9 @@
       "inferredTags": [
         "mexican",
         "cafe"
-      ]
+      ],
+      "desc_en": "Authentic regional Mexican cooking from chef Vanessa Romero on Salida a Celaya, with standout stuffed chilaquiles and beautifully plated breakfasts worth the short trip from centro.",
+      "desc_es": "Cocina mexicana regional auténtica de la chef Vanessa Romero en Salida a Celaya, con unos chilaquiles rellenos que destacan y desayunos bellamente presentados que valen el corto trayecto desde el centro."
     },
     {
       "name": "Rústica",
@@ -750,7 +849,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A vegan-friendly breakfast and brunch spot on Salida a Celaya with a charming garden, known for hearty dishes like its giant breakfast burrito, fresh juices and pancakes.",
+      "desc_es": "Un lugar de desayuno y brunch vegan friendly en Salida a Celaya con un jardín encantador, conocido por platillos abundantes como su burrito gigante de desayuno, jugos frescos y hot cakes."
     },
     {
       "name": "SIENNA GALERÍA",
@@ -762,7 +863,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "The Umarán gallery of visual artist Arturo Zárraga, showing his own contemporary work alongside rotating exhibitions by local and guest artists.",
+      "desc_es": "La galería en Umarán del artista visual Arturo Zárraga, que muestra su obra contemporánea junto con exposiciones rotativas de artistas locales e invitados."
     },
     {
       "name": "Thai Kitchen",
@@ -776,7 +879,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "asian"
-      ]
+      ],
+      "desc_en": "An authentic Thai kitchen in San Antonio, recently moved to a bigger space, with curries, pad thai and summer rolls at friendly prices.",
+      "desc_es": "Una cocina tailandesa auténtica en San Antonio, recién mudada a un espacio más grande, con curries, pad thai y rollos primavera a precios amables."
     },
     {
       "name": "Trazo 1810",
@@ -792,7 +897,9 @@
       "inferredTags": [
         "rooftop",
         "date-night"
-      ]
+      ],
+      "desc_en": "An elegant rooftop atop Casa 1810 with 360-degree views over the Parroquia, serving a modern menu with European and Asian touches, plus cocktails and a weekend DJ.",
+      "desc_es": "Una elegante azotea sobre Casa 1810 con vistas de 360 grados a la Parroquia, con un menú moderno de toques europeos y asiáticos, coctelería y DJ los fines de semana."
     },
     {
       "name": "Wiyeri Tatu Huichol/Wixárika, Galería y Arte Auténtico",
@@ -804,7 +911,9 @@
       "area": "sma",
       "inferredListKey": "live",
       "inferredCategory": "comunidad",
-      "inferredTags": []
+      "inferredTags": [],
+      "desc_en": "A gallery devoted to authentic Huichol (Wixárika) art, filled with the indigenous group's intricate beadwork and vivid yarn paintings rooted in centuries-old symbols.",
+      "desc_es": "Una galería dedicada al arte auténtico huichol (wixárika), llena del intrincado trabajo de chaquira y las vívidas pinturas de estambre de este pueblo indígena, arraigadas en símbolos centenarios."
     },
     {
       "name": "Zibu Allende",
@@ -818,7 +927,9 @@
       "inferredCategory": "mercados",
       "inferredTags": [
         "cafe"
-      ]
+      ],
+      "desc_en": "A refined Mex-Thai restaurant from chef Eduardo Palazuelos inside the Live Aqua resort, fusing Mexican haute cuisine with Thai flavors, with live music in the evenings.",
+      "desc_es": "Un refinado restaurante mex-thai del chef Eduardo Palazuelos dentro del resort Live Aqua, que fusiona la alta cocina mexicana con sabores tailandeses, con música en vivo por las noches."
     }
   ],
   "outOfArea": [
