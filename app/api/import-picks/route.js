@@ -63,11 +63,32 @@ function rowFrom(r) {
   };
 }
 
+const listOf = (c) => (Array.isArray(c.sourceList) ? c.sourceList.join(", ") : (c.sourceList || ""));
+
 export async function POST(req) {
-  const { password, mode = "dryrun" } = await req.json().catch(() => ({}));
+  const { password, mode = "dryrun", rows: submitted } = await req.json().catch(() => ({}));
   if (password !== process.env.ADMIN_PASSWORD) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // COMMIT: insert exactly the rows the reviewer approved (skipping duplicates).
+  if (mode === "commit") {
+    const rows = Array.isArray(submitted) ? submitted : [];
+    if (!rows.length) return Response.json({ mode: "commit", inserted: 0, skipped: 0 });
+    const sb = supabaseAdmin();
+    const { data: existing } = await sb.from("places").select("name,google_place_id");
+    const haveIds = new Set((existing || []).map((x) => x.google_place_id).filter(Boolean));
+    const haveNames = new Set((existing || []).map((x) => (x.name || "").toLowerCase()));
+    const fresh = rows.filter((r) => !(r.google_place_id && haveIds.has(r.google_place_id)) && !haveNames.has((r.name || "").toLowerCase()));
+    let inserted = 0, error = null;
+    if (fresh.length) {
+      const { data, error: e } = await sb.from("places").insert(fresh).select("id");
+      if (e) error = e.message; else inserted = data.length;
+    }
+    return Response.json({ mode: "commit", inserted, skipped: rows.length - fresh.length, error });
+  }
+
+  // DRY RUN: enrich every candidate via Places, return reviewable items.
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!key) return Response.json({ error: "GOOGLE_MAPS_API_KEY not configured on the server." }, { status: 500 });
 
@@ -77,31 +98,25 @@ export async function POST(req) {
     try { enriched.push(await enrich(cand, key)); }
     catch (e) { enriched.push({ cand, matched: false, error: String((e && e.message) || e) }); }
   }
-  const keep = enriched.filter((r) => r.matched && r.inArea);
-  const preview = enriched.map((r) => ({
-    name: r.name || r.cand.name,
-    matched: !!r.matched, inArea: !!r.inArea,
-    address: r.address || null, km: r.km != null ? r.km : null,
-    photo: !!r.photoName, error: r.error || null,
-  }));
-
-  if (mode !== "commit") {
-    return Response.json({ mode: "dryrun", total: list.length, willImport: keep.length, preview });
-  }
-
-  // commit: skip anything already in the DB (by place id or name)
-  const sb = supabaseAdmin();
-  const { data: existing } = await sb.from("places").select("name,google_place_id");
-  const haveIds = new Set((existing || []).map((x) => x.google_place_id).filter(Boolean));
-  const haveNames = new Set((existing || []).map((x) => (x.name || "").toLowerCase()));
-  const rows = keep
-    .filter((r) => !(r.placeId && haveIds.has(r.placeId)) && !haveNames.has((r.name || r.cand.name).toLowerCase()))
-    .map(rowFrom);
-
-  let inserted = 0, error = null;
-  if (rows.length) {
-    const { data, error: e } = await sb.from("places").insert(rows).select("id");
-    if (e) error = e.message; else inserted = data.length;
-  }
-  return Response.json({ mode: "commit", willImport: keep.length, inserted, skipped: keep.length - rows.length, error });
+  const items = enriched.map((r) => {
+    const importable = !!(r.matched && r.inArea);
+    return {
+      name: r.name || r.cand.name,
+      list: listOf(r.cand),
+      importable, matched: !!r.matched, inArea: !!r.inArea,
+      address: r.address || null, km: r.km != null ? r.km : null,
+      photo: !!r.photoName, error: r.error || null,
+      row: importable ? rowFrom(r) : null,
+    };
+  });
+  items.sort((a, b) => (a.list || "").localeCompare(b.list || "") || a.name.localeCompare(b.name));
+  const errs = items.filter((i) => i.error);
+  return Response.json({
+    mode: "dryrun",
+    total: list.length,
+    willImport: items.filter((i) => i.importable).length,
+    sampleError: errs.length ? errs[0].error : null,
+    allErrored: errs.length === list.length,
+    items,
+  });
 }
