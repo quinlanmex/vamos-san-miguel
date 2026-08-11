@@ -14,7 +14,7 @@ One caveat up front. The income thresholds and fees below are moving targets, pe
 
 Four routes lead to residency, and most people take the first one.
 
-- **Income or savings.** For temporary residency, expect a consulate to want roughly US$4,000 to $4,400 a month in provable foreign-source deposits, or around US$70,000 or more held steadily in savings over 12 months. Permanent residency asks for more, commonly around US$7,000 or more a month or savings in the high six figures.
+- **Income or savings.** For temporary residency, expect a consulate to want roughly US$4,300 a month in provable foreign-source deposits, or around US$70,000 or more held steadily in savings over 12 months. Permanent residency asks for more, commonly around US$7,400 or more a month or savings in the high six figures.
 - **Property.** Own debt-free Mexican property above a high value threshold, usually a paid-off high-six-figure home. This is not the modest-house route.
 - **Family.** A Mexican spouse, child, or parent lowers or removes the financial requirement.
 - **Business investment.** A substantial investment in Mexico, with heavier documentation.
@@ -27,13 +27,23 @@ Here is the provision that changes the math for families and is easy to miss. On
 
 Temporary residency lets you live here full-time for one to four years, renewable. You can keep receiving income from a foreign employer or business as long as you are not taking Mexican-based employment. It is also the on-ramp to permanent residency, which never expires and becomes your platform for naturalization after several years. Most people start temporary and upgrade later.
 
+| | Temporary residency | Permanent residency |
+| --- | --- | --- |
+| **Term** | 1 to 4 years, renewable | Never expires |
+| **Income shown** | ~US$4,300 / month | ~US$7,400 / month |
+| **Savings alternative** | ~US$70,000+ over 12 months | High six figures |
+| **Path to citizenship** | After upgrading to permanent | Yes, after several years |
+| **Best for** | Most first-time movers | Retirees, or those who qualify outright |
+
+*Thresholds are pegged to Mexican formulas that shift yearly and vary by consulate. Confirm current figures with the consulate that will process you.*
+
 ## The three-phase process
 
 The whole thing runs in three phases, and knowing the shape of it up front is half the battle.
 
 **Phase 1: Document preparation (4 to 6 weeks).** Every path needs the same core: an apostilled birth certificate, an apostilled marriage certificate if applicable, passport photos, and often a criminal background check. The background check is usually the slowest part, so start it first. Ask your consulate precisely which report they want and order only that one.
 
-**Phase 2: Consulate application (2 to 8 weeks).** You submit your packet, pay the fees (typically $50 to $200), and sit for a brief interview. Consulates vary a great deal in how they interpret the rules, and you can apply at any one that agrees in advance to process your case, so recent, city-specific reports from expat groups are worth a lot.
+**Phase 2: Consulate application (2 to 8 weeks).** You submit your packet, pay the consular visa fee (a flat fee of roughly US$54, separate from the larger residency-card fees you pay later in Mexico), and sit for a brief interview. Consulates vary a great deal in how they interpret the rules, and you can apply at any one that agrees in advance to process your case, so recent, city-specific reports from expat groups are worth a lot.
 
 **Phase 3: Entry and finalization (2 to 4 weeks).** Once the visa is in your passport, you have 180 days to enter Mexico and 30 days after arrival to visit an immigration office, submit final paperwork, and receive your physical residency card.
 

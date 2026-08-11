@@ -18,6 +18,12 @@ The second layer is state income tax. In a high-tax state like California it can
 
 The third layer never shows up on a tax return. It arrives quietly, priced into every meal, haircut, and plumber's visit. Prices in any region are calibrated to the local income level, so when everyone around you earns six figures, everything you buy is priced for six figures. Move to a place with lower average incomes and a high quality of life, and that extraction reverses.
 
+| Layer | What it is | How geography changes it |
+| --- | --- | --- |
+| Federal income tax | The bracket you pay Washington | The FEIE can legally exclude most or all earned income when you live abroad |
+| State income tax | What your home state takes | Establishing domicile in a no-tax state before you leave removes it |
+| Cost of living | The hidden markup baked into every purchase | A lower-income, high-quality-of-life place reverses the markup |
+
 ## The Foreign Earned Income Exclusion
 
 The first time we filed from abroad, the tax software kept showing the same impossible number. Zero federal income tax. Not a deduction, not a credit, an exclusion, as if the income never existed.
