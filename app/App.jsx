@@ -322,8 +322,7 @@ const loadSet = (key) => {
 
 export default function App() {
   const [lang, setLang] = useState("en");
-  const [theme, setTheme] = useState(() =>
-    typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const [theme, setTheme] = useState("light");
   const [view, setView] = useState("faves");
   const [eventLayout, setEventLayout] = useState("list"); // list | map
   const [query, setQuery] = useState("");
@@ -411,6 +410,10 @@ export default function App() {
         @media (min-width: 680px) { .brandlogo { height: 92px; max-width: 440px; } }
         .hero-split { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 600px) { .hero-split { grid-template-columns: 1.25fr 1fr; } }
+        .wrap720 { max-width: 720px; margin: 0 auto; }
+        @media (min-width: 760px) { .wrap720 { max-width: 1060px; } }
+        .evgrid { display: grid; gap: 12px; }
+        @media (min-width: 760px) { .evgrid { grid-template-columns: 1fr 1fr; gap: 16px; } }
         .viewnav-top { display: none; }
         @media (min-width: 680px) { .viewnav-top { display: flex; } }
         .viewnav-bottom { display: none; }
@@ -423,47 +426,43 @@ export default function App() {
       `}</style>
 
       {/* Header */}
-      <header style={{
-        backgroundColor: "#0D1B36", color: "#F7F3EC",
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.13'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20 Z'/%3E%3Ccircle cx='20' cy='20' r='2.6' fill='%23F2A100' fill-opacity='0.5' stroke='none'/%3E%3C/g%3E%3C/svg%3E")`,
-      }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 18px 20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-            <img src="/logo-dark.svg" alt="Vamos San Miguel — Events · Local Picks · Insider Guide" className="brandlogo" />
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button onClick={() => setTheme((v) => (v === "dark" ? "light" : "dark"))}
-                aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
-                style={{ border: "none", cursor: "pointer", width: 34, height: 34, borderRadius: 999,
-                  display: "grid", placeItems: "center", background: "rgba(255,255,255,.15)", color: "#fff" }}>
-                {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-              </button>
-              <div role="group" aria-label="Language" style={{ display: "flex", background: "rgba(255,255,255,.15)", borderRadius: 999, padding: 3 }}>
-                {["es", "en"].map((l) => (
-                  <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l}
-                    style={{ border: "none", cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-                      background: lang === l ? "#F7F3EC" : "transparent", color: lang === l ? "#0D1B36" : "#F7F3EC" }}>
-                    {l.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <nav className="viewnav-top" style={{ marginTop: 12, gap: 26, alignItems: "center" }}>
-            {[["events", t.events], ["faves", t.faves], ["saved", t.savedTab]].map(([k, label]) => (
+      <header style={{ background: P.card, color: P.ink, borderBottom: `1px solid ${P.line}`, position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
+        <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
+          <img src={theme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"} alt="Vamos San Miguel — Events · Local Picks · Insider Guide" className="brandlogo" />
+          <nav className="viewnav-top" style={{ gap: 26, alignItems: "center" }}>
+            {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab], ["move", lang === "es" ? "Mudarse aquí" : "Move Here"]].map(([k, label]) => (
               <button key={k} onClick={() => setView(k)}
-                style={{ border: "none", cursor: "pointer", background: "transparent", fontSize: 15, fontWeight: 700, padding: "5px 0",
-                  color: view === k ? "#fff" : "rgba(255,255,255,.62)", borderBottom: view === k ? "3px solid #E06A63" : "3px solid transparent",
+                style={{ border: "none", cursor: "pointer", background: "transparent", fontSize: 15, fontWeight: 700, padding: "5px 0", whiteSpace: "nowrap",
+                  color: view === k ? P.ink : P.inkSoft, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                   display: "flex", alignItems: "center", gap: 6 }}>
                 {label}
                 {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "#E06A63", borderRadius: 999, padding: "1px 7px" }}>{saved.size + savedPlaces.size}</span>}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: P.coral, borderRadius: 999, padding: "1px 7px" }}>{saved.size + savedPlaces.size}</span>}
               </button>
             ))}
           </nav>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+            <div role="group" aria-label="Language" style={{ display: "flex", border: `1px solid ${P.line}`, borderRadius: 999, padding: 3 }}>
+              {["en", "es"].map((l) => (
+                <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l}
+                  style={{ border: "none", cursor: "pointer", padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 700,
+                    background: lang === l ? P.cobalt : "transparent", color: lang === l ? "#fff" : P.inkSoft }}>
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setTheme((v) => (v === "dark" ? "light" : "dark"))}
+              aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
+              style={{ border: `1px solid ${P.line}`, cursor: "pointer", width: 36, height: 36, borderRadius: 10,
+                display: "grid", placeItems: "center", background: "transparent", color: P.inkSoft }}>
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+          </div>
         </div>
       </header>
 
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "16px 18px 60px" }}>
+      <main className="wrap720" style={{ padding: "16px 18px 60px" }}>
         {/* view tabs live in the header (desktop) and a bottom bar (mobile) */}
 
         {view === "events" ? (
@@ -573,7 +572,7 @@ export default function App() {
                 <p style={{ margin: 0, fontSize: 14 }}>{t.noneHint}</p>
               </div>
             ) : (
-              <div style={{ display: "grid", gap: 12 }}>
+              <div className="evgrid">
                 {filtered.map((e) => (
                   <EventCard key={e.id} e={e} lang={lang} t={t} P={P} saved={saved.has(e.id)}
                     onSave={() => toggle(setSaved, saved, e.id)} onOpen={() => setDetail(e)} />
@@ -697,6 +696,33 @@ export default function App() {
               </section>
             ))}
           </>
+        ) : view === "move" ? (
+          <div>
+            <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
+              {lang === "es" ? "Mudarse a San Miguel" : "Move to San Miguel"}
+            </p>
+            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(26px, 4.2vw, 38px)", margin: "0 0 8px", letterSpacing: "-.01em", lineHeight: 1.06 }}>
+              {lang === "es" ? "¿Pensando en mudarte aquí?" : "Thinking about making the move?"}
+            </h1>
+            <p style={{ color: P.inkSoft, margin: "0 0 24px", fontSize: 15.5, lineHeight: 1.55, maxWidth: "62ch" }}>
+              {lang === "es"
+                ? "Estamos preparando la guía completa para mudarse a San Miguel: visas y residencia, costo de vida, salud, escuelas, y el caso financiero de vivir en México. Muy pronto."
+                : "We're building the complete guide to moving to San Miguel: visas and residency, cost of living, healthcare, schools, and the financial case for living in Mexico. Coming soon."}
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
+              {[
+                lang === "es" ? ["El caso financiero", "FEIE, impuestos estatales y la aritmética del arbitraje geográfico"] : ["The money case", "FEIE, state taxes, and the geographic-arbitrage math"],
+                lang === "es" ? ["Visas y residencia", "Residencia temporal y permanente: umbrales y plazos"] : ["Visas & residency", "Temporary and permanent residency, thresholds, timelines"],
+                lang === "es" ? ["Costo de vida", "Vivienda, salud, dinero y la vida diaria"] : ["Cost of living", "Housing, healthcare, money, and daily life"],
+                lang === "es" ? ["La vida en San Miguel", "Seguridad, idioma, criar hijos y escuelas"] : ["Life in San Miguel", "Safety, language, raising kids, and schools"],
+              ].map(([h, dsc], i) => (
+                <div key={i} className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, padding: "16px 17px" }}>
+                  <h3 style={{ fontFamily: "Georgia, serif", fontSize: 17, margin: "0 0 5px" }}>{h}</h3>
+                  <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, lineHeight: 1.45 }}>{dsc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           /* ---- Saved (device-based personal collection) ---- */
           savedEvents.length === 0 && savedPlaceItems.length === 0 ? (
@@ -740,7 +766,7 @@ export default function App() {
       <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
         background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
         justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
-        {[["events", t.events, Clock], ["faves", t.faves, MapPin], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => (
+        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["saved", t.savedTab, Heart], ["move", lang === "es" ? "Mudarse" : "Move", Footprints]].map(([k, label, Ic]) => (
           <button key={k} onClick={() => setView(k)} aria-pressed={view === k}
             style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
               color: view === k ? P.coral : P.inkSoft, fontSize: 11, fontWeight: 700, position: "relative", minWidth: 66 }}>
