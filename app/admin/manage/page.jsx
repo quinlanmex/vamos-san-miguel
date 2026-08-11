@@ -28,6 +28,7 @@ export default function Manage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const [q, setQ] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const api = useCallback(async (body) => {
     const r = await fetch("/api/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, ...body }) });
@@ -57,6 +58,21 @@ export default function Manage() {
       setEditing(null); await load(); setMsg({ type: "ok", text: "Saved." });
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setBusy(false);
+  }
+  async function uploadPhoto(files) {
+    const file = files && files[0];
+    if (!file) return;
+    setUploading(true); setMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append("password", pw); fd.append("kind", kind); fd.append("file", file);
+      const r = await fetch("/api/upload", { method: "POST", body: fd });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Upload failed");
+      upd("photo_url", j.url);
+      setMsg({ type: "ok", text: "Photo uploaded — remember to Save." });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setUploading(false);
   }
   async function setStatus(id, status) {
     setBusy(true); setMsg(null);
@@ -189,7 +205,25 @@ export default function Manage() {
                   <div><label style={label}>Source URL</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} /></div>
                 </>
               )}
-              <div><label style={label}>Photo URL</label><input style={field} value={editing.photo_url || ""} onChange={(e) => upd("photo_url", e.target.value)} placeholder="https://…" /></div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={label}>Photo</label>
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <label
+                    onDragOver={(e) => { e.preventDefault(); }}
+                    onDrop={(e) => { e.preventDefault(); if (!uploading) uploadPhoto(e.dataTransfer.files); }}
+                    style={{ width: 132, height: 100, flexShrink: 0, borderRadius: 10, border: `2px dashed ${P.line}`, background: "#FBF9F5", display: "grid", placeItems: "center", cursor: uploading ? "wait" : "pointer", overflow: "hidden", textAlign: "center", position: "relative" }}>
+                    {editing.photo_url
+                      ? <img src={editing.photo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : <span style={{ fontSize: 12, color: P.inkSoft, padding: 6 }}>{uploading ? "Uploading…" : "Drop or click to upload"}</span>}
+                    <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading}
+                      onChange={(e) => { uploadPhoto(e.target.files); e.target.value = ""; }} />
+                  </label>
+                  <div style={{ flex: 1 }}>
+                    <input style={field} value={editing.photo_url || ""} onChange={(e) => upd("photo_url", e.target.value)} placeholder="…or paste an image URL" />
+                    <p style={{ fontSize: 11.5, color: P.inkSoft, margin: "6px 0 0" }}>JPG/PNG/WebP, up to 8 MB. Uploads go to Supabase Storage. {editing.photo_url && <button type="button" onClick={() => upd("photo_url", "")} style={{ border: "none", background: "transparent", color: P.coral, cursor: "pointer", fontSize: 11.5, fontWeight: 700, padding: 0 }}>Clear</button>}</p>
+                  </div>
+                </div>
+              </div>
               <div><label style={label}>Status</label><select style={field} value={editing.status || "published"} onChange={(e) => upd("status", e.target.value)}>{STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
             </div>
             <button onClick={save} disabled={busy} style={{ ...btn(P.coral, !busy), marginTop: 16, width: "100%", padding: 13, fontSize: 15 }}>{busy ? "Saving…" : "Save"}</button>
