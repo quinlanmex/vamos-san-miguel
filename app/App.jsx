@@ -689,7 +689,7 @@ export default function App() {
             {/* Restaurant sub-filters: cuisine + dietary. Only when Restaurants is selected. */}
             {favType === "rest" && (
               <div className="catrow" style={{ marginBottom: 18, paddingLeft: 2 }}>
-                {availCuisines.map((k) => {
+                {Object.keys(CUISINES).map((k) => {
                   const on = favCuisine.has(k);
                   return (
                     <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
@@ -699,7 +699,7 @@ export default function App() {
                     </button>
                   );
                 })}
-                {(availCuisines.length > 0) && <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />}
+                <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />
                 {Object.entries(DIET).map(([k, dt]) => {
                   const on = favDiet.has(k);
                   const Ic = dt.Icon;
