@@ -409,6 +409,8 @@ export default function App() {
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
         .brandlogo { height: 58px; width: auto; max-width: 66vw; display: block; }
         @media (min-width: 680px) { .brandlogo { height: 92px; max-width: 440px; } }
+        .hero-split { display: grid; grid-template-columns: 1fr; }
+        @media (min-width: 600px) { .hero-split { grid-template-columns: 1.25fr 1fr; } }
         .viewnav-top { display: none; }
         @media (min-width: 680px) { .viewnav-top { display: flex; } }
         .viewnav-bottom { display: none; }
@@ -581,11 +583,52 @@ export default function App() {
           </>
         ) : view === "faves" ? (
           <>
-            <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 12, padding: "10px 13px", marginBottom: 14,
-              fontSize: 13, color: P.inkSoft, display: "flex", gap: 8, alignItems: "center" }}>
-              <span style={{ width: 8, height: 8, borderRadius: 999, background: P.marigold, flexShrink: 0 }} />
-              {t.favNote}
-            </div>
+            {/* Editorial page header */}
+            <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
+              {lang === "es" ? "Recomendaciones locales" : "Local Picks"}
+            </p>
+            <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(26px, 4.2vw, 38px)", margin: "0 0 8px", letterSpacing: "-.01em", lineHeight: 1.06 }}>
+              {lang === "es" ? "Los lugares a los que mandamos a nuestros amigos." : "The places we send our friends to."}
+            </h1>
+            <p style={{ color: P.inkSoft, margin: "0 0 22px", fontSize: 15.5, lineHeight: 1.5, maxWidth: "58ch" }}>
+              {lang === "es"
+                ? "Elegidos a mano, nunca pagados. Cada lugar aquí es uno al que te llevaríamos nosotros mismos, en el Centro y los alrededores."
+                : "Hand-picked, never paid for. Every spot here is one we'd walk you to ourselves, in Centro and the surrounding countryside."}
+            </p>
+
+            {/* Featured pick of the week */}
+            {(() => {
+              const f = favLists.flatMap((l) => l.items || []).find((x) => x.img) || favLists.flatMap((l) => l.items || [])[0];
+              if (!f) return null;
+              const fc = CATS[f.cat] || { c: P.coral, es: "", en: "" };
+              const isSaved = savedPlaces.has(f.name);
+              return (
+                <div className="card hero-split" style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${P.line}`, marginBottom: 26 }}>
+                  <div style={{ position: "relative", minHeight: 230 }}>
+                    <Media img={f.img} cat={f.cat} iconSize={44} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,20,40,.74), transparent 55%)" }} />
+                    <div style={{ position: "absolute", left: 18, right: 18, bottom: 16, color: "#fff" }}>
+                      <span style={{ background: "rgba(255,255,255,.94)", color: P.cobalt, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", padding: "4px 11px", borderRadius: 999 }}>{fc[lang]}</span>
+                      <h3 style={{ fontFamily: "Georgia, serif", fontSize: 25, margin: "10px 0 3px", textShadow: "0 2px 16px rgba(0,0,0,.45)" }}>{f.name}</h3>
+                      <p style={{ margin: 0, fontSize: 13.5, opacity: .9 }}>{f.area}</p>
+                    </div>
+                  </div>
+                  <div style={{ padding: "22px", display: "flex", flexDirection: "column", justifyContent: "center", background: P.card }}>
+                    <span style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: P.coral, fontWeight: 700 }}>
+                      {lang === "es" ? "Recomendación de la semana" : "This week's featured pick"}
+                    </span>
+                    {f[lang] && <p style={{ margin: "10px 0 16px", color: P.inkSoft, fontSize: 14.5, lineHeight: 1.5 }}>{f[lang]}</p>}
+                    <button onClick={() => toggleSavePlace(f.name)}
+                      style={{ alignSelf: "flex-start", border: "none", cursor: "pointer", background: P.cobalt, color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 18px", borderRadius: 11, display: "flex", alignItems: "center", gap: 7 }}>
+                      <Heart size={16} fill={isSaved ? "#fff" : "none"} /> {isSaved ? (lang === "es" ? "Guardado" : "Saved") : (lang === "es" ? "Guardar" : "Save")}
+                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 15, fontSize: 12.5, color: "#2F7A63", fontWeight: 700 }}>
+                      <Check size={15} /> {lang === "es" ? "Nunca cobramos por una recomendación" : "We never take money for a pick"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Favorites audience + category filters */}
             <div className="catrow" style={{ marginBottom: 18 }}>
