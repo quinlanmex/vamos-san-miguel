@@ -15,32 +15,29 @@ function haversineKm(a, b) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+// Classic Places API (Text Search) — matches the "Places API" the key already allows.
 async function enrich(cand, key) {
-  const textQuery = `${cand.name} San Miguel de Allende Guanajuato`;
-  const resp = await fetch("https://places.googleapis.com/v1/places:searchText", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.photos",
-    },
-    body: JSON.stringify({ textQuery, maxResultCount: 1, regionCode: "MX" }),
-  });
-  if (!resp.ok) return { cand, matched: false, error: `Places API ${resp.status}` };
+  const query = `${cand.name} San Miguel de Allende Guanajuato`;
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&region=mx&key=${key}`;
+  const resp = await fetch(url);
+  if (!resp.ok) return { cand, matched: false, error: `Places HTTP ${resp.status}` };
   const data = await resp.json();
-  const p = data.places && data.places[0];
+  if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+    return { cand, matched: false, error: `Places: ${data.status}${data.error_message ? " — " + data.error_message : ""}` };
+  }
+  const p = data.results && data.results[0];
   if (!p) return { cand, matched: false };
-  const loc = p.location ? { lat: p.location.latitude, lng: p.location.longitude } : null;
+  const loc = p.geometry && p.geometry.location ? { lat: p.geometry.location.lat, lng: p.geometry.location.lng } : null;
   const km = loc ? haversineKm(SMA, loc) : null;
-  const address = p.formattedAddress || "";
+  const address = p.formatted_address || "";
   const inArea = (km != null && km <= MAX_KM) || /San Miguel de Allende/i.test(address);
-  const photoName = p.photos && p.photos[0] && p.photos[0].name;
+  const photoRef = p.photos && p.photos[0] && p.photos[0].photo_reference;
   return {
     cand, matched: true, inArea,
-    placeId: p.id, name: (p.displayName && p.displayName.text) || cand.name,
+    placeId: p.place_id, name: p.name || cand.name,
     address, lat: loc && loc.lat, lng: loc && loc.lng,
     km: km != null ? Math.round(km * 10) / 10 : null,
-    photoName: photoName || null,
+    photoRef: photoRef || null,
   };
 }
 
@@ -51,6 +48,8 @@ function rowFrom(r) {
     status: "published", editorial: true,
     list_key: c.inferredListKey || "rest",
     name: r.name || c.name,
+    desc_en: c.desc_en || null,
+    desc_es: c.desc_es || null,
     category: c.inferredCategory || "mercados",
     audience: tags.filter((t) => t === "family" || t === "teens"),
     diet: tags.filter((t) => t === "vegetarian" || t === "vegan"),
@@ -59,7 +58,7 @@ function rowFrom(r) {
     lng: r.lng != null ? r.lng : null,
     google_place_id: r.placeId || null,
     source_ref: Array.isArray(c.sourceList) ? c.sourceList.join(", ") : (c.sourceList || null),
-    photo_url: r.photoName ? `/api/place-photo?ref=${encodeURIComponent(r.photoName)}` : null,
+    photo_url: r.photoRef ? `/api/place-photo?ref=${encodeURIComponent(r.photoRef)}` : null,
   };
 }
 
@@ -105,7 +104,7 @@ export async function POST(req) {
       list: listOf(r.cand),
       importable, matched: !!r.matched, inArea: !!r.inArea,
       address: r.address || null, km: r.km != null ? r.km : null,
-      photo: !!r.photoName, error: r.error || null,
+      photo: !!r.photoRef, error: r.error || null,
       row: importable ? rowFrom(r) : null,
     };
   });

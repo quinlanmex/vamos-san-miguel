@@ -6,7 +6,8 @@ export async function GET(req) {
   const ref = new URL(req.url).searchParams.get("ref");
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!ref || !key) return new Response("Missing ref or key", { status: 400 });
-  const url = `https://places.googleapis.com/v1/${ref}/media?maxWidthPx=900&key=${key}`;
+  // Classic Places Photo endpoint (302-redirects to the image; fetch follows it).
+  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=900&photo_reference=${encodeURIComponent(ref)}&key=${key}`;
   try {
     const r = await fetch(url);
     if (!r.ok) return new Response("Photo unavailable", { status: r.status });
