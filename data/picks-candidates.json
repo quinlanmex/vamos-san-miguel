@@ -1,0 +1,1352 @@
+{
+  "generatedFrom": "takeout-20260810T213800Z-1-001.zip",
+  "counts": {
+    "totalPlaces": 93,
+    "inAreaTotal": 55,
+    "sma": 51,
+    "adjacent": 4,
+    "unknown": 0,
+    "out": 38,
+    "includedLists": 26,
+    "excludedLists": 24
+  },
+  "inArea": [
+    {
+      "name": "Escondido Hot Springs",
+      "sourceList": [
+        "Recreation"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Escondido+Hot+Springs/data=!4m2!3m1!1s0x842b4f796629a67b:0x1faddc394677dfa8",
+      "featureHex": "0x842b4f796629a67b",
+      "area": "adjacent",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "name": "La Burger",
+      "sourceList": [
+        "Best family restaurants",
+        "Best sandwiches_burgers"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/La+Burger/data=!4m2!3m1!1s0x842b4f767091217f:0x7e937ee5436e1db9",
+      "featureHex": "0x842b4f767091217f",
+      "area": "adjacent",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "family",
+        "sandwiches"
+      ]
+    },
+    {
+      "name": "Lanzafuegos",
+      "sourceList": [
+        "Best Pizza",
+        "Best family restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Lanzafuegos/data=!4m2!3m1!1s0x842b4f7e44b4d495:0x2f8c12e87c76c37f",
+      "featureHex": "0x842b4f7e44b4d495",
+      "area": "adjacent",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "pizza",
+        "family"
+      ]
+    },
+    {
+      "name": "Restaurante Patria",
+      "sourceList": [
+        "Best family restaurants",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Restaurante+Patria/data=!4m2!3m1!1s0x842b4f9b188914b9:0x56668c2ac19de51e",
+      "featureHex": "0x842b4f9b188914b9",
+      "area": "adjacent",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "family",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Amorino",
+      "sourceList": [
+        "Dessert"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Amorino/data=!4m2!3m1!1s0x842b51facad4148b:0x20266e658fd38b0c",
+      "featureHex": "0x842b51facad4148b",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "dessert"
+      ]
+    },
+    {
+      "name": "Antaño Cuatro",
+      "sourceList": [
+        "Best Mexican Food",
+        "Best family restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Anta%C3%B1o+Cuatro/data=!4m2!3m1!1s0x842b515cd6d23587:0x9f3d23d49822484f",
+      "featureHex": "0x842b515cd6d23587",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "family"
+      ]
+    },
+    {
+      "name": "Arriba Abajo",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Arriba+Abajo/data=!4m2!3m1!1s0x842b51ad5108000d:0x954bf7b7c08a6056",
+      "featureHex": "0x842b51ad5108000d",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Art Garden Cafe",
+      "sourceList": [
+        "Cafe for working",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Art+Garden+Cafe/data=!4m2!3m1!1s0x842b51304c6774af:0x79153f81de9c2f4d",
+      "featureHex": "0x842b51304c6774af",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "AURORA 51",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/AURORA+51/data=!4m2!3m1!1s0x842b51648ca703e7:0xb6205a51255c2955",
+      "featureHex": "0x842b51648ca703e7",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Bakery Sucré, SMA.",
+      "sourceList": [
+        "Dessert",
+        "Best bakeries",
+        "Cafe for working",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Bakery+Sucr%C3%A9,+SMA./data=!4m2!3m1!1s0x842b517f9b654abd:0x44b06f9836864de7",
+      "featureHex": "0x842b517f9b654abd",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "dessert",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Bocaciega",
+      "sourceList": [
+        "Date night restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Bocaciega/data=!4m2!3m1!1s0x842b51472b8bc225:0xf1a18dc6b27b13dc",
+      "featureHex": "0x842b51472b8bc225",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "date-night"
+      ]
+    },
+    {
+      "name": "Café 1910",
+      "sourceList": [
+        "Best Mexican Food",
+        "Cafe for working",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Caf%C3%A9+1910/data=!4m2!3m1!1s0x842b51b332774101:0x4d177224222f57ca",
+      "featureHex": "0x842b51b332774101",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Café Murmullo",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Caf%C3%A9+Murmullo/data=!4m2!3m1!1s0x842b51a43eb4057f:0xf5da16f054687e96",
+      "featureHex": "0x842b51a43eb4057f",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Casa Nostra Restaurant, Terrace and Rooftop",
+      "sourceList": [
+        "Date night restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Casa+Nostra+Restaurant,+Terrace+and+Rooftop/data=!4m2!3m1!1s0x842b51ba8c2d2581:0xebfe42417eb524cf",
+      "featureHex": "0x842b51ba8c2d2581",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "date-night"
+      ]
+    },
+    {
+      "name": "Cañada de la Virgen",
+      "sourceList": [
+        "Hiking _ Archaeology"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ca%C3%B1ada+de+la+Virgen/data=!4m2!3m1!1s0x842b5c36f2972287:0xa2b19bec3c365c4",
+      "featureHex": "0x842b5c36f2972287",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "tours",
+      "inferredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "name": "CHURRERÍA PORFIRIO SAN MIGUEL DE ALLENDE",
+      "sourceList": [
+        "Dessert"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/CHURRER%C3%8DA+PORFIRIO+SAN+MIGUEL+DE+ALLENDE/data=!4m2!3m1!1s0x842b510057a24817:0x176c88fab623ad1b",
+      "featureHex": "0x842b510057a24817",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "dessert"
+      ]
+    },
+    {
+      "name": "COMUDE PICKLEBALL",
+      "sourceList": [
+        "Recreation"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/COMUDE+PICKLEBALL/data=!4m2!3m1!1s0x842b510032fe5401:0x65697661ce93af59",
+      "featureHex": "0x842b510032fe5401",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "name": "Comunidad by Our Habitas",
+      "sourceList": [
+        "Best family restaurants",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Comunidad+by+Our+Habitas/data=!4m2!3m1!1s0x842b51ce28886fa1:0xdcfc5ab6964a1e11",
+      "featureHex": "0x842b51ce28886fa1",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "family",
+        "cafe"
+      ]
+    },
+    {
+      "name": "CORTADO",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/CORTADO/data=!4m2!3m1!1s0x842b51819f781aaf:0x8cdd7634652a952f",
+      "featureHex": "0x842b51819f781aaf",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Cumpanio",
+      "sourceList": [
+        "Best Mexican Food",
+        "Best family restaurants",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Cumpanio/data=!4m2!3m1!1s0x842b51ba18053ffd:0xae74efe326bbfa8b",
+      "featureHex": "0x842b51ba18053ffd",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "family",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Daniel Rueffert",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Daniel+Rueffert/data=!4m2!3m1!1s0x842b51ba0d4359e1:0xdb2f93f8699d13c4",
+      "featureHex": "0x842b51ba0d4359e1",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Divino Cielo Café",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Divino+Cielo+Caf%C3%A9/data=!4m2!3m1!1s0x842b51a925c1b391:0x10a18688099555c8",
+      "featureHex": "0x842b51a925c1b391",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Don Taco Tequila",
+      "sourceList": [
+        "Vegan_vegetarian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Don+Taco+Tequila/data=!4m2!3m1!1s0x842b51b7970a71d1:0xc8cac15e7fce34f8",
+      "featureHex": "0x842b51b7970a71d1",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "vegetarian",
+        "vegan"
+      ]
+    },
+    {
+      "name": "Dôce 18 Concept House",
+      "sourceList": [
+        "Best Mexican Food",
+        "Date night restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/D%C3%B4ce+18+Concept+House/data=!4m2!3m1!1s0x842b51b9febb1f15:0x58c9a31bef506707",
+      "featureHex": "0x842b51b9febb1f15",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "date-night"
+      ]
+    },
+    {
+      "name": "El bosque deportivo",
+      "sourceList": [
+        "Recreation"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/El+bosque+deportivo/data=!4m2!3m1!1s0x842b51004365366b:0xe86b166ad6bbb1a4",
+      "featureHex": "0x842b51004365366b",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "name": "El Café Instituto Allende Casa Museo",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/El+Caf%C3%A9+Instituto+Allende+Casa+Museo/data=!4m2!3m1!1s0x842b51fca2b03c8f:0x9d76d16d48e3ee69",
+      "featureHex": "0x842b51fca2b03c8f",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Fari Trattoria",
+      "sourceList": [
+        "Date night restaurants",
+        "Best Italian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Fari+Trattoria/data=!4m2!3m1!1s0x842b5138a8c49afb:0x22a7d01dfb490f96",
+      "featureHex": "0x842b5138a8c49afb",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "date-night",
+        "italian"
+      ]
+    },
+    {
+      "name": "Firenze Restaurant - San Miguel de Allende",
+      "sourceList": [
+        "Date night restaurants",
+        "Best Italian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Firenze+Restaurant+-+San+Miguel+de+Allende/data=!4m2!3m1!1s0x842b51ba41cada87:0x4bdaaa3f90b2b6a9",
+      "featureHex": "0x842b51ba41cada87",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "date-night",
+        "italian"
+      ]
+    },
+    {
+      "name": "Florios San Miguel",
+      "sourceList": [
+        "Best Argentinian",
+        "Date night restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Florios+San+Miguel/data=!4m2!3m1!1s0x842b511b34cc7e19:0x3157a9356fe0cb8d",
+      "featureHex": "0x842b511b34cc7e19",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "argentinian",
+        "date-night"
+      ]
+    },
+    {
+      "name": "Galería - Estudio Juan Zaragoza",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Galer%C3%ADa+-+Estudio+Juan+Zaragoza/data=!4m2!3m1!1s0x842b51c79329d57f:0x9573869da194d803",
+      "featureHex": "0x842b51c79329d57f",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Galería Ascender",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Galer%C3%ADa+Ascender/data=!4m2!3m1!1s0x842b51b7344be273:0x392a0d253c83d9a2",
+      "featureHex": "0x842b51b7344be273",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Hecho en México",
+      "sourceList": [
+        "Best Mexican Food"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Hecho+en+M%C3%A9xico/data=!4m2!3m1!1s0x842b51b1d00f418d:0x55bc02b3c5b505c6",
+      "featureHex": "0x842b51b1d00f418d",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican"
+      ]
+    },
+    {
+      "name": "Inside Cafe",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Inside+Cafe/data=!4m2!3m1!1s0x842b51b9d92ba417:0x43e1a5f895e344aa",
+      "featureHex": "0x842b51b9d92ba417",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "KAFFI",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/KAFFI/data=!4m2!3m1!1s0x842b51ad09750e47:0x3bd64872ec181741",
+      "featureHex": "0x842b51ad09750e47",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "La Cabra Iluminada",
+      "sourceList": [
+        "Vegan_vegetarian",
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/La+Cabra+Iluminada/data=!4m2!3m1!1s0x842b5123082609db:0x7fabb38637369ebb",
+      "featureHex": "0x842b5123082609db",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "vegetarian",
+        "vegan",
+        "cafe"
+      ]
+    },
+    {
+      "name": "La Frontera Restaurant",
+      "sourceList": [
+        "Best Mexican Food",
+        "Best family restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/La+Frontera+Restaurant/data=!4m2!3m1!1s0x842b51ad0a403a01:0x98db4cf64c5276fa",
+      "featureHex": "0x842b51ad0a403a01",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "family"
+      ]
+    },
+    {
+      "name": "La Sacristía",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/La+Sacrist%C3%ADa/data=!4m2!3m1!1s0x842b51b0d2a42dbd:0x76a54a6b3b3ecbc6",
+      "featureHex": "0x842b51b0d2a42dbd",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Lavanda Café de Especialidad",
+      "sourceList": [
+        "Best coffee",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Lavanda+Caf%C3%A9+de+Especialidad/data=!4m2!3m1!1s0x842b51b0c0fc145b:0x67a0ffb654013b97",
+      "featureHex": "0x842b51b0c0fc145b",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Lima - Cocina Realmente Peruana",
+      "sourceList": [
+        "Best Peruvian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Lima+-+Cocina+Realmente+Peruana/data=!4m2!3m1!1s0x842b518bd5e78527:0xf0b532af97e5023b",
+      "featureHex": "0x842b518bd5e78527",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "peruvian"
+      ]
+    },
+    {
+      "name": "Lukrezia Breakfast and Brunch",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Lukrezia+Breakfast+and+Brunch/data=!4m2!3m1!1s0x842b515e82b73e27:0x14f56c912e008c1",
+      "featureHex": "0x842b515e82b73e27",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Mamá Mía",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Mam%C3%A1+M%C3%ADa/data=!4m2!3m1!1s0x842b51b0b009254b:0x7f73204dcb2ba260",
+      "featureHex": "0x842b51b0b009254b",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "MARQUESA DE MANCERA",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/MARQUESA+DE+MANCERA/data=!4m2!3m1!1s0x842b51ba6ff9465d:0x34d190d645f9828c",
+      "featureHex": "0x842b51ba6ff9465d",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Mi Bistro 300",
+      "sourceList": [
+        "Best family restaurants",
+        "Cafe for working",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Mi+Bistro+300/data=!4m2!3m1!1s0x842b51b71e2e0b99:0x828c168e958dd6f9",
+      "featureHex": "0x842b51b71e2e0b99",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "family",
+        "cafe"
+      ]
+    },
+    {
+      "name": "NY Style Deli - District",
+      "sourceList": [
+        "Best sandwiches_burgers"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/NY+Style+Deli+-+District/data=!4m2!3m1!1s0x842b515b0c43432d:0x1f8e0e4ddc78f9e2",
+      "featureHex": "0x842b515b0c43432d",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "sandwiches"
+      ]
+    },
+    {
+      "name": "Panina",
+      "sourceList": [
+        "Best bakeries",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Panina/data=!4m2!3m1!1s0x842b514f206e652d:0x7c9097686cc707f1",
+      "featureHex": "0x842b514f206e652d",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "dessert",
+        "cafe"
+      ]
+    },
+    {
+      "name": "PANIO Luciernaga",
+      "sourceList": [
+        "Best bakeries",
+        "Best breakfasts",
+        "Best sandwiches_burgers"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/PANIO+Luciernaga/data=!4m2!3m1!1s0x842b51cc0cda78bf:0xc4f13945e2629824",
+      "featureHex": "0x842b51cc0cda78bf",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "dessert",
+        "cafe",
+        "sandwiches"
+      ]
+    },
+    {
+      "name": "Petit Four",
+      "sourceList": [
+        "Cafe for working",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Petit+Four/data=!4m2!3m1!1s0x842b51b7412b1dc7:0xf9c753590aa4d5b7",
+      "featureHex": "0x842b51b7412b1dc7",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Posada Corazón",
+      "sourceList": [
+        "Best family restaurants",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Posada+Coraz%C3%B3n/data=!4m2!3m1!1s0x842b51b081d85775:0xefd7f7b29d38253d",
+      "featureHex": "0x842b51b081d85775",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "family",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Raíces Restaurante SMA",
+      "sourceList": [
+        "Best Mexican Food",
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ra%C3%ADces+Restaurante+SMA/data=!4m2!3m1!1s0x842b51f3cf0a85f5:0xd1ff3fc95c0563f",
+      "featureHex": "0x842b51f3cf0a85f5",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "mexican",
+        "cafe"
+      ]
+    },
+    {
+      "name": "Rústica",
+      "sourceList": [
+        "Best breakfasts"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/R%C3%BAstica/data=!4m2!3m1!1s0x842b51d60c8b0181:0x6432092e36691ebd",
+      "featureHex": "0x842b51d60c8b0181",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "SIENNA GALERÍA",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/SIENNA+GALER%C3%8DA/data=!4m2!3m1!1s0x842b51f5eae2922f:0x8018ebe5f34f2a8d",
+      "featureHex": "0x842b51f5eae2922f",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Thai Kitchen",
+      "sourceList": [
+        "Best Asian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Thai+Kitchen/data=!4m2!3m1!1s0x842b51adc322dd51:0xc7713793ec5be44a",
+      "featureHex": "0x842b51adc322dd51",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "asian"
+      ]
+    },
+    {
+      "name": "Trazo 1810",
+      "sourceList": [
+        "Best rooftop dining",
+        "Date night restaurants"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4",
+      "featureHex": "0x842b51b74e354c0b",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "rooftop",
+        "date-night"
+      ]
+    },
+    {
+      "name": "Wiyeri Tatu Huichol/Wixárika, Galería y Arte Auténtico",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Wiyeri+Tatu+Huichol%2FWix%C3%A1rika,+Galer%C3%ADa+y+Arte+Aut%C3%A9ntico/data=!4m2!3m1!1s0x842b510d9e27b40b:0xb8bc5575fcd49636",
+      "featureHex": "0x842b510d9e27b40b",
+      "area": "sma",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Zibu Allende",
+      "sourceList": [
+        "Cafe for working"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Zibu+Allende/data=!4m2!3m1!1s0x842b517780690f77:0x986d088ad8081e73",
+      "featureHex": "0x842b517780690f77",
+      "area": "sma",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    }
+  ],
+  "outOfArea": [
+    {
+      "name": "Abita Springs",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Abita+Springs/data=!4m2!3m1!1s0x86275f01da942d3f:0x564ef3ce7c3c5f85",
+      "featureHex": "0x86275f01da942d3f",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Asheville",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Asheville/data=!4m2!3m1!1s0x88598ca93c0f6f09:0x94ef31c106343a5d",
+      "featureHex": "0x88598ca93c0f6f09",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Ashland",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ashland/data=!4m2!3m1!1s0x54cf628cb4eedb55:0x9b3b1fb8782df1ad",
+      "featureHex": "0x54cf628cb4eedb55",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Athens",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Athens/data=!4m2!3m1!1s0x88f66d19b4b433b9:0x4d747202d69d617c",
+      "featureHex": "0x88f66d19b4b433b9",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Berea",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Berea/data=!4m2!3m1!1s0x8842e18aa160b579:0xd32df1c2b2266672",
+      "featureHex": "0x8842e18aa160b579",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Bisbee",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Bisbee/data=!4m2!3m1!1s0x86d0b4b81ce1d82f:0x65ccff4c7c366b1a",
+      "featureHex": "0x86d0b4b81ce1d82f",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Bloomington",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Bloomington/data=!4m2!3m1!1s0x886c5df6b483d8e7:0xe91a912d8bad33d9",
+      "featureHex": "0x886c5df6b483d8e7",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Boulder",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Boulder/data=!4m2!3m1!1s0x876b8d4e278dafd3:0xc8393b7ca01b8058",
+      "featureHex": "0x876b8d4e278dafd3",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Cassadaga",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Cassadaga/data=!4m2!3m1!1s0x88e719ec634497b3:0xfbd918e74c0e183e",
+      "featureHex": "0x88e719ec634497b3",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Chapur 58",
+      "sourceList": [
+        "Cazador"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Chapur+58/data=!4m2!3m1!1s0x8f5673db62734759:0x660ffa7f6cbabace",
+      "featureHex": "0x8f5673db62734759",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": []
+    },
+    {
+      "name": "Charco del Ingenio",
+      "sourceList": [
+        "Kids activities"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Charco+del+Ingenio/data=!4m2!3m1!1s0x85d34f7e763ec8bb:0x725a778ad7ee669b",
+      "featureHex": "0x85d34f7e763ec8bb",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": [
+        "family"
+      ]
+    },
+    {
+      "name": "Decorah",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Decorah/data=!4m2!3m1!1s0x87fbad831de5c483:0xa0f87be1682e49be",
+      "featureHex": "0x87fbad831de5c483",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Durham Food Hall",
+      "sourceList": [
+        "Best Dining Experiences"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Durham+Food+Hall/data=!4m2!3m1!1s0x89ace5c37ba59933:0x73c0f31a22555289",
+      "featureHex": "0x89ace5c37ba59933",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": []
+    },
+    {
+      "name": "Elforoteo Coffee",
+      "sourceList": [
+        "Versalles breakfast and cafes"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Elforoteo+Coffee/data=!4m2!3m1!1s0x842145aedfc1aef9:0x9f55fd49047701bb",
+      "featureHex": "0x842145aedfc1aef9",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "cafe"
+      ]
+    },
+    {
+      "name": "Eureka Springs",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Eureka+Springs/data=!4m2!3m1!1s0x87ced2b619b8c8d7:0xe792bb3e4a53db56",
+      "featureHex": "0x87ced2b619b8c8d7",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Fairfax",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Fairfax/data=!4m2!3m1!1s0x808596575807f881:0x33e0be844a821450",
+      "featureHex": "0x808596575807f881",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Homer",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Homer/data=!4m2!3m1!1s0x56c12deea7865acf:0x1f2e94ed71e773bb",
+      "featureHex": "0x56c12deea7865acf",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "HUMAMI TIENDA DE ALIMENTOS ORGÁNICOS",
+      "sourceList": [
+        "Organic Grocery"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/HUMAMI+TIENDA+DE+ALIMENTOS+ORG%C3%81NICOS/data=!4m2!3m1!1s0x8f567519f6870aed:0x7e5103f2bcfdd19a",
+      "featureHex": "0x8f567519f6870aed",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "organic"
+      ]
+    },
+    {
+      "name": "Joshua Tree",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Joshua+Tree/data=!4m2!3m1!1s0x80dad045fbc95001:0xe4e7fe5a00146bc3",
+      "featureHex": "0x80dad045fbc95001",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Lawrence",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Lawrence/data=!4m2!3m1!1s0x87bf40c7ce479883:0x151713d50478ab2e",
+      "featureHex": "0x87bf40c7ce479883",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Louisville",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Louisville/data=!4m2!3m1!1s0x88690b1ab35bd511:0xd4d3b4282071fd32",
+      "featureHex": "0x88690b1ab35bd511",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Mahahual",
+      "sourceList": [
+        "Vegan_vegetarian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Mahahual/data=!4m2!3m1!1s0x8f5adf4e2063d693:0xc5a84ac96f30685a",
+      "featureHex": "0x8f5adf4e2063d693",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "vegetarian",
+        "vegan"
+      ]
+    },
+    {
+      "name": "Makanda",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Makanda/data=!4m2!3m1!1s0x88776d4253aaeecb:0x1e7b42ad1c9b35aa",
+      "featureHex": "0x88776d4253aaeecb",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Manitou Springs",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Manitou+Springs/data=!4m2!3m1!1s0x8713509fcf049499:0xa53d21dbae6b97ab",
+      "featureHex": "0x8713509fcf049499",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Northampton",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Northampton/data=!4m2!3m1!1s0x89e6d73e7c8e2a05:0xc316750b13d8db0b",
+      "featureHex": "0x89e6d73e7c8e2a05",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "OH MY GOAT - Centro de Escalada",
+      "sourceList": [
+        "Climbing"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/OH+MY+GOAT+-+Centro+de+Escalada/data=!4m2!3m1!1s0x85d30bac19ae9141:0x551689180e08817",
+      "featureHex": "0x85d30bac19ae9141",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "name": "Ojai",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ojai/data=!4m2!3m1!1s0x80e9b81e5ed5987b:0x64412f3799be255f",
+      "featureHex": "0x80e9b81e5ed5987b",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Otoch Ma'ax Yetel Kooh",
+      "sourceList": [
+        "Vegan_vegetarian"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Otoch+Ma'ax+Yetel+Kooh/data=!4m2!3m1!1s0x8f51dd9ddd582c51:0x554ecfd46cd6399b",
+      "featureHex": "0x8f51dd9ddd582c51",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "vegetarian",
+        "vegan"
+      ]
+    },
+    {
+      "name": "Paia",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Paia/data=!4m2!3m1!1s0x7954d2200365e12d:0x25d15f8d992059c3",
+      "featureHex": "0x7954d2200365e12d",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Port Townsend",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Port+Townsend/data=!4m2!3m1!1s0x548fe9a4d291b6fd:0xf5e669eab50680c0",
+      "featureHex": "0x548fe9a4d291b6fd",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Ramen Izakaya Tsumugui",
+      "sourceList": [
+        "Cazador"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ramen+Izakaya+Tsumugui/data=!4m2!3m1!1s0x85d1ffa61d5919cf:0xb8e14fdcee9d1ed5",
+      "featureHex": "0x85d1ffa61d5919cf",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": []
+    },
+    {
+      "name": "Santa Fe",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Santa+Fe/data=!4m2!3m1!1s0x87185043e79852a9:0x8c902373fd88df40",
+      "featureHex": "0x87185043e79852a9",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Sedona",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Sedona/data=!4m2!3m1!1s0x872da132f942b00d:0x5548c523fa6c8efd",
+      "featureHex": "0x872da132f942b00d",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Stanley",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Stanley/data=!4m2!3m1!1s0x54a8f65559fd639b:0xb9c8c4a2fb0a918b",
+      "featureHex": "0x54a8f65559fd639b",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Taos",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Taos/data=!4m2!3m1!1s0x871764da7f11fcb1:0x90ea918361a9b782",
+      "featureHex": "0x871764da7f11fcb1",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Tequis Art Galeria",
+      "sourceList": [
+        "SMA Art"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Tequis+Art+Galeria/data=!4m2!3m1!1s0x85d39e07cfb8aa9d:0x5ad687efe77d170",
+      "featureHex": "0x85d39e07cfb8aa9d",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "comunidad",
+      "inferredTags": []
+    },
+    {
+      "name": "Unity",
+      "sourceList": [
+        "Hippie_New Age"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Unity/data=!4m2!3m1!1s0x4cae18c0cc0d8cc7:0xa764b980e71c0d2f",
+      "featureHex": "0x4cae18c0cc0d8cc7",
+      "area": "out",
+      "inferredListKey": "live",
+      "inferredCategory": "bienestar",
+      "inferredTags": [
+        "wellness"
+      ]
+    },
+    {
+      "name": "Ya'axtal Montejo",
+      "sourceList": [
+        "Organic Grocery"
+      ],
+      "mapsUrl": "https://www.google.com/maps/place/Ya'axtal+Montejo/data=!4m2!3m1!1s0x8f5676b2714a1f77:0x44f200f84fcd90b8",
+      "featureHex": "0x8f5676b2714a1f77",
+      "area": "out",
+      "inferredListKey": "rest",
+      "inferredCategory": "mercados",
+      "inferredTags": [
+        "organic"
+      ]
+    }
+  ]
+}
