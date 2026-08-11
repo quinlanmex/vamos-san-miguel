@@ -324,7 +324,7 @@ export default function App() {
   const [lang, setLang] = useState("en");
   const [theme, setTheme] = useState(() =>
     typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const [view, setView] = useState("events");
+  const [view, setView] = useState("faves");
   const [eventLayout, setEventLayout] = useState("list"); // list | map
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
