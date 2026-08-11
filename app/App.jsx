@@ -203,7 +203,7 @@ SEED_FAV_LISTS.forEach((l) => l.items.forEach((it) => { it.diet = FAV_DIET[it.na
 
 const T = {
   es: { brand: "Vamos", tagline: "El San Miguel de los que saben",
-    events: "Eventos", faves: "Recomendados", savedTab: "Guardados", search: "Buscar eventos, lugares…",
+    events: "Agenda", faves: "Recomendados", savedTab: "Guardados", search: "Buscar eventos, lugares…",
     all: "Todos", today: "Hoy", weekend: "Fin de semana", week: "Esta semana",
     saved: "Guardados", clear: "Limpiar filtros", results: "resultados",
     savedEmpty: "Aún no guardas nada.", savedHint: "Toca el ♥ en cualquier evento o recomendación para guardarlo aquí.",
@@ -218,7 +218,7 @@ const T = {
     copied: "¡Enlace copiado!", details: "Detalles", allCats: "Todas las categorías",
     approxLoc: "Ubicación aproximada", back: "Volver" },
   en: { brand: "Vamos", tagline: "The insider's San Miguel de Allende",
-    events: "Events", faves: "Local Picks", savedTab: "Saved", search: "Search events, places…",
+    events: "What's On", faves: "Local Picks", savedTab: "Saved", search: "Search events, places…",
     all: "All", today: "Today", weekend: "Weekend", week: "This week",
     saved: "Saved", clear: "Clear filters", results: "results",
     savedEmpty: "Nothing saved yet.", savedHint: "Tap the ♥ on any event or pick to save it here.",
