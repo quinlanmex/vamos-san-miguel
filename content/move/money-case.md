@@ -6,7 +6,7 @@ source_chapters: [ch1.md, ch2.md, ch16.md]
 
 # The Money Case for Moving to San Miguel de Allende
 
-For most of our working lives, my wife and I treated where we lived like an immutable backdrop. We negotiated salaries, chased deductions, and budgeted religiously, but we never once asked whether the location itself was doing more damage to our finances than any raise could repair. The night we read our tax return out loud at our California kitchen table, that assumption cracked. Nearly $80,000 was gone to federal and state income tax before we had paid a mortgage, bought groceries, or stepped outside our front door. The question that changed everything was simple. What if we were solving the wrong problem?
+For most of our working lives, my wife and I treated where we lived like an immutable backdrop. We negotiated salaries, chased deductions, and budgeted religiously, but we never once asked whether the location itself was doing more damage to our finances than any raise could repair. The night we read our tax return out loud at our California kitchen table, that assumption cracked. A large share of what we earned was gone to federal and state income tax before we had paid a mortgage, bought groceries, or stepped outside our front door. The question that changed everything was simple. What if we were solving the wrong problem?
 
 ## Geography is a financial variable
 
@@ -14,7 +14,7 @@ The cost of a place stacks in three layers, and geography sets how hard each one
 
 The first layer is federal income tax, the one that feels immutable. It is not. For an American who lives and works abroad, most or all of it can come off the table legally.
 
-The second layer is state income tax. In California, ours ran roughly $24,000 a year, an obligation that existed purely because of where we happened to live. Establishing a domicile in a state with no income tax before you leave removes it.
+The second layer is state income tax. In a high-tax state like California it can run well into five figures a year, an obligation that exists purely because of where you happen to live. Establishing a domicile in a state with no income tax before you leave removes it.
 
 The third layer never shows up on a tax return. It arrives quietly, priced into every meal, haircut, and plumber's visit. Prices in any region are calibrated to the local income level, so when everyone around you earns six figures, everything you buy is priced for six figures. Move to a place with lower average incomes and a high quality of life, and that extraction reverses.
 
@@ -30,7 +30,7 @@ A few honest caveats belong here. FEIE covers earned income only, not dividends,
 
 There is an old Persian fable about a mathematician who asked the emperor for one grain of rice on the first square of a chessboard, doubling on each square after. The emperor laughed, then discovered the back half of the board holds more rice than the world produces in a century. That is the whole financial argument in one image. The stakes look small at the beginning because the beginning is the only place they look small.
 
-Across fifteen years of testing locations, living abroad freed up somewhere between $100,000 and $150,000 in additional annual savings on a $260,000 income, not by earning more or working harder. San Miguel de Allende sits in the moderate-arbitrage tier, an established hub where you pay a premium for strong schools, plug-and-play infrastructure, and a ready community, and still typically save 40 to 50 percent against a comparable U.S. lifestyle. Every year of delay is a year of that spread you do not get back, and a year of compounding you cannot recover later.
+Across fifteen years of testing locations, living abroad freed up a substantial share of our income as new savings every year, not by earning more or working harder. San Miguel de Allende sits in the moderate-arbitrage tier, an established hub where you pay a premium for strong schools, plug-and-play infrastructure, and a ready community, and still typically save 40 to 50 percent against a comparable U.S. lifestyle. Every year of delay is a year of that spread you do not get back, and a year of compounding you cannot recover later.
 
 ## Money runs on different rails here
 

@@ -42,6 +42,17 @@ export default function Markdown({ body }) {
       continue;
     }
 
+    // GFM tables: a "| ... |" row followed by a "| --- | --- |" separator.
+    if (line.trim().startsWith("|") && i + 1 < lines.length && /-/.test(lines[i + 1]) && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1])) {
+      const splitRow = (s) => s.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const header = splitRow(line);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].trim().startsWith("|")) { rows.push(splitRow(lines[i])); i++; }
+      blocks.push({ type: "table", header, rows });
+      continue;
+    }
+
     // Lists (unordered - / * , or ordered 1.)
     if (/^\s*([-*]|\d+\.)\s+/.test(line)) {
       const ordered = /^\s*\d+\.\s+/.test(line);
@@ -76,6 +87,24 @@ export default function Markdown({ body }) {
         if (b.type === "h") {
           const Tag = `h${Math.min(b.level, 4)}`;
           return <Tag key={idx} style={hStyle[b.level] || hStyle[3]}>{inline(b.text, `h${idx}`)}</Tag>;
+        }
+        if (b.type === "table") {
+          return (
+            <div key={idx} style={{ overflowX: "auto", margin: "0 0 20px" }}>
+              <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14.5, background: "#FFFFFF", border: "1px solid #E7DDCB", borderRadius: 10 }}>
+                <thead>
+                  <tr>{b.header.map((c, j) => <th key={j} style={{ textAlign: "left", padding: "10px 13px", background: "#0D1B36", color: "#F7F3EC", fontWeight: 700, borderRight: j < b.header.length - 1 ? "1px solid rgba(255,255,255,.12)" : "none" }}>{inline(c, `th${idx}-${j}`)}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {b.rows.map((r, ri) => (
+                    <tr key={ri} style={{ background: ri % 2 ? "#FBF9F5" : "#FFFFFF" }}>
+                      {r.map((c, ci) => <td key={ci} style={{ padding: "9px 13px", borderTop: "1px solid #E7DDCB", color: "#3A3125", verticalAlign: "top" }}>{inline(c, `td${idx}-${ri}-${ci}`)}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
         }
         if (b.type === "list") {
           const Tag = b.ordered ? "ol" : "ul";
