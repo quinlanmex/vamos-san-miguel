@@ -402,8 +402,8 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; }
         .disp { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; }
-        .card { transition: transform .16s ease, box-shadow .16s ease; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(21,83,154,.12); }
+        .card { transition: transform .16s ease, box-shadow .16s ease; box-shadow: 0 1px 2px rgba(13,20,40,.05), 0 6px 18px rgba(13,20,40,.05); }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(13,20,40,.10), 0 22px 44px rgba(13,20,40,.14); }
         .chip { transition: background .14s ease, color .14s ease, border-color .14s ease; }
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
         button:focus-visible, [tabindex]:focus-visible { outline: 3px solid ${P.marigold}; outline-offset: 2px; border-radius: 10px; }
@@ -649,7 +649,7 @@ export default function App() {
                   <span style={{ width: 10, height: 10, borderRadius: 3, background: CATS[list.cat].c }} />
                   {list[lang]}
                 </h2>
-                <div style={{ display: "grid", gap: 10 }}>
+                <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                   {list.items.map((it) => (
                     <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
                       saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)} />
@@ -682,7 +682,7 @@ export default function App() {
               {savedPlaceItems.length > 0 && (
                 <section style={{ marginBottom: 8 }}>
                   <h2 className="disp" style={{ fontWeight: 700, margin: "0 0 10px", color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", fontSize: 13 }}>{t.savedPlaces}</h2>
-                  <div style={{ display: "grid", gap: 10 }}>
+                  <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                     {savedPlaceItems.map((it) => (
                       <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
                         saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)} />
@@ -773,11 +773,11 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
           </div>
           <button onClick={(ev) => { ev.stopPropagation(); onSave(); }} aria-label={t.savedTip} aria-pressed={saved}
             style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, flexShrink: 0 }}>
-            <Heart size={20} color={P.rosa} fill={saved ? P.rosa : "none"} />
+            <Heart size={20} color={P.coral} fill={saved ? P.coral : "none"} />
           </button>
         </div>
 
-        <h3 className="disp" style={{ fontSize: 16.5, fontWeight: 700, margin: "5px 0 6px", lineHeight: 1.2 }}>{e.title[lang]}</h3>
+        <h3 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, fontWeight: 700, margin: "5px 0 6px", lineHeight: 1.18, letterSpacing: "-.01em" }}>{e.title[lang]}</h3>
         <p style={{ fontSize: 13.5, color: P.inkSoft, margin: "0 0 10px", lineHeight: 1.45 }}>{e.blurb[lang]}</p>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 12.5, color: P.inkSoft }}>
@@ -802,22 +802,27 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
 
 /* ---- Place card (Local Picks + Saved) ---------------------------- */
 function PlaceCard({ it, lang, t, P, saved, onSave }) {
+  const cat = CATS[it.cat] || { c: P.coral, es: "", en: "" };
   return (
-    <div className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, padding: 10,
-      display: "flex", alignItems: "center", gap: 12 }}>
-      <Media img={it.img} cat={it.cat} iconSize={22}
-        style={{ width: 60, height: 60, borderRadius: 10, flexShrink: 0 }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="disp" style={{ fontSize: 16, fontWeight: 700 }}>{it.name}</div>
-        <div style={{ fontSize: 13.5, color: P.inkSoft, marginTop: 3 }}>{it[lang]}</div>
-        <div style={{ fontSize: 12.5, color: P.inkSoft, marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
+    <div className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative" }}>
+        <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
+        <button onClick={onSave} aria-label={t.savedTip} aria-pressed={saved}
+          style={{ position: "absolute", top: 10, right: 10, border: "none", cursor: "pointer",
+            width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.92)",
+            display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
+          <Heart size={17} color={P.coral} fill={saved ? P.coral : "none"} />
+        </button>
+      </div>
+      <div style={{ padding: "12px 15px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: cat.c, textTransform: "uppercase", letterSpacing: ".05em" }}>{cat[lang]}</span>
+        <h3 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, fontWeight: 700, margin: "3px 0 5px", lineHeight: 1.15, letterSpacing: "-.01em" }}>{it.name}</h3>
+        {it[lang] && <p style={{ fontSize: 13, color: P.inkSoft, margin: "0 0 10px", lineHeight: 1.45 }}>{it[lang]}</p>}
+        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: P.inkSoft }}>
           <MapPin size={12} /> {it.area}
+          {it.diet && it.diet.length > 0 && <span style={{ color: P.agave || "#2F7A63", fontWeight: 700, marginLeft: 6 }}>· {it.diet.includes("vegan") ? "Vegan" : "Veg"}</span>}
         </div>
       </div>
-      <button onClick={onSave} aria-label={t.savedTip} aria-pressed={saved}
-        style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, flexShrink: 0, marginRight: 4 }}>
-        <Heart size={19} color={P.rosa} fill={saved ? P.rosa : "none"} />
-      </button>
     </div>
   );
 }
