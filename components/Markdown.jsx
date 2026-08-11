@@ -25,7 +25,9 @@ function inline(text, keyPrefix) {
 }
 
 export default function Markdown({ body }) {
-  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  // Strip HTML comments (e.g. the <!-- Sources: ... --> notes) so they never render.
+  const clean = body.replace(/<!--[\s\S]*?-->/g, "");
+  const lines = clean.replace(/\r\n/g, "\n").split("\n");
   const blocks = [];
   let i = 0;
 
