@@ -287,23 +287,11 @@ const catIcon = (color) =>
 
 /* ---- Brand emblem: a simplified Parroquia de San Miguel Arcángel — three
  * spires + rose window, SMA's signature landmark. White on the cobalt band. --- */
-function Emblem({ size = 30 }) {
+function Emblem({ size = 40 }) {
+  // Production Parroquia emblem (traced vector): cream frame + coral spire, for the dark navy header band.
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" style={{ flexShrink: 0 }}>
-      {/* side towers */}
-      <path d="M8 18 L12 11 L16 18 Z" fill="#fff" />
-      <rect x="8.6" y="18" width="6.8" height="17" fill="#fff" />
-      <path d="M24 18 L28 11 L32 18 Z" fill="#fff" />
-      <rect x="24.6" y="18" width="6.8" height="17" fill="#fff" />
-      {/* central spire */}
-      <path d="M14 16 L20 3 L26 16 Z" fill="#fff" />
-      <rect x="15" y="16" width="10" height="19" fill="#fff" />
-      {/* rose window + finials */}
-      <circle cx="20" cy="24" r="2.6" fill="#F2A100" />
-      <circle cx="20" cy="3.6" r="1.3" fill="#F2A100" />
-      <circle cx="12" cy="11" r="1" fill="#F2A100" />
-      <circle cx="28" cy="11" r="1" fill="#F2A100" />
-    </svg>
+    <img src="/emblem-dark.svg" alt="" aria-hidden="true"
+      style={{ height: size, width: "auto", display: "block", flexShrink: 0 }} />
   );
 }
 
@@ -425,16 +413,16 @@ export default function App() {
 
       {/* Header */}
       <header style={{
-        backgroundColor: theme === "dark" ? P.cobaltDeep : P.cobalt, color: "#fff",
+        backgroundColor: "#0D1B36", color: "#F7F3EC",
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.13'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20 Z'/%3E%3Ccircle cx='20' cy='20' r='2.6' fill='%23F2A100' fill-opacity='0.5' stroke='none'/%3E%3C/g%3E%3C/svg%3E")`,
       }}>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 18px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <Emblem size={30} />
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span className="disp" style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.02em" }}>Vamos</span>
-                <span className="disp" style={{ fontSize: 26, fontWeight: 800, color: P.marigold, letterSpacing: "-0.02em" }}>SMA</span>
+              <Emblem size={42} />
+              <div style={{ display: "flex", alignItems: "baseline", gap: 9 }}>
+                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 30, fontWeight: 700, letterSpacing: "-0.01em" }}>Vamos</span>
+                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 21, fontWeight: 700, letterSpacing: "0.08em" }}>SAN&nbsp;MIGUEL</span>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -448,7 +436,7 @@ export default function App() {
                 {["es", "en"].map((l) => (
                   <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l}
                     style={{ border: "none", cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-                      background: lang === l ? "#fff" : "transparent", color: lang === l ? P.cobalt : "#fff" }}>
+                      background: lang === l ? "#F7F3EC" : "transparent", color: lang === l ? "#0D1B36" : "#F7F3EC" }}>
                     {l.toUpperCase()}
                   </button>
                 ))}
