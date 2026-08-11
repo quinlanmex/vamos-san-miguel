@@ -18,16 +18,18 @@ import { fetchEvents, fetchPlaces } from "../lib/supabase";
  * ------------------------------------------------------------------ */
 
 /* ---- Theme palettes (light + dark) ------------------------------- */
+/* Brand palette (finalized): navy-led structure, Parroquia coral signature accent,
+ * marigold + bougainvillea accents, warm cream neutral. */
 const PALETTES = {
   light: {
-    plaster: "#FAF6EF", card: "#FFFFFF", ink: "#2A211A", inkSoft: "#6B5D4F",
-    cobalt: "#15539A", cobaltDeep: "#0F3F76", rosa: "#E11D74", marigold: "#F2A100",
-    line: "#EAE2D4", chipBg: "#FFFFFF", sheet: "#FFFFFF", scrim: "rgba(30,22,14,.42)",
+    plaster: "#F7F3EC", card: "#FFFFFF", ink: "#241C14", inkSoft: "#6E604F",
+    cobalt: "#0D1B36", cobaltDeep: "#0A1428", coral: "#E06A63", rosa: "#E11D74", marigold: "#F2B134",
+    line: "#E7DDCB", chipBg: "#FFFFFF", sheet: "#FFFFFF", scrim: "rgba(13,20,40,.42)",
   },
   dark: {
-    plaster: "#17120E", card: "#241C15", ink: "#F5EEE2", inkSoft: "#B6A48D",
-    cobalt: "#4A87CE", cobaltDeep: "#0F3F76", rosa: "#F0459A", marigold: "#F2A100",
-    line: "#3A2D22", chipBg: "#241C15", sheet: "#201811", scrim: "rgba(0,0,0,.6)",
+    plaster: "#12131A", card: "#1B1D27", ink: "#F4ECDD", inkSoft: "#A6A08F",
+    cobalt: "#7FA8DA", cobaltDeep: "#0A1428", coral: "#E9887F", rosa: "#F0459A", marigold: "#F2B134",
+    line: "#2C2F3B", chipBg: "#1B1D27", sheet: "#171922", scrim: "rgba(0,0,0,.62)",
   },
 };
 
