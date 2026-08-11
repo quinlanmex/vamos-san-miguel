@@ -73,8 +73,17 @@ export default function MoveGuide({ params }) {
         <Markdown body={page.body} />
       </article>
 
-      <div style={{ marginTop: 34, padding: "18px 20px", background: "#FFFFFF", border: "1px solid #E7DDCB", borderRadius: 14 }}>
-        <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#0D1B36" }}>Keep going</p>
+      <div style={{ marginTop: 34, padding: "20px 22px", background: "#0D1B36", color: "#F7F3EC", borderRadius: 16 }}>
+        <p style={{ margin: "0 0 6px", fontFamily: "Georgia, serif", fontSize: 19, color: "#fff" }}>Adapted from the book</p>
+        <p style={{ margin: "0 0 14px", fontSize: 14.5, lineHeight: 1.55, opacity: .92 }}>
+          This guide is drawn from <em>The Geography of a Richer Life</em>, our full playbook on the money, the moves, and the life on the other side.
+        </p>
+        <Link href="/ebook" style={{ display: "inline-block", background: "#E06A63", color: "#fff", fontWeight: 700, fontSize: 14.5, padding: "10px 18px", borderRadius: 11, textDecoration: "none" }}>
+          About the book →
+        </Link>
+      </div>
+
+      <div style={{ marginTop: 16, padding: "16px 20px", background: "#FFFFFF", border: "1px solid #E7DDCB", borderRadius: 14 }}>
         <p style={{ margin: 0, fontSize: 14.5, color: "#6E604F", lineHeight: 1.5 }}>
           Browse the rest of the <Link href="/move" style={{ color: "#E06A63", fontWeight: 600, textDecoration: "none" }}>moving guides</Link>, or see the <Link href="/" style={{ color: "#E06A63", fontWeight: 600, textDecoration: "none" }}>Local Picks and events</Link> that make San Miguel feel like home.
         </p>

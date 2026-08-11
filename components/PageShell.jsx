@@ -16,6 +16,7 @@ export default function PageShell({ children }) {
           <nav style={{ marginLeft: "auto", display: "flex", gap: 18, fontSize: 15, fontWeight: 600 }}>
             <Link href="/" style={{ color: "#6E604F", textDecoration: "none" }}>Local Picks</Link>
             <Link href="/move" style={{ color: "#0D1B36", textDecoration: "none", borderBottom: "2px solid #E06A63", paddingBottom: 2 }}>Move Here</Link>
+            <Link href="/ebook" style={{ color: "#6E604F", textDecoration: "none" }}>The Book</Link>
           </nav>
         </div>
       </header>
