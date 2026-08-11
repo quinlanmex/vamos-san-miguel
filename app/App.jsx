@@ -407,6 +407,8 @@ export default function App() {
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(13,20,40,.10), 0 22px 44px rgba(13,20,40,.14); }
         .chip { transition: background .14s ease, color .14s ease, border-color .14s ease; }
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
+        .brandlogo { height: 58px; width: auto; max-width: 66vw; display: block; }
+        @media (min-width: 680px) { .brandlogo { height: 92px; max-width: 440px; } }
         .viewnav-top { display: none; }
         @media (min-width: 680px) { .viewnav-top { display: flex; } }
         .viewnav-bottom { display: none; }
@@ -425,13 +427,7 @@ export default function App() {
       }}>
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 18px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <Emblem size={42} />
-              <div style={{ display: "flex", alignItems: "baseline", gap: 9 }}>
-                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 30, fontWeight: 700, letterSpacing: "-0.01em" }}>Vamos</span>
-                <span style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 21, fontWeight: 700, letterSpacing: "0.08em" }}>SAN&nbsp;MIGUEL</span>
-              </div>
-            </div>
+            <img src="/logo-dark.svg" alt="Vamos San Miguel — Events · Local Picks · Insider Guide" className="brandlogo" />
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button onClick={() => setTheme((v) => (v === "dark" ? "light" : "dark"))}
                 aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
@@ -450,9 +446,6 @@ export default function App() {
               </div>
             </div>
           </div>
-          <p style={{ margin: "10px 0 0", opacity: .92, fontSize: 15, display: "flex", alignItems: "center", gap: 7 }}>
-            <Globe size={15} /> {t.tagline}
-          </p>
           <nav className="viewnav-top" style={{ marginTop: 12, gap: 26, alignItems: "center" }}>
             {[["events", t.events], ["faves", t.faves], ["saved", t.savedTab]].map(([k, label]) => (
               <button key={k} onClick={() => setView(k)}
