@@ -1,6 +1,6 @@
 ---
 title: Raising Kids in San Miguel de Allende: Schools and Family Life
-description: Schools, safety, and daily family life for Americans raising kids in San Miguel de Allende, including the immersion trade-offs and how to choose your approach.
+description: The real schooling landscape in San Miguel de Allende, from bilingual private schools to public schools, plus safety, activities, and how the large English-speaking community eases the landing for expat kids.
 source_chapters: [ch14.md, ch5.md]
 ---
 
@@ -10,7 +10,16 @@ A soccer ball rolled to a stop at my eleven-year-old's feet in a Mexico City par
 
 ## Are the schools good in San Miguel de Allende?
 
-San Miguel is one of the towns families concentrate in, with education options for teens the authors rate as excellent and family bonds that form deep through schools. In the book's community breakdown, San Miguel carries a very high expat population, excellent education quality, and an excellent family community built on strong school networks. The trade-off is cost: San Miguel runs pricier than much of Mexico, in the moderate-arbitrage tier where you pay a premium for plug-and-play infrastructure and a ready social ecosystem. Budget roughly $300 to $1,500 a month per child for education, with bilingual schools at the top of that range, and expect to get pulled deep into school operations, fundraising, and local traditions.
+Families cluster in San Miguel partly because the schooling options run unusually deep for a town this size. The landscape sorts into a few lanes. There are several bilingual private schools that teach across Spanish and English, at least one that runs an International Baccalaureate track from the early grades, and American-style curriculum options. Alongside those sit the public schools (escuelas públicas), which teach in Spanish and give a kid the fastest route into a local social world. Some families skip formal enrollment and run a U.S. curriculum through online school with local tutors.
+
+The popular bilingual and international schools fill up, and the sought-after entry grades carry waitlists, so plan six to twelve months ahead. Tuition at private bilingual and international schools in 2026 runs roughly 60,000 to 180,000 pesos a year, about $3,500 to $10,500, depending on grade and school. Public school costs far less but asks more of a kid's Spanish on day one. Whatever you pick, expect to get pulled deep into school operations, fundraising, and local traditions.
+
+| Option | Language | Who it suits |
+| --- | --- | --- |
+| Bilingual private school | Spanish and English | Families wanting academic structure plus English continuity while Spanish builds |
+| International / IB program | English-led, bilingual | Families who value a portable credential and may relocate again |
+| Public school (escuela pública) | Spanish | Families committed to full immersion and a local peer group |
+| Homeschool / online plus tutors | English | Families holding a U.S. curriculum or a college-prep transcript |
 
 ## What are the three ways families raise kids here?
 
@@ -20,7 +29,7 @@ If your family thrives in the first two, that is a real choice, not a compromise
 
 ## What do kids actually gain?
 
-Three advantages compound. Community integration teaches social judgment: in San Miguel, families come out for evening walks around six, and children move freely through an adult landscape, absorbing a web of relationships that would take years to build in an American suburb. Kids grow up understanding that adults exist on a spectrum of relationship rather than the flat parent-or-stranger binary. Practical intelligence gets built through real-world navigation: a fourteen-year-old sent to the market with 200 pesos comes back having learned to read produce quality, negotiate across a language gap, and take responsibility for an outcome the family depended on. And durable confidence comes from actual capability. Not "I'm special," but "I can handle things," a quieter kind built brick by brick from ordering food in Spanish, finding a repair shop, and recovering from a mistake in public.
+Three advantages compound. Community integration teaches social judgment: in San Miguel, families come out for evening walks around six, gathering in the Jardín under the Parroquia while children move freely through an adult landscape, absorbing a web of relationships that would take years to build in an American suburb. The historic Centro is compact and walkable (it is the core of a UNESCO World Heritage site), so kids can walk or bike to a friend's house, a plaza, or a pickup game rather than waiting on a parent behind the wheel. Weekends fill in easily here: youth fútbol is everywhere and remains the surest on-ramp to local friendships, and art, music, and dance classes are plentiful in a town this steeped in the arts. Kids grow up understanding that adults exist on a spectrum of relationship rather than the flat parent-or-stranger binary. Practical intelligence gets built through real-world navigation: a fourteen-year-old sent to the market with 200 pesos comes back having learned to read produce quality, negotiate across a language gap, and take responsibility for an outcome the family depended on. And durable confidence comes from actual capability. Not "I'm special," but "I can handle things," a quieter kind built brick by brick from ordering food in Spanish, finding a repair shop, and recovering from a mistake in public.
 
 The bilingual layer compounds all of it. On the cognitive research, the fair claim is a modest one: a 2020 systematic review found the evidence for a bilingual advantage shows up most consistently on tasks measuring inhibition and cognitive flexibility, while being candid that the picture is not settled and results across studies are inconsistent. Growing up switching between two languages appears to strengthen attention control, and the research supports that more than any grander promise.
 
@@ -38,4 +47,10 @@ Mexico is not a developmental cheat code, and you should go in with the trades n
 
 Your destination should fit the life you are living now, not the version of yourself you daydream about. On a scouting trip, watch how children move through public space, how they interact with adults, and how much freedom they carry. Ask concrete questions: do children play in public unsupervised, are there multi-generational gathering areas, do local businesses know families personally, are there pickup games happening on their own. The answers tell you whether Mexican childhood culture is still alive in that place or already displaced.
 
-Older kids need extra thought. A four-year-old adapts to anything; a fourteen-year-old about to leave a peer group does not, and the foundational question is whether everyone in the household is choosing this or whether you are choosing it for them. Expect a language-frustration window of three to six months, and decide in advance that you will not dial back immersion when it peaks around months two to four, because the breakthrough waits on the far side of the frustration. Whether you choose continuity, hybrid, or immersion, the point is to choose on purpose instead of defaulting into it. Explore the full relocation guide and the community for school specifics and other families already doing this in San Miguel.
+Older kids need extra thought. A four-year-old adapts to anything; a fourteen-year-old about to leave a peer group does not, and the foundational question is whether everyone in the household is choosing this or whether you are choosing it for them. Expect a language-frustration window of three to six months, and decide in advance that you will not dial back immersion when it peaks around months two to four, because the breakthrough waits on the far side of the frustration. Whether you choose continuity, hybrid, or immersion, the point is to choose on purpose instead of defaulting into it.
+
+One thing softens the whole transition in San Miguel: the English-speaking community here is large and long-established, going back decades to the artists and retirees who settled in. That means a kid rarely lands as the only foreign child in the room, and a parent can find other families a few weeks in through school networks, Facebook groups, and WhatsApp threads that were running long before you arrived. Explore the full relocation guide and the community for school specifics and other families already doing this in San Miguel.
+
+<!-- Sources: https://sma.mx/the-best-bilingual-schools-in-san-miguel-de-allende/; https://www.reloplanner.com/guides/san-miguel-de-allende-mx/education; https://www.expatexchange.com/ctryguide/29496/77/Mexico/Schools-in-San-Miguel-de-Allende-Best-International-Schools-and-Bilingual-Schools-in-San-Miguel-de-Allende; https://whc.unesco.org/en/list/1274/ -->
+
+
