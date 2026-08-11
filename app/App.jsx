@@ -460,7 +460,11 @@ export default function App() {
       <header style={{ background: P.card, color: P.ink, borderBottom: `1px solid ${P.line}`, position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
         <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
-          <img src={theme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"} alt="Vamos San Miguel — Events · Local Picks · Insider Guide" className="brandlogo" />
+          <img
+            src={`/logo-${theme === "dark" ? "dark" : "light"}${lang === "es" ? "-es" : ""}.svg`}
+            onError={(e) => { const en = `/logo-${theme === "dark" ? "dark" : "light"}.svg`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
+            alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
+            className="brandlogo" />
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
             {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab], ["move", lang === "es" ? "Mudarse aquí" : "Move Here"]].map(([k, label]) => (
               <button key={k} onClick={() => setView(k)}
