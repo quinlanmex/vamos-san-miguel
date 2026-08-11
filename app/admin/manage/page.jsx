@@ -74,6 +74,23 @@ export default function Manage() {
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setUploading(false);
   }
+  async function uploadGallery(files) {
+    const file = files && files[0];
+    if (!file) return;
+    setUploading(true); setMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append("password", pw); fd.append("kind", kind); fd.append("file", file);
+      const r = await fetch("/api/upload", { method: "POST", body: fd });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Upload failed");
+      setEditing((e) => ({ ...e, photos: [...(e.photos || []), j.url] }));
+      setMsg({ type: "ok", text: "Gallery photo added — remember to Save." });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setUploading(false);
+  }
+  const removePhoto = (url) => setEditing((e) => ({ ...e, photos: (e.photos || []).filter((p) => p !== url) }));
+
   async function setStatus(id, status) {
     setBusy(true); setMsg(null);
     try { await api({ action: "setStatus", kind, id, record: { status } }); await load(); }
@@ -134,7 +151,7 @@ export default function Manage() {
         {!editing && (
           <>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
-              <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], cuisine: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
+              <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], cuisine: [], photos: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
                 style={btn(P.coral)}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${allRows.length} ${isPlace ? "picks" : "events"}…`}
                 style={{ ...field, flex: 1, minWidth: 180, maxWidth: 320 }} />
@@ -157,7 +174,7 @@ export default function Manage() {
                     style={{ ...field, width: "auto", padding: "7px 9px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                     {STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
                   </select>
-                  <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [] })} style={btn(P.navy)}>Edit</button>
+                  <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [], photos: r.photos || [] })} style={btn(P.navy)}>Edit</button>
                   <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
                 </div>
                 );
@@ -185,7 +202,13 @@ export default function Manage() {
                   <div><label style={label}>Dietary</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{DIET.map(([k, l]) => <button key={k} onClick={() => toggle("diet", k)} style={chip((editing.diet || []).includes(k), P.green)}>{l}</button>)}</div></div>
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Cuisine <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(restaurant sub-filters)</span></label><div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>{CUISINE.map(([k, l]) => <button key={k} onClick={() => toggle("cuisine", k)} style={chip((editing.cuisine || []).includes(k), P.coral)}>{l}</button>)}</div></div>
                   <div><label style={label}>Area</label><input style={field} value={editing.area || ""} onChange={(e) => upd("area", e.target.value)} /></div>
-                  <div><label style={label}>Website</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} /></div>
+                  <div><label style={label}>Website</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} placeholder="https://…" /></div>
+                  <div><label style={label}>Phone</label><input style={field} value={editing.phone || ""} onChange={(e) => upd("phone", e.target.value)} placeholder="+52 415 …" /></div>
+                  <div><label style={label}>Hours</label><input style={field} value={editing.hours || ""} onChange={(e) => upd("hours", e.target.value)} placeholder="Tue–Sun 1–10pm" /></div>
+                  <div><label style={label}>Price</label><select style={field} value={editing.price_level || ""} onChange={(e) => upd("price_level", e.target.value ? Number(e.target.value) : null)}>
+                    <option value="">—</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option><option value="4">$$$$</option>
+                  </select></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Good to know <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(reservations, cash only, rooftop…)</span></label><input style={field} value={editing.tip || ""} onChange={(e) => upd("tip", e.target.value)} /></div>
                 </>
               ) : (
                 <>
@@ -206,7 +229,7 @@ export default function Manage() {
                 </>
               )}
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={label}>Photo</label>
+                <label style={label}>{isPlace ? "Main photo (card thumbnail)" : "Photo"}</label>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <label
                     onDragOver={(e) => { e.preventDefault(); }}
@@ -224,6 +247,26 @@ export default function Manage() {
                   </div>
                 </div>
               </div>
+              {isPlace && (
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={label}>Gallery <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(extra photos in the detail view)</span></label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {(editing.photos || []).map((url) => (
+                      <div key={url} style={{ position: "relative", width: 84, height: 64, borderRadius: 8, overflow: "hidden", border: `1px solid ${P.line}` }}>
+                        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <button type="button" onClick={() => removePhoto(url)} aria-label="Remove"
+                          style={{ position: "absolute", top: 2, right: 2, width: 18, height: 18, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(0,0,0,.6)", color: "#fff", fontSize: 12, lineHeight: "18px", padding: 0 }}>×</button>
+                      </div>
+                    ))}
+                    <label onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (!uploading) uploadGallery(e.dataTransfer.files); }}
+                      style={{ width: 84, height: 64, borderRadius: 8, border: `2px dashed ${P.line}`, background: "#FBF9F5", display: "grid", placeItems: "center", cursor: uploading ? "wait" : "pointer", fontSize: 22, color: P.inkSoft }}>
+                      +
+                      <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading}
+                        onChange={(e) => { uploadGallery(e.target.files); e.target.value = ""; }} />
+                    </label>
+                  </div>
+                </div>
+              )}
               <div><label style={label}>Status</label><select style={field} value={editing.status || "published"} onChange={(e) => upd("status", e.target.value)}>{STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
             </div>
             <button onClick={save} disabled={busy} style={{ ...btn(P.coral, !busy), marginTop: 16, width: "100%", padding: 13, fontSize: 15 }}>{busy ? "Saving…" : "Save"}</button>

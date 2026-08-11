@@ -6,6 +6,7 @@ import {
   Map as MapIcon, List as ListIcon, CalendarPlus, Share2, ExternalLink,
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
   Utensils, Wine, Palette,
+  Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -358,6 +359,7 @@ export default function App() {
   const [saved, setSaved] = useState(() => loadSet("qp_saved_events"));
   const [savedPlaces, setSavedPlaces] = useState(() => loadSet("qp_saved_places"));
   const [detail, setDetail] = useState(null); // event object or null
+  const [placeDetail, setPlaceDetail] = useState(null); // pick object or null
   const [events, setEvents] = useState(SEED_EVENTS);
   const [favLists, setFavLists] = useState(SEED_FAV_LISTS);
   const t = T[lang];
@@ -729,7 +731,8 @@ export default function App() {
                 <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                   {list.items.map((it) => (
                     <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
-                      saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)} />
+                      saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)}
+                      onOpen={() => setPlaceDetail(it)} />
                   ))}
                 </div>
               </section>
@@ -789,7 +792,8 @@ export default function App() {
                   <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                     {savedPlaceItems.map((it) => (
                       <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
-                        saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)} />
+                        saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)}
+                        onOpen={() => setPlaceDetail(it)} />
                     ))}
                   </div>
                 </section>
@@ -820,6 +824,11 @@ export default function App() {
       {detail && (
         <EventDetail e={detail} lang={lang} t={t} P={P} saved={saved.has(detail.id)}
           onSave={() => toggle(setSaved, saved, detail.id)} onClose={() => setDetail(null)} />
+      )}
+
+      {placeDetail && (
+        <PlaceDetail it={placeDetail} lang={lang} t={t} P={P} saved={savedPlaces.has(placeDetail.name)}
+          onSave={() => toggleSavePlace(placeDetail.name)} onClose={() => setPlaceDetail(null)} />
       )}
     </div>
   );
@@ -928,19 +937,28 @@ const PLACE_TYPE = {
   market: { en: "Market", es: "Mercado", Icon: ShoppingBasket },
 };
 
-function PlaceCard({ it, lang, t, P, saved, onSave }) {
+function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
   const cat = CATS[it.cat] || { c: P.coral, es: "", en: "", Icon: Utensils };
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
   const typeLabel = ty[lang];
   const Bi = ty.Icon;
+  const galleryCount = (it.img ? 1 : 0) + (it.photos ? it.photos.length : 0);
   return (
-    <div className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div className="card placecard" onClick={onOpen} role="button" tabIndex={0}
+      onKeyDown={(e) => { if (onOpen && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onOpen(); } }}
+      aria-label={it.name}
+      style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", cursor: onOpen ? "pointer" : "default" }}>
       <div style={{ position: "relative" }}>
         <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
         <span title={typeLabel} style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
           <Bi size={15} color={cat.c} />
         </span>
-        <button onClick={onSave} aria-label={t.savedTip} aria-pressed={saved}
+        {galleryCount > 1 && (
+          <span style={{ position: "absolute", bottom: 10, right: 10, display: "flex", alignItems: "center", gap: 4, background: "rgba(13,20,40,.7)", color: "#fff", fontSize: 11.5, fontWeight: 700, padding: "3px 8px", borderRadius: 999 }}>
+            <ImageIcon size={12} /> {galleryCount}
+          </span>
+        )}
+        <button onClick={(e) => { e.stopPropagation(); onSave(); }} aria-label={t.savedTip} aria-pressed={saved}
           style={{ position: "absolute", top: 10, right: 10, border: "none", cursor: "pointer",
             width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.92)",
             display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
@@ -954,6 +972,111 @@ function PlaceCard({ it, lang, t, P, saved, onSave }) {
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: P.inkSoft }}>
           <MapPin size={12} /> {it.area}
           {it.diet && it.diet.length > 0 && <span style={{ color: P.agave || "#2F7A63", fontWeight: 700, marginLeft: 6 }}>· {it.diet.includes("vegan") ? "Vegan" : "Veg"}</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---- Place detail sheet (Local Picks) ---------------------------- */
+function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
+  const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
+  const gallery = [it.img, ...(it.photos || [])].filter(Boolean);
+  const [idx, setIdx] = useState(0);
+  const cur = gallery[Math.min(idx, gallery.length - 1)];
+
+  useEffect(() => {
+    const onKey = (ev) => { if (ev.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const cuisineLabels = (it.cuisine || []).map((c) => CUISINES[c] && CUISINES[c][lang]).filter(Boolean);
+  const dietLabels = (it.diet || []).map((d) => DIET[d] && DIET[d][lang]).filter(Boolean);
+  const audLabels = (it.audience || []).map((a) => AUDIENCES[a] && AUDIENCES[a][lang]).filter(Boolean);
+  const priceStr = it.price ? "$".repeat(Math.max(1, Math.min(4, it.price))) : null;
+  const es = lang === "es";
+
+  const Row = ({ icon: Bi, children, href }) => {
+    const inner = (<><span style={{ flexShrink: 0, marginTop: 1, color: P.inkSoft }}><Bi size={16} /></span><span>{children}</span></>);
+    const style = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: P.ink, padding: "9px 0", borderTop: `1px solid ${P.line}`, lineHeight: 1.4 };
+    return href
+      ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...style, textDecoration: "none", color: P.cobalt, fontWeight: 600 }}>{inner}</a>
+      : <div style={style}>{inner}</div>;
+  };
+
+  return (
+    <div onClick={onClose} role="dialog" aria-modal="true" aria-label={it.name}
+      style={{ position: "fixed", inset: 0, background: P.scrim, display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
+      <div className="sheet" onClick={(ev) => ev.stopPropagation()}
+        style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
+        {/* Hero gallery */}
+        <div style={{ position: "relative" }}>
+          <Media img={cur} cat={it.cat} iconSize={56} style={{ width: "100%", height: 220 }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,.4), rgba(0,0,0,0) 40%)" }} />
+          <button onClick={onClose} aria-label={t.back}
+            style={{ position: "absolute", top: 12, right: 12, width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 6px rgba(0,0,0,.25)" }}>
+            <X size={18} color={P.ink} />
+          </button>
+          {gallery.length > 1 && (
+            <>
+              <button onClick={() => setIdx((i) => (i - 1 + gallery.length) % gallery.length)} aria-label="Previous photo"
+                style={{ position: "absolute", top: "50%", left: 10, transform: "translateY(-50%)", width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(255,255,255,.85)", display: "grid", placeItems: "center" }}>
+                <ChevronLeft size={18} color={P.ink} />
+              </button>
+              <button onClick={() => setIdx((i) => (i + 1) % gallery.length)} aria-label="Next photo"
+                style={{ position: "absolute", top: "50%", right: 10, transform: "translateY(-50%)", width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(255,255,255,.85)", display: "grid", placeItems: "center" }}>
+                <ChevronRight size={18} color={P.ink} />
+              </button>
+              <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 5 }}>
+                {gallery.map((_, i) => (
+                  <span key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: i === idx ? "#fff" : "rgba(255,255,255,.5)" }} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div style={{ padding: "16px 18px 22px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: P.coral, textTransform: "uppercase", letterSpacing: ".05em" }}>
+                {ty[lang]}{priceStr && <span style={{ color: P.inkSoft, marginLeft: 8 }}>{priceStr}</span>}
+              </span>
+              <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, margin: "3px 0 4px", lineHeight: 1.12 }}>{it.name}</h2>
+              <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, display: "flex", alignItems: "center", gap: 5 }}><MapPin size={13} /> {it.area}</p>
+            </div>
+            <button onClick={onSave} aria-pressed={saved}
+              style={{ flexShrink: 0, border: `1px solid ${saved ? P.coral : P.line}`, cursor: "pointer", background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.ink, fontWeight: 700, fontSize: 13.5, padding: "9px 14px", borderRadius: 11, display: "flex", alignItems: "center", gap: 6 }}>
+              <Heart size={15} fill={saved ? "#fff" : "none"} /> {saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
+            </button>
+          </div>
+
+          {/* Tags */}
+          {(cuisineLabels.length > 0 || dietLabels.length > 0 || audLabels.length > 0) && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "13px 0 4px" }}>
+              {[...cuisineLabels, ...dietLabels, ...audLabels].map((lbl, i) => (
+                <span key={i} style={{ fontSize: 12, fontWeight: 600, color: P.inkSoft, background: P.chipBg, border: `1px solid ${P.line}`, padding: "4px 10px", borderRadius: 999 }}>{lbl}</span>
+              ))}
+            </div>
+          )}
+
+          {it[lang] && <p style={{ fontSize: 15, lineHeight: 1.55, color: P.ink, margin: "14px 0 6px" }}>{it[lang]}</p>}
+
+          {it.tip && (
+            <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#FBF5E9", border: `1px solid ${P.marigold}55`, borderRadius: 12, padding: "11px 13px", margin: "10px 0 4px" }}>
+              <Info size={16} style={{ flexShrink: 0, marginTop: 1, color: "#B4791F" }} />
+              <span style={{ fontSize: 13.5, color: P.ink, lineHeight: 1.45 }}><strong>{es ? "Bueno saber" : "Good to know"}:</strong> {it.tip}</span>
+            </div>
+          )}
+
+          {/* Practical info */}
+          <div style={{ marginTop: 14 }}>
+            {it.hours && <Row icon={Clock3}>{it.hours}</Row>}
+            {it.phone && <Row icon={Phone} href={`tel:${it.phone}`}>{it.phone}</Row>}
+            {it.website && <Row icon={Globe} href={it.website}>{es ? "Sitio web" : "Website"}</Row>}
+            {it.mapsUrl && <Row icon={MapPin} href={it.mapsUrl}>{es ? "Abrir en Google Maps" : "Open in Google Maps"}</Row>}
+          </div>
         </div>
       </div>
     </div>
