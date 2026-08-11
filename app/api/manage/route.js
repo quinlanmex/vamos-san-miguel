@@ -34,6 +34,15 @@ export async function POST(req) {
       return Response.json({ events: ev.data || [], places: pl.data || [] });
     }
 
+    if (action === "setStatus") {
+      if (!id) return Response.json({ error: "Missing id." }, { status: 400 });
+      const status = record && record.status;
+      if (!status) return Response.json({ error: "Missing status." }, { status: 400 });
+      const { error } = await sb.from(table).update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+      if (error) return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ ok: true, id, status });
+    }
+
     if (action === "delete") {
       if (!id) return Response.json({ error: "Missing id." }, { status: 400 });
       const { error } = await sb.from(table).delete().eq("id", id);

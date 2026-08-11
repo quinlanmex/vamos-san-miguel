@@ -7,7 +7,9 @@ const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comun
 const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
 const AUD = [["family", "Family"], ["teens", "Teens"]];
 const DIET = [["vegetarian", "Vegetarian"], ["vegan", "Vegan"]];
-const STATUS = [["published", "Published"], ["draft", "Draft"], ["archived", "Archived"]];
+const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
+const STATUS_COLOR = { published: "#2F7A63", hidden: "#B4791F", draft: "#6E604F", archived: "#9A8F7E" };
+const STATUS_LABEL = Object.fromEntries(STATUS);
 
 const field = { width: "100%", padding: "9px 11px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", color: P.ink, background: "#fff", boxSizing: "border-box" };
 const label = { fontSize: 12, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4, display: "block" };
@@ -22,6 +24,7 @@ export default function Manage() {
   const [editing, setEditing] = useState(null); // record or {} for new
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [q, setQ] = useState("");
 
   const api = useCallback(async (body) => {
     const r = await fetch("/api/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, ...body }) });
@@ -52,6 +55,12 @@ export default function Manage() {
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setBusy(false);
   }
+  async function setStatus(id, status) {
+    setBusy(true); setMsg(null);
+    try { await api({ action: "setStatus", kind, id, record: { status } }); await load(); }
+    catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setBusy(false);
+  }
   async function del(id, name) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     setBusy(true); setMsg(null);
@@ -74,8 +83,14 @@ export default function Manage() {
     );
   }
 
-  const rows = kind === "event" ? data.events : data.places;
   const isPlace = kind === "place";
+  const allRows = kind === "event" ? data.events : data.places;
+  const nameOf = (r) => (isPlace ? r.name : (r.title_en || r.title_es)) || "";
+  const ql = q.trim().toLowerCase();
+  const rows = ql
+    ? allRows.filter((r) => nameOf(r).toLowerCase().includes(ql) || (r.status || "").toLowerCase().includes(ql) || (r.category || "").toLowerCase().includes(ql))
+    : allRows;
+  const liveCount = allRows.filter((r) => r.status === "published").length;
 
   return (
     <div style={{ minHeight: "100vh", background: P.cream, color: P.ink, fontFamily: "system-ui, sans-serif" }}>
@@ -99,21 +114,36 @@ export default function Manage() {
 
         {!editing && (
           <>
-            <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
-              style={{ ...btn(P.coral), marginBottom: 14 }}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
+              <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
+                style={btn(P.coral)}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${allRows.length} ${isPlace ? "picks" : "events"}…`}
+                style={{ ...field, flex: 1, minWidth: 180, maxWidth: 320 }} />
+              <span style={{ fontSize: 13, color: P.inkSoft, whiteSpace: "nowrap" }}>
+                <strong style={{ color: P.green }}>{liveCount}</strong> live · {allRows.length - liveCount} hidden/other
+              </span>
+            </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {rows.map((r) => (
-                <div key={r.id} style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+              {rows.map((r) => {
+                const live = r.status === "published";
+                return (
+                <div key={r.id} style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12, opacity: live ? 1 : 0.62 }}>
+                  <span title={STATUS_LABEL[r.status] || r.status} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: STATUS_COLOR[r.status] || P.inkSoft }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{isPlace ? r.name : (r.title_en || r.title_es)}</div>
-                    <div style={{ fontSize: 12, color: P.inkSoft }}>{r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · {r.status}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
+                    <div style={{ fontSize: 12, color: P.inkSoft }}>{r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span></div>
                   </div>
+                  <select value={r.status || "published"} disabled={busy} onChange={(e) => setStatus(r.id, e.target.value)} title="Change visibility"
+                    style={{ ...field, width: "auto", padding: "7px 9px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+                    {STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                  </select>
                   <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [] })} style={btn(P.navy)}>Edit</button>
-                  <button onClick={() => del(r.id, isPlace ? r.name : (r.title_en || r.title_es))} style={{ ...btn("transparent"), color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
+                  <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
                 </div>
-              ))}
-              {rows.length === 0 && <p style={{ color: P.inkSoft, fontSize: 14 }}>Nothing here yet. Add one above.</p>}
+                );
+              })}
+              {rows.length === 0 && <p style={{ color: P.inkSoft, fontSize: 14 }}>{ql ? "No matches." : "Nothing here yet. Add one above."}</p>}
             </div>
           </>
         )}

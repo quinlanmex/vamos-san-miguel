@@ -430,11 +430,11 @@ export default function App() {
         <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
         <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
           <img src={theme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"} alt="Vamos San Miguel — Events · Local Picks · Insider Guide" className="brandlogo" />
-          <nav className="viewnav-top" style={{ gap: 26, alignItems: "center" }}>
+          <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
             {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab], ["move", lang === "es" ? "Mudarse aquí" : "Move Here"]].map(([k, label]) => (
               <button key={k} onClick={() => setView(k)}
-                style={{ border: "none", cursor: "pointer", background: "transparent", fontSize: 15, fontWeight: 700, padding: "5px 0", whiteSpace: "nowrap",
-                  color: view === k ? P.ink : P.inkSoft, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
+                style={{ border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
+                  color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                   display: "flex", alignItems: "center", gap: 6 }}>
                 {label}
                 {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
@@ -600,6 +600,7 @@ export default function App() {
               const f = favLists.flatMap((l) => l.items || []).find((x) => x.img) || favLists.flatMap((l) => l.items || [])[0];
               if (!f) return null;
               const fc = CATS[f.cat] || { c: P.coral, es: "", en: "" };
+              const fty = (PLACE_TYPE[f.list_key] || PLACE_TYPE.rest)[lang];
               const isSaved = savedPlaces.has(f.name);
               return (
                 <div className="card hero-split" style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${P.line}`, marginBottom: 26 }}>
@@ -607,7 +608,7 @@ export default function App() {
                     <Media img={f.img} cat={f.cat} iconSize={44} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,20,40,.74), transparent 55%)" }} />
                     <div style={{ position: "absolute", left: 18, right: 18, bottom: 16, color: "#fff" }}>
-                      <span style={{ background: "rgba(255,255,255,.94)", color: P.cobalt, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", padding: "4px 11px", borderRadius: 999 }}>{fc[lang]}</span>
+                      <span style={{ background: "rgba(255,255,255,.94)", color: P.cobalt, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", padding: "4px 11px", borderRadius: 999 }}>{fty}</span>
                       <h3 style={{ fontFamily: "Georgia, serif", fontSize: 25, margin: "10px 0 3px", textShadow: "0 2px 16px rgba(0,0,0,.45)" }}>{f.name}</h3>
                       <p style={{ margin: 0, fontSize: 13.5, opacity: .9 }}>{f.area}</p>
                     </div>
@@ -882,14 +883,23 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
 }
 
 /* ---- Place card (Local Picks + Saved) ---------------------------- */
+const PLACE_TYPE = {
+  rest: { en: "Restaurant", es: "Restaurante", Icon: Utensils },
+  bar: { en: "Bar", es: "Bar", Icon: Wine },
+  live: { en: "Venue", es: "Lugar", Icon: Palette },
+  market: { en: "Market", es: "Mercado", Icon: ShoppingBasket },
+};
+
 function PlaceCard({ it, lang, t, P, saved, onSave }) {
   const cat = CATS[it.cat] || { c: P.coral, es: "", en: "", Icon: Utensils };
-  const Bi = it.list === "bar" ? Wine : it.list === "live" ? Palette : it.cat === "mercados" ? Utensils : (cat.Icon || Utensils);
+  const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
+  const typeLabel = ty[lang];
+  const Bi = ty.Icon;
   return (
     <div className="card" style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative" }}>
         <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
-        <span title={cat[lang]} style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
+        <span title={typeLabel} style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
           <Bi size={15} color={cat.c} />
         </span>
         <button onClick={onSave} aria-label={t.savedTip} aria-pressed={saved}
@@ -900,7 +910,7 @@ function PlaceCard({ it, lang, t, P, saved, onSave }) {
         </button>
       </div>
       <div style={{ padding: "12px 15px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: cat.c, textTransform: "uppercase", letterSpacing: ".05em" }}>{cat[lang]}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: cat.c, textTransform: "uppercase", letterSpacing: ".05em" }}>{typeLabel}</span>
         <h3 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, fontWeight: 700, margin: "3px 0 5px", lineHeight: 1.15, letterSpacing: "-.01em" }}>{it.name}</h3>
         {it[lang] && <p style={{ fontSize: 13, color: P.inkSoft, margin: "0 0 10px", lineHeight: 1.45 }}>{it[lang]}</p>}
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: P.inkSoft }}>
