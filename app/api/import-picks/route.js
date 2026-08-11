@@ -57,7 +57,7 @@ function rowFrom(r) {
     lat: r.lat != null ? r.lat : null,
     lng: r.lng != null ? r.lng : null,
     google_place_id: r.placeId || null,
-    source_ref: Array.isArray(c.sourceList) ? c.sourceList.join(", ") : (c.sourceList || null),
+    source_ref: c.mapsUrl || null,
     photo_url: r.photoRef ? `/api/place-photo?ref=${encodeURIComponent(r.photoRef)}` : null,
   };
 }
@@ -78,7 +78,22 @@ export async function POST(req) {
     const { data: existing } = await sb.from("places").select("name,google_place_id");
     const haveIds = new Set((existing || []).map((x) => x.google_place_id).filter(Boolean));
     const haveNames = new Set((existing || []).map((x) => (x.name || "").toLowerCase()));
-    const fresh = rows.filter((r) => !(r.google_place_id && haveIds.has(r.google_place_id)) && !haveNames.has((r.name || "").toLowerCase()));
+    const seen = new Set();
+    const fresh = [];
+    for (const r of rows) {
+      const pid = r.google_place_id || null;
+      const nm = (r.name || "").toLowerCase();
+      const sref = r.source_ref || null;
+      if (pid && haveIds.has(pid)) continue;              // already in DB (by place id)
+      if (nm && haveNames.has(nm)) continue;              // already in DB (by name)
+      if (pid && seen.has("p:" + pid)) continue;          // dup within this batch
+      if (sref && seen.has("s:" + sref)) continue;
+      if (nm && seen.has("n:" + nm)) continue;
+      if (pid) seen.add("p:" + pid);
+      if (sref) seen.add("s:" + sref);
+      if (nm) seen.add("n:" + nm);
+      fresh.push(r);
+    }
     let inserted = 0, error = null;
     if (fresh.length) {
       const { data, error: e } = await sb.from("places").insert(fresh).select("id");
