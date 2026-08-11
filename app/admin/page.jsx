@@ -85,6 +85,7 @@ export default function Admin() {
             <a href="/admin/roadmap" style={{ color: P.cobalt, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>📋 Roadmap</a>
             <a href="/admin/checklist" style={{ color: P.cobalt, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>✅ Checklist</a>
             <a href="/admin/import" style={{ color: P.cobalt, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>📥 Import picks</a>
+            <a href="/admin/manage" style={{ color: P.cobalt, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>🗂 Manage</a>
             <button onClick={() => { sessionStorage.removeItem("qp_admin_pw"); setAuthed(false); }}
               style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Sign out</button>
           </div>

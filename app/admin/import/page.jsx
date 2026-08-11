@@ -87,8 +87,9 @@ export default function ImportPicks() {
           <div style={{ marginTop: 16, padding: "13px 15px", borderRadius: 10, fontSize: 13.5, background: "#FBE7EF", color: P.coral, border: `1px solid ${P.coral}44` }}>
             <strong>Every lookup failed.</strong> Error: <code>{dry.sampleError || "unknown"}</code>. This is almost always a Google Cloud setting, not your data. Check, in the Google Cloud console:
             <ol style={{ margin: "8px 0 0", paddingLeft: 18, color: P.ink }}>
+              <li>The key&apos;s <strong>Application restriction</strong> is <strong>None</strong> or IP-based, <em>not</em> &quot;HTTP referrers&quot; (referrer-restricted keys reject server-side calls — the usual 403 cause).</li>
               <li><strong>Places API (New)</strong> is <em>enabled</em> for the project (APIs &amp; Services → Library).</li>
-              <li>The API key&apos;s <strong>API restrictions</strong> include &quot;Places API (New)&quot; (not only Maps JavaScript API).</li>
+              <li>The key&apos;s <strong>API restrictions</strong> include &quot;Places API (New)&quot; (or set to &quot;Don&apos;t restrict key&quot; while testing).</li>
               <li><strong>Billing</strong> is active on the project.</li>
             </ol>
             Fix, wait a minute, then re-run the preview.
