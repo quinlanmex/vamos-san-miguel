@@ -1,18 +1,4 @@
-import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users } from "lucide-react";
-
-// Olive branch for the Mediterranean facet (Lucide has none). Line style to match the set.
-export function OliveBranch({ size = 24, color = "currentColor", ...props }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M4.5 19.5C11 18 16.5 12.5 19.5 4.5" />
-      <path d="M9 15.6c-2.3.3-4-.8-4.6-3 2.3-.3 4 .8 4.6 3Z" />
-      <path d="M12.8 11.8c-2.3.3-4-.8-4.6-3 2.3-.3 4 .8 4.6 3Z" />
-      <path d="M16.2 8c-2.1.1-3.7-1-4.3-3 2.2-.4 3.9.6 4.5 2.7Z" />
-      <circle cx="18.6" cy="6.3" r="1.15" />
-      <circle cx="16.2" cy="9.1" r="1.15" />
-    </svg>
-  );
-}
+import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus } from "lucide-react";
 
 // "Good for" amenity facets (stored in the cuisine array, but shown as their own group,
 // since they coexist with a cuisine rather than replacing it).
@@ -32,7 +18,7 @@ export function Chili({ size = 24, color = "currentColor", ...props }) {
 // Cuisine facet: shared by the site cards, the filter chips, the detail sheet, and the admin.
 export const CUISINES = {
   mexican:      { en: "Mexican",             es: "Mexicana",                  Icon: Chili },
-  mediterranean:{ en: "Mediterranean",       es: "Mediterránea",              Icon: OliveBranch },
+  mediterranean:{ en: "Mediterranean",       es: "Mediterránea",              Icon: Citrus },
   italian:     { en: "Italian & Pizza",      es: "Italiana y pizza",          Icon: Pizza },
   asian:       { en: "Asian",                es: "Asiática",                  Icon: Soup },
   peruvian:    { en: "Peruvian",             es: "Peruana",                   Icon: Fish },

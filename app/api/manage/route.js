@@ -7,7 +7,7 @@ const EVENT_COLS = ["status", "title_en", "title_es", "blurb_en", "blurb_es", "p
   "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng"];
 const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_es", "category",
   "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
-  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status"];
+  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status", "featured"];
 
 function clean(record, cols) {
   const out = {};
@@ -41,6 +41,21 @@ export async function POST(req) {
       const { error } = await sb.from(table).update({ status, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) return Response.json({ error: error.message }, { status: 500 });
       return Response.json({ ok: true, id, status });
+    }
+
+    // Lightweight partial update (inline edits): whitelisted fields only, no name requirement.
+    if (action === "patch") {
+      if (!id) return Response.json({ error: "Missing id." }, { status: 400 });
+      const row = clean(record || {}, cols);
+      if (!Object.keys(row).length) return Response.json({ error: "Nothing to update." }, { status: 400 });
+      if (Object.prototype.hasOwnProperty.call(row, "business_status")) {
+        row.closed_at = row.business_status === "CLOSED_PERMANENTLY" ? new Date().toISOString() : null;
+        if (row.business_status === "CLOSED_PERMANENTLY") row.status = "hidden";
+      }
+      row.updated_at = new Date().toISOString();
+      const { error } = await sb.from(table).update(row).eq("id", id);
+      if (error) return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ ok: true, id });
     }
 
     if (action === "delete") {

@@ -679,9 +679,13 @@ export default function App() {
                 : "Hand-picked, never paid for. Every spot here is one we'd walk you to ourselves, in Centro and the surrounding countryside."}
             </p>
 
-            {/* Featured pick of the week */}
+            {/* Featured pick of the week — rotates weekly among curated (featured) picks. */}
             {(() => {
-              const f = favLists.flatMap((l) => l.items || []).find((x) => x.img) || favLists.flatMap((l) => l.items || [])[0];
+              const all = favLists.flatMap((l) => l.items || []);
+              const curated = all.filter((x) => x.featured && x.img);
+              const pool = curated.length ? curated : all.filter((x) => x.img);
+              const week = Math.floor(Date.now() / 6.048e8); // 7 days in ms
+              const f = pool.length ? pool[week % pool.length] : all[0];
               if (!f) return null;
               const fc = CATS[f.cat] || { c: P.coral, es: "", en: "" };
               const fty = (PLACE_TYPE[f.list_key] || PLACE_TYPE.rest)[lang];

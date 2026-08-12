@@ -16,6 +16,8 @@ const BIZ_STATUS = [["OPERATIONAL", "Open"], ["CLOSED_PERMANENTLY", "Permanently
 const field = { width: "100%", padding: "9px 11px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", color: P.ink, background: "#fff", boxSizing: "border-box" };
 const label = { fontSize: 12, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4, display: "block" };
 const chip = (on, c) => ({ padding: "6px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, cursor: "pointer", border: `1px solid ${on ? c : P.line}`, background: on ? c : "#fff", color: on ? "#fff" : P.inkSoft });
+const mini = (on, c) => ({ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 9px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", border: `1px solid ${on ? c : P.line}`, background: on ? c : "#fff", color: on ? "#fff" : "#B9AE9C" });
+const CUI_KEYS = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a].en.localeCompare(CUISINES[b].en));
 const btn = (bg, on = true) => ({ padding: "9px 15px", border: "none", borderRadius: 9, background: on ? bg : P.inkSoft, color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: on ? "pointer" : "default" });
 
 export default function Manage() {
@@ -27,6 +29,7 @@ export default function Manage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const [q, setQ] = useState("");
+  const [need, setNeed] = useState("all"); // quick filter: all / nocuisine / nophoto / hidden / featured
   const [uploading, setUploading] = useState(false);
 
   const api = useCallback(async (body) => {
@@ -90,6 +93,20 @@ export default function Manage() {
   }
   const removePhoto = (url) => setEditing((e) => ({ ...e, photos: (e.photos || []).filter((p) => p !== url) }));
 
+  // Inline edits: optimistically update the row, then persist a partial patch.
+  async function patchRow(id, fields) {
+    setData((prev) => {
+      const upd = (arr) => arr.map((r) => (r.id === id ? { ...r, ...fields } : r));
+      return { events: upd(prev.events), places: upd(prev.places) };
+    });
+    try { await api({ action: "patch", kind, id, record: fields }); }
+    catch (e) { setMsg({ type: "err", text: String(e.message || e) }); await load(); }
+  }
+  const toggleIn = (r, field, key) => {
+    const cur = r[field] || [];
+    patchRow(r.id, { [field]: cur.includes(key) ? cur.filter((x) => x !== key) : [...cur, key] });
+  };
+
   const [checking, setChecking] = useState(false);
   async function checkClosures() {
     setChecking(true); setMsg(null);
@@ -141,10 +158,25 @@ export default function Manage() {
   const allRows = kind === "event" ? data.events : data.places;
   const nameOf = (r) => (isPlace ? r.name : (r.title_en || r.title_es)) || "";
   const ql = q.trim().toLowerCase();
-  const rows = ql
+  const hasRealCuisine = (r) => (r.cuisine || []).some((c) => !GOODFOR.includes(c));
+  const noPhoto = (r) => !r.photo_url && !(r.photos || []).length;
+  let rows = ql
     ? allRows.filter((r) => nameOf(r).toLowerCase().includes(ql) || (r.status || "").toLowerCase().includes(ql) || (r.category || "").toLowerCase().includes(ql))
     : allRows;
+  if (isPlace && need !== "all") {
+    rows = rows.filter((r) =>
+      need === "nocuisine" ? (r.list_key === "rest" && !hasRealCuisine(r))
+        : need === "nophoto" ? noPhoto(r)
+        : need === "hidden" ? r.status !== "published"
+        : need === "featured" ? !!r.featured
+        : true);
+  }
   const liveCount = allRows.filter((r) => r.status === "published").length;
+  const needCounts = {
+    nocuisine: data.places.filter((r) => r.list_key === "rest" && !hasRealCuisine(r)).length,
+    nophoto: data.places.filter(noPhoto).length,
+    featured: data.places.filter((r) => r.featured).length,
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: P.cream, color: P.ink, fontFamily: "system-ui, sans-serif" }}>
@@ -182,6 +214,20 @@ export default function Manage() {
               )}
             </div>
 
+            {isPlace && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 14 }}>
+                {[["all", "All", null], ["nocuisine", "⚠ No cuisine", needCounts.nocuisine], ["nophoto", "No photo", needCounts.nophoto], ["featured", "★ Featured", needCounts.featured], ["hidden", "Hidden / closed", null]].map(([k, lbl, count]) => {
+                  const on = need === k;
+                  return (
+                    <button key={k} onClick={() => setNeed(k)}
+                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 700, border: `1px solid ${on ? P.navy : P.line}`, background: on ? P.navy : "#fff", color: on ? "#fff" : P.inkSoft }}>
+                      {lbl}{count != null && count > 0 ? ` (${count})` : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {rows.map((r) => {
                 const closed = r.business_status === "CLOSED_PERMANENTLY";
@@ -189,22 +235,48 @@ export default function Manage() {
                 const noCuisine = isPlace && r.list_key === "rest" && !(r.cuisine || []).some((c) => !GOODFOR.includes(c));
                 const closedOn = r.closed_at ? new Date(r.closed_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
                 return (
-                <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12, opacity: live ? 1 : 0.62 }}>
-                  <span title={closed ? "Permanently closed" : (STATUS_LABEL[r.status] || r.status)} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: closed ? P.coral : (STATUS_COLOR[r.status] || P.inkSoft) }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
-                    <div style={{ fontSize: 12, color: P.inkSoft }}>
-                      {r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
-                      {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}
-                      {noCuisine && <span style={{ color: "#B4791F", fontWeight: 700 }}> · ⚠ no cuisine</span>}
+                <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "10px 12px", opacity: live ? 1 : 0.62 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                    {isPlace ? (
+                      r.photo_url
+                        ? <img src={r.photo_url} alt="" style={{ width: 42, height: 42, borderRadius: 8, objectFit: "cover", flexShrink: 0, filter: closed ? "grayscale(1)" : "none" }} />
+                        : <div style={{ width: 42, height: 42, borderRadius: 8, background: "#F0EADE", display: "grid", placeItems: "center", flexShrink: 0, fontSize: 16, color: "#C9BCA6" }}>◦</div>
+                    ) : (
+                      <span title={STATUS_LABEL[r.status] || r.status} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: STATUS_COLOR[r.status] || P.inkSoft }} />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
+                      <div style={{ fontSize: 12, color: P.inkSoft }}>
+                        {r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
+                        {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}
+                        {noCuisine && <span style={{ color: "#B4791F", fontWeight: 700 }}> · ⚠ no cuisine</span>}
+                      </div>
                     </div>
+                    {isPlace && (
+                      <button onClick={() => patchRow(r.id, { featured: !r.featured })} title={r.featured ? "Featured (rotates in the hero)" : "Feature this pick"}
+                        style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 20, lineHeight: 1, color: r.featured ? "#F2B134" : "#D9CEBB", flexShrink: 0 }}>★</button>
+                    )}
+                    <select value={r.status || "published"} disabled={busy} onChange={(e) => setStatus(r.id, e.target.value)} title="Change visibility"
+                      style={{ ...field, width: "auto", padding: "6px 8px", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+                      {STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                    </select>
+                    <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [], photos: r.photos || [] })} style={{ ...btn(P.navy), padding: "7px 12px" }}>Edit</button>
+                    <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), padding: "7px 10px", color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
                   </div>
-                  <select value={r.status || "published"} disabled={busy} onChange={(e) => setStatus(r.id, e.target.value)} title="Change visibility"
-                    style={{ ...field, width: "auto", padding: "7px 9px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                    {STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-                  </select>
-                  <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [], photos: r.photos || [] })} style={btn(P.navy)}>Edit</button>
-                  <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
+                  {isPlace && r.list_key === "rest" && (
+                    <div style={{ marginTop: 9, paddingLeft: 53, display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
+                      {CUI_KEYS.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
+                        <button key={k} onClick={() => toggleIn(r, "cuisine", k)} style={mini(on, P.coral)}><Ic size={11} /> {CUISINES[k].en}</button>
+                      ); })}
+                      <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "2px 3px" }} />
+                      {GOODFOR.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
+                        <button key={k} onClick={() => toggleIn(r, "cuisine", k)} style={mini(on, P.green)}><Ic size={11} /> {CUISINES[k].en}</button>
+                      ); })}
+                      {DIET.map(([k, l]) => { const on = (r.diet || []).includes(k); return (
+                        <button key={k} onClick={() => toggleIn(r, "diet", k)} style={mini(on, P.green)}>{l}</button>
+                      ); })}
+                    </div>
+                  )}
                 </div>
                 );
               })}
