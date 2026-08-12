@@ -682,13 +682,19 @@ export default function App() {
             {/* Featured pick of the week — rotates weekly among curated (featured) picks. */}
             {(() => {
               const all = favLists.flatMap((l) => l.items || []);
-              const curated = all.filter((x) => x.featured && x.img);
+              const curated = all.filter((x) => x.featured && x.img).sort((a, b) => (a.featured_rank ?? 9999) - (b.featured_rank ?? 9999));
               const pool = curated.length ? curated : all.filter((x) => x.img);
               const week = Math.floor(Date.now() / 6.048e8); // 7 days in ms
               const f = pool.length ? pool[week % pool.length] : all[0];
               if (!f) return null;
               const fc = CATS[f.cat] || { c: P.coral, es: "", en: "" };
-              const fty = (PLACE_TYPE[f.list_key] || PLACE_TYPE.rest)[lang];
+              const fType = PLACE_TYPE[f.list_key] || PLACE_TYPE.rest;
+              const fCui = f.list_key === "rest" ? (f.cuisine || []) : [];
+              const fPrimary = fCui.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+              const fGood = fCui.filter((c) => GOODFOR.includes(c));
+              const fDietKey = (f.diet || []).includes("vegan") ? "vegan" : (f.diet || []).includes("vegetarian") ? "vegetarian" : null;
+              const fty = fPrimary === "cafe" ? "Café" : fType[lang];
+              const fIcons = [fType.Icon, fPrimary && CUISINES[fPrimary].Icon, ...fGood.map((k) => CUISINES[k].Icon), fDietKey && DIET[fDietKey].Icon].filter(Boolean);
               const isSaved = savedPlaces.has(f.name);
               return (
                 <div className="card hero-split" style={{ borderRadius: 20, overflow: "hidden", border: `1px solid ${P.line}`, marginBottom: 26 }}>
@@ -696,7 +702,14 @@ export default function App() {
                     <Media img={f.img} cat={f.cat} iconSize={44} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,20,40,.74), transparent 55%)" }} />
                     <div style={{ position: "absolute", left: 18, right: 18, bottom: 16, color: "#fff" }}>
-                      <span style={{ background: "rgba(255,255,255,.94)", color: P.cobalt, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", padding: "4px 11px", borderRadius: 999 }}>{fty}</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{ background: "rgba(255,255,255,.94)", color: P.cobalt, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", padding: "4px 11px", borderRadius: 999 }}>{fty}</span>
+                        {fIcons.length > 1 && (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,.94)", padding: "4px 10px", borderRadius: 999 }}>
+                            {fIcons.map((Ic, i) => <Ic key={i} size={14} color={P.coral} />)}
+                          </span>
+                        )}
+                      </span>
                       <h3 style={{ fontFamily: "Georgia, serif", fontSize: 25, margin: "10px 0 3px", textShadow: "0 2px 16px rgba(0,0,0,.45)" }}>{f.name}</h3>
                       <p style={{ margin: 0, fontSize: 13.5, opacity: .9 }}>{f.area}</p>
                     </div>

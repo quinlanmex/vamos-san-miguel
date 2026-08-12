@@ -6,6 +6,7 @@ import { CUISINES, GOODFOR } from "../../../components/cuisines";
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
 const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comunidad", "Community"], ["charlas", "Talks"], ["mercados", "Markets"], ["bienestar", "Wellness"]];
 const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
+const LIST_LABEL = Object.fromEntries(LISTS);
 const AUD = [["family", "Family"], ["teens", "Teens"]];
 const DIET = [["vegetarian", "Vegetarian"], ["vegan", "Vegan"]];
 const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
@@ -30,6 +31,8 @@ export default function Manage() {
   const [msg, setMsg] = useState(null);
   const [q, setQ] = useState("");
   const [need, setNeed] = useState("all"); // quick filter: all / nocuisine / nophoto / hidden / featured
+  const [sortBy, setSortBy] = useState("name"); // name / newest / attention
+  const [selected, setSelected] = useState(new Set()); // bulk-selected ids
   const [uploading, setUploading] = useState(false);
 
   const api = useCallback(async (body) => {
@@ -107,6 +110,53 @@ export default function Manage() {
     patchRow(r.id, { [field]: cur.includes(key) ? cur.filter((x) => x !== key) : [...cur, key] });
   };
 
+  // Upload a photo straight from a row's thumbnail.
+  async function uploadRowPhoto(id, files) {
+    const file = files && files[0];
+    if (!file) return;
+    setUploading(true); setMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append("password", pw); fd.append("kind", "place"); fd.append("file", file);
+      const r = await fetch("/api/upload", { method: "POST", body: fd });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Upload failed");
+      await patchRow(id, { photo_url: j.url });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setUploading(false);
+  }
+
+  // Bulk actions on the selected rows.
+  const selRows = () => (kind === "event" ? data.events : data.places).filter((r) => selected.has(r.id));
+  async function bulkPatch(fields) {
+    const ids = [...selected];
+    for (const id of ids) await patchRow(id, fields);
+    setMsg({ type: "ok", text: `Updated ${ids.length}.` });
+    setSelected(new Set());
+  }
+  async function bulkStatus(status) { await bulkPatch({ status }); }
+  async function bulkFeature(v) { await bulkPatch({ featured: v }); }
+  async function bulkDelete() {
+    const ids = [...selected];
+    if (!confirm(`Delete ${ids.length} item(s)? This cannot be undone.`)) return;
+    setBusy(true); setMsg(null);
+    try { for (const id of ids) await api({ action: "delete", kind, id }); await load(); setMsg({ type: "ok", text: `Deleted ${ids.length}.` }); }
+    catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setSelected(new Set()); setBusy(false);
+  }
+
+  // Move a featured pick up/down in the manual rotation order.
+  async function moveFeatured(list, r, dir) {
+    const ordered = list.filter((x) => x.featured).sort((a, b) => (a.featured_rank ?? 9999) - (b.featured_rank ?? 9999));
+    const i = ordered.findIndex((x) => x.id === r.id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ordered.length) return;
+    // Reassign clean sequential ranks with the two swapped.
+    const arr = [...ordered];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    for (let k = 0; k < arr.length; k++) await patchRow(arr[k].id, { featured_rank: k });
+  }
+
   const [checking, setChecking] = useState(false);
   async function checkClosures() {
     setChecking(true); setMsg(null);
@@ -171,6 +221,12 @@ export default function Manage() {
         : need === "featured" ? !!r.featured
         : true);
   }
+  const attnScore = (r) => (isPlace && r.list_key === "rest" && !hasRealCuisine(r) ? 2 : 0) + (isPlace && noPhoto(r) ? 1 : 0);
+  rows = [...rows].sort((a, b) =>
+    sortBy === "newest" ? new Date(b.updated_at || 0) - new Date(a.updated_at || 0)
+      : sortBy === "attention" ? (attnScore(b) - attnScore(a)) || nameOf(a).localeCompare(nameOf(b))
+      : need === "featured" ? ((a.featured_rank ?? 9999) - (b.featured_rank ?? 9999))
+      : nameOf(a).localeCompare(nameOf(b)));
   const liveCount = allRows.filter((r) => r.status === "published").length;
   const needCounts = {
     nocuisine: data.places.filter((r) => r.list_key === "rest" && !hasRealCuisine(r)).length,
@@ -215,7 +271,7 @@ export default function Manage() {
             </div>
 
             {isPlace && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 14 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 12, alignItems: "center" }}>
                 {[["all", "All", null], ["nocuisine", "⚠ No cuisine", needCounts.nocuisine], ["nophoto", "No photo", needCounts.nophoto], ["featured", "★ Featured", needCounts.featured], ["hidden", "Hidden / closed", null]].map(([k, lbl, count]) => {
                   const on = need === k;
                   return (
@@ -225,8 +281,31 @@ export default function Manage() {
                     </button>
                   );
                 })}
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} title="Sort"
+                  style={{ ...field, width: "auto", padding: "6px 8px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", marginLeft: "auto" }}>
+                  <option value="name">Sort: Name</option>
+                  <option value="newest">Sort: Recently edited</option>
+                  <option value="attention">Sort: Needs data first</option>
+                </select>
               </div>
             )}
+
+            {selected.size > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 14, padding: "9px 13px", background: P.navy, color: "#fff", borderRadius: 11 }}>
+                <strong style={{ fontSize: 13.5 }}>{selected.size} selected</strong>
+                {[["Publish", () => bulkStatus("published")], ["Hide", () => bulkStatus("hidden")], ...(isPlace ? [["★ Feature", () => bulkFeature(true)], ["Unfeature", () => bulkFeature(false)]] : [])].map(([lbl, fn]) => (
+                  <button key={lbl} onClick={fn} disabled={busy} style={{ cursor: "pointer", border: "1px solid rgba(255,255,255,.3)", background: "transparent", color: "#fff", fontWeight: 700, fontSize: 12.5, padding: "5px 11px", borderRadius: 999 }}>{lbl}</button>
+                ))}
+                <button onClick={bulkDelete} disabled={busy} style={{ cursor: "pointer", border: "1px solid rgba(255,255,255,.3)", background: "transparent", color: "#F6B8AE", fontWeight: 700, fontSize: 12.5, padding: "5px 11px", borderRadius: 999 }}>Delete</button>
+                <button onClick={() => setSelected(new Set())} style={{ cursor: "pointer", border: "none", background: "transparent", color: "rgba(255,255,255,.8)", fontWeight: 600, fontSize: 12.5, marginLeft: "auto" }}>Clear</button>
+              </div>
+            )}
+
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: P.inkSoft, marginBottom: 8, cursor: "pointer" }}>
+              <input type="checkbox" checked={rows.length > 0 && rows.every((r) => selected.has(r.id))}
+                onChange={(e) => setSelected(e.target.checked ? new Set(rows.map((r) => r.id)) : new Set())} />
+              Select all {rows.length} shown
+            </label>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {rows.map((r) => {
@@ -236,22 +315,36 @@ export default function Manage() {
                 const closedOn = r.closed_at ? new Date(r.closed_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
                 return (
                 <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "10px 12px", opacity: live ? 1 : 0.62 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <input type="checkbox" checked={selected.has(r.id)} style={{ flexShrink: 0, cursor: "pointer" }}
+                      onChange={(e) => setSelected((prev) => { const s = new Set(prev); e.target.checked ? s.add(r.id) : s.delete(r.id); return s; })} />
                     {isPlace ? (
-                      r.photo_url
-                        ? <img src={r.photo_url} alt="" style={{ width: 42, height: 42, borderRadius: 8, objectFit: "cover", flexShrink: 0, filter: closed ? "grayscale(1)" : "none" }} />
-                        : <div style={{ width: 42, height: 42, borderRadius: 8, background: "#F0EADE", display: "grid", placeItems: "center", flexShrink: 0, fontSize: 16, color: "#C9BCA6" }}>◦</div>
+                      <label onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (!uploading) uploadRowPhoto(r.id, e.dataTransfer.files); }}
+                        title="Click or drop an image to set the photo"
+                        style={{ width: 42, height: 42, borderRadius: 8, flexShrink: 0, cursor: uploading ? "wait" : "pointer", overflow: "hidden", display: "grid", placeItems: "center", background: "#F0EADE" }}>
+                        {r.photo_url
+                          ? <img src={r.photo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: closed ? "grayscale(1)" : "none" }} />
+                          : <span style={{ fontSize: 18, color: "#C9BCA6" }}>+</span>}
+                        <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading}
+                          onChange={(e) => { uploadRowPhoto(r.id, e.target.files); e.target.value = ""; }} />
+                      </label>
                     ) : (
                       <span title={STATUS_LABEL[r.status] || r.status} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: STATUS_COLOR[r.status] || P.inkSoft }} />
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
                       <div style={{ fontSize: 12, color: P.inkSoft }}>
-                        {r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
+                        {isPlace ? (LIST_LABEL[r.list_key] || r.list_key || "Pick") : `${r.category}${r.start_date ? ` · ${r.start_date}` : ""}`} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
                         {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}
                         {noCuisine && <span style={{ color: "#B4791F", fontWeight: 700 }}> · ⚠ no cuisine</span>}
                       </div>
                     </div>
+                    {isPlace && need === "featured" && r.featured && (
+                      <span style={{ display: "flex", flexDirection: "column", flexShrink: 0, lineHeight: 1 }}>
+                        <button onClick={() => moveFeatured(data.places, r, -1)} title="Move up" style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, fontSize: 11, padding: "0 4px" }}>▲</button>
+                        <button onClick={() => moveFeatured(data.places, r, 1)} title="Move down" style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, fontSize: 11, padding: "0 4px" }}>▼</button>
+                      </span>
+                    )}
                     {isPlace && (
                       <button onClick={() => patchRow(r.id, { featured: !r.featured })} title={r.featured ? "Featured (rotates in the hero)" : "Feature this pick"}
                         style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 20, lineHeight: 1, color: r.featured ? "#F2B134" : "#D9CEBB", flexShrink: 0 }}>★</button>
