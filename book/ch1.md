@@ -80,7 +80,7 @@ These three layers stack cumulatively. Income is taxed at the federal level befo
 
 The effect is compounding. Your current income produces a dramatically different surplus depending on geography. You are living in a place where the high cost of living reinforces itself: rising income attracts more earners, which pushes up housing, which pushes up wages, which pushes up all other costs. You are not reaping the full benefit of your higher income. You are funding the infrastructure and service ecosystem that is price-adjusted to high earners.
 
-To be fair, the United States and high-cost cities in general do offer something real early in a career: density, proximity, networks, career options that may not exist elsewhere. These advantages compound when your income is still building and location still matters for opportunity. You are not just earning more. You are earning because you are there.
+The United States and high-cost cities in general do offer something real early in a career: density, proximity, networks, career options that may not exist elsewhere. These advantages compound when your income is still building and location still matters for opportunity. You are not just earning more. You are earning because you are there.
 
 Once your income becomes portable, those proximity advantages disappear. What remains is the cost structure. The system continues extracting at the same rate, but it is no longer buying you anything. You are paying the price of living in a high-cost market purely because you are still there.
 
@@ -88,7 +88,7 @@ The geographic leverage has reversed. At that moment, geography shifts from bein
 
 ## Fifteen Years of Testing Geography
 
-Six months after that conversation in our kitchen, with remote work arrangements in place, we were on a plane to Argentina. Not only as a lifestyle fantasy (which it was). Not only as exchange-rate arbitrage (which was a big factor). Not only because we always wanted to learn another language and culture from the inside (which we did). But as a controlled financial and lifestyle test case.
+Six months after that conversation in our kitchen, with remote work arrangements in place, we were on a plane to Argentina. It was a lifestyle fantasy (which it was), exchange-rate arbitrage (a big factor), and a chance to learn another language and culture from the inside (which we did). It was also a controlled financial and lifestyle test case.
 
 What actually happens when you take control of all three geographic layers at once by leaving the country? What shifts when you treat location as a financial variable instead of your default situation?
 

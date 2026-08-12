@@ -22,7 +22,7 @@ The trap works like this. Home appreciation only becomes real wealth if you are 
 
 The housing market of the mid-2020s makes this sharper than usual. Prices stay high because current owners are locked in. They bought when prices were lower and financed at 3 to 4 percent, and they cannot afford to sell and rebuy at today's rates even when they badly want to move. Federal Housing Finance Agency researchers put numbers on exactly this effect. For every percentage point that market rates sit above a homeowner's original rate, the probability of a sale drops about 18 percent, and the lock-in prevented roughly 1.33 million home sales between mid-2022 and late 2023 while pushing prices up around 5.7 percent through sheer lack of supply.[1] Sales slow, prices hold, and the market feels frozen because in a real sense it is.
 
-Everyone assumes real estate always goes up. Then 2008 happened. By that October, close to 10 million homeowners owed more on their mortgages than their homes were worth, and the count kept climbing into the following years.[2] Some took fifteen years to recover. Some never did.
+Real estate feels like it always goes up, until it does not. Then 2008 happened. By that October, close to 10 million homeowners owed more on their mortgages than their homes were worth, and the count kept climbing into the following years.[2] Some took fifteen years to recover. Some never did.
 
 You are up right now. The market handed you a 40 percent gain, already locked in on paper. The only question is whether you take it while it is there or gamble that it stays.
 

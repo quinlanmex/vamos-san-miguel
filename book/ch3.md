@@ -16,9 +16,9 @@ The best news? Done correctly, this strategy eliminates state income taxes long-
 
 ## The Domicile Problem
 
-Your domicile is your permanent legal home for tax purposes. Not where you are currently living, but where you intend to return. You can have many residences. You can only have one domicile. And your domicile is what determines your state tax obligations.
+Your domicile is your permanent legal home for tax purposes: the place you intend to return to, regardless of where you currently live. You can have many residences. You can only have one domicile. And your domicile is what determines your state tax obligations.
 
-Most U.S. states with an income tax assert worldwide taxing jurisdiction over their domiciliaries until domicile is truly ended. The list includes not just California, New York, and New Jersey but also Connecticut, Maryland, Massachusetts, Minnesota, Oregon, Virginia, and Wisconsin, among others. If you are domiciled there, they consider you a resident. And they will tax everything accordingly.
+Most U.S. states with an income tax assert worldwide taxing jurisdiction over their domiciliaries until domicile is truly ended. The list includes California, New York, and New Jersey, along with Connecticut, Maryland, Massachusetts, Minnesota, Oregon, Virginia, and Wisconsin, among others. If you are domiciled there, they consider you a resident. And they will tax everything accordingly.
 
 California's top rate: 13.3 percent. New York: 10.9 percent. New Jersey: 10.75 percent. [1]
 

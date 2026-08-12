@@ -10,7 +10,7 @@ After four years and six Mexican cities with three kids in tow, we did not arriv
 
 Your best location sits where three circles overlap.
 
-**Practical infrastructure.** Can you actually function here day to day? Reliable internet, schools, healthcare, groceries, safe transit. A place can be paradise on a postcard, and if the basics are missing, paradise turns into purgatory by the second month.
+**Practical infrastructure.** Can you function here day to day? Reliable internet, schools, healthcare, groceries, safe transit. A place can be paradise on a postcard, and if the basics are missing, paradise turns into purgatory by the second month.
 
 **Personal alignment.** Does the place match your lifestyle and your life stage? A surf town feels like heaven at 28 and like chaos at 45 with two kids and a work deadline.
 
@@ -144,7 +144,7 @@ Cool nights the whole year, so pack sweaters. Altitude runs from 5,500 to 8,000 
 | --- | --- | --- | --- | --- | --- |
 | Mexico City (Roma / Condesa / Polanco) | May | 80 | 56 | 40% | May to Sept |
 
-Mexico City sits at 7,382 feet [1] with genuinely pleasant weather year-round. It also contends with dry-season air quality and the sheer complexity of a capital of more than 20 million people. [2]
+Mexico City sits at 7,382 feet [1] with pleasant weather year-round. It also contends with dry-season air quality and the sheer complexity of a capital of more than 20 million people. [2]
 
 ### What Climate Actually Teaches You
 
@@ -160,9 +160,9 @@ Everything above is about preference. Infrastructure is about feasibility. The q
 - Safe transit (Uber and taxi coverage, or your willingness to buy a car)
 - Consistent electricity and reliable package delivery
 - Airport access under 90 minutes (medical emergencies, international travel)
-- Healthcare you would actually trust in an emergency, not "good by local standards" but genuinely trustworthy
+- Healthcare you would trust in an emergency, genuinely trustworthy rather than just "good by local standards"
 
-Now the uncomfortable part. If you are moving mainly for savings but you need your preferred grocery brands, English-language schooling, and American-standard healthcare, you are optimizing for the wrong variable. Mérida or Guadalajara will serve you better than San Cristóbal even though they save you less. Wanting those comforts is not a character flaw. It is a clear signal pointing at the places where you will actually thrive, so follow it.
+Now the uncomfortable part. If you are moving mainly for savings but you need your preferred grocery brands, English-language schooling, and American-standard healthcare, you are optimizing for the wrong variable. Mérida or Guadalajara will serve you better than San Cristóbal even though they save you less. Wanting those comforts is not a character flaw. It is a clear signal pointing at the places where you will thrive, so follow it.
 
 ### Comfort of Home
 
@@ -266,7 +266,7 @@ This is the part that moves you from analysis to a plane ticket. Work through it
 
 Our current base is San Miguel de Allende, and it is far from perfect. It runs pricey by Mexican standards, it fills up during peak season, and a few neighborhoods can feel like an expat bubble. For us, the ledger still balances: the education options for teens are excellent, the cultural calendar rivals major U.S. cities, and the climate of warm days and cool nights is close to ideal for our life stage. For another family, that same San Miguel would read as expensive and shallow. That gap is not a verdict on the town. It is what alignment means.
 
-So choose for the life you are living now, not for an idealized future self, and hold the choice loosely. Your first Mexican base is not your last. Plenty of expats cycle through two or three cities as they figure out what actually matters: San Miguel for the schools, then Mérida for cost and community, then Guadalajara for professional reach. That progression is not instability. It is the journey teaching you the difference between what you wanted and what you thought you wanted, and it takes the paralysis out of "choosing perfectly." You are choosing your next chapter, not your final identity, and you can always move again.
+So choose for the life you are living now, not for an idealized future self, and hold the choice loosely. Your first Mexican base is not your last. Plenty of expats cycle through two or three cities as they figure out what matters most: San Miguel for the schools, then Mérida for cost and community, then Guadalajara for professional reach. That progression is not instability. It is the journey teaching you the difference between what you wanted and what you thought you wanted, and it takes the paralysis out of "choosing perfectly." You are choosing your next chapter, not your final identity, and you can always move again.
 
 ### Your next action
 
