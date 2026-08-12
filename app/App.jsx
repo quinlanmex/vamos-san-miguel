@@ -650,6 +650,10 @@ export default function App() {
                     style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "5px 13px", borderRadius: 999 }}>
                     <SlidersHorizontal size={14} /> {lang === "es" ? "Cambiar" : "Change"}
                   </button>
+                  <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); }}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 13, padding: "5px 13px", borderRadius: 999 }}>
+                    <X size={14} /> {lang === "es" ? "Limpiar" : "Clear"}
+                  </button>
                 </div>
                 {(() => {
                   const cats = [
@@ -1017,8 +1021,16 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
   );
   const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 };
   const cuisines = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
+  const active = favType !== "" || favCuisine.size > 0 || favDiet.size > 0;
+  const clearAll = () => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+      {active && (
+        <button onClick={clearAll}
+          style={{ alignSelf: "flex-start", cursor: "pointer", border: `1px solid ${P.line}`, background: P.chipBg, color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "5px 12px", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <X size={13} /> {lang === "es" ? "Limpiar filtros" : "Clear filters"}
+        </button>
+      )}
       <div>
         <Label>{lang === "es" ? "Tipo" : "Type"}</Label>
         <div className="catrow">
