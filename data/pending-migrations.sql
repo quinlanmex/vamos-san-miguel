@@ -1,7 +1,7 @@
 -- Vamos San Miguel: run this once in the Supabase SQL Editor.
 -- Combines the detail-fields + cuisine-backfill migrations. Safe to run more than once.
 
--- ========== 1) Pick detail fields (gallery, phone, hours, price, tip) ==========
+-- ========== 1) Pick detail fields ==========
 -- Vamos San Miguel: fields for the clickable Local Pick detail view.
 -- Run once in the Supabase SQL Editor. Safe to run more than once.
 
@@ -14,7 +14,7 @@ alter table places add column if not exists tip         text;                 --
 -- Website already exists as origin_url. The card thumbnail is photo_url; the
 -- gallery (photos) holds any additional images shown in the detail sheet.
 
--- ========== 2) Cuisine + good-for facets (incl. researched Mediterranean/International) ==========
+-- ========== 2) Cuisine + good-for facets ==========
 -- Vamos San Miguel: add + backfill the cuisine facet on Local Picks.
 -- Safe to run more than once (overwrites cuisine). Matches rows by Google Maps URL (source_ref).
 alter table places add column if not exists cuisine text[] default '{}';
@@ -61,5 +61,5 @@ update places set cuisine = '{breakfast}' where source_ref = 'https://www.google
 update places set cuisine = '{mexican,breakfast}' where source_ref = 'https://www.google.com/maps/place/Ra%C3%ADces+Restaurante+SMA/data=!4m2!3m1!1s0x842b51f3cf0a85f5:0xd1ff3fc95c0563f';
 update places set cuisine = '{breakfast}' where source_ref = 'https://www.google.com/maps/place/R%C3%BAstica/data=!4m2!3m1!1s0x842b51d60c8b0181:0x6432092e36691ebd';
 update places set cuisine = '{asian}' where source_ref = 'https://www.google.com/maps/place/Thai+Kitchen/data=!4m2!3m1!1s0x842b51adc322dd51:0xc7713793ec5be44a';
-update places set cuisine = '{datenight,international}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
+update places set cuisine = '{datenight,mediterranean}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
 update places set cuisine = '{cafe,coworking}' where source_ref = 'https://www.google.com/maps/place/Zibu+Allende/data=!4m2!3m1!1s0x842b517780690f77:0x986d088ad8081e73';

@@ -44,5 +44,5 @@ update places set cuisine = '{breakfast}' where source_ref = 'https://www.google
 update places set cuisine = '{mexican,breakfast}' where source_ref = 'https://www.google.com/maps/place/Ra%C3%ADces+Restaurante+SMA/data=!4m2!3m1!1s0x842b51f3cf0a85f5:0xd1ff3fc95c0563f';
 update places set cuisine = '{breakfast}' where source_ref = 'https://www.google.com/maps/place/R%C3%BAstica/data=!4m2!3m1!1s0x842b51d60c8b0181:0x6432092e36691ebd';
 update places set cuisine = '{asian}' where source_ref = 'https://www.google.com/maps/place/Thai+Kitchen/data=!4m2!3m1!1s0x842b51adc322dd51:0xc7713793ec5be44a';
-update places set cuisine = '{datenight,international}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
+update places set cuisine = '{datenight,mediterranean}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
 update places set cuisine = '{cafe,coworking}' where source_ref = 'https://www.google.com/maps/place/Zibu+Allende/data=!4m2!3m1!1s0x842b517780690f77:0x986d088ad8081e73';
