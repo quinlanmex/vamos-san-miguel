@@ -7,7 +7,18 @@ import {
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
   Utensils, Wine, Palette,
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
+  Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup,
 } from "lucide-react";
+
+/* Custom chili icon (Lucide has no chili/pepper) for the Mexican cuisine facet. */
+function Chili({ size = 24, color = "currentColor", ...props }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M11 5c-.3-1.4-1.5-2.3-3-2.3" />
+      <path d="M11 5c4.4 0 7.5 3.3 7.5 7.5S15 20 10.5 20 3 15.5 3 11" />
+    </svg>
+  );
+}
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -59,16 +70,16 @@ const DIET = {
 
 /* Cuisine facet — a restaurant sub-filter, only shown when Restaurants is selected. */
 const CUISINES = {
-  mexican:     { en: "Mexican",              es: "Mexicana" },
-  italian:     { en: "Italian & Pizza",      es: "Italiana y pizza" },
-  asian:       { en: "Asian",                es: "Asiática" },
-  peruvian:    { en: "Peruvian",             es: "Peruana" },
-  argentinian: { en: "Argentinian",          es: "Argentina" },
-  burgers:     { en: "Burgers & Sandwiches", es: "Hamburguesas y sándwiches" },
-  breakfast:   { en: "Breakfast",            es: "Desayuno" },
-  cafe:        { en: "Café & Coffee",        es: "Café" },
-  bakery:      { en: "Bakery",               es: "Panadería" },
-  dessert:     { en: "Dessert",              es: "Postres" },
+  mexican:     { en: "Mexican",              es: "Mexicana",                    Icon: Chili },
+  italian:     { en: "Italian & Pizza",      es: "Italiana y pizza",            Icon: Pizza },
+  asian:       { en: "Asian",                es: "Asiática",                    Icon: Soup },
+  peruvian:    { en: "Peruvian",             es: "Peruana",                     Icon: Fish },
+  argentinian: { en: "Argentinian",          es: "Argentina",                   Icon: Beef },
+  burgers:     { en: "Burgers & Sandwiches", es: "Hamburguesas y sándwiches",   Icon: Sandwich },
+  breakfast:   { en: "Breakfast",            es: "Desayuno",                    Icon: EggFried },
+  cafe:        { en: "Café & Coffee",        es: "Café",                        Icon: Coffee },
+  bakery:      { en: "Bakery",               es: "Panadería",                   Icon: Croissant },
+  dessert:     { en: "Dessert",              es: "Postres",                     Icon: IceCreamCone },
 };
 
 /* Top-level Local Picks type facets, in display order (Restaurants first). */
@@ -696,11 +707,13 @@ export default function App() {
               <div className="catrow" style={{ marginBottom: 18, paddingLeft: 2 }}>
                 {Object.keys(CUISINES).map((k) => {
                   const on = favCuisine.has(k);
+                  const CIc = CUISINES[k].Icon;
                   return (
                     <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
                       style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                        display: "flex", alignItems: "center", gap: 5,
                         border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                      {CUISINES[k][lang]}
+                      <CIc size={13} /> {CUISINES[k][lang]}
                     </button>
                   );
                 })}
@@ -952,6 +965,8 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
   const typeLabel = ty[lang];
   const Bi = ty.Icon;
+  const cui = (it.list_key === "rest" && (it.cuisine || []).length) ? CUISINES[it.cuisine[0]] : null;
+  const CuIcon = cui ? cui.Icon : null;
   const galleryCount = (it.img ? 1 : 0) + (it.photos ? it.photos.length : 0);
   return (
     <div className="card placecard" onClick={onOpen} role="button" tabIndex={0}
@@ -960,8 +975,10 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
       style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", cursor: onOpen ? "pointer" : "default" }}>
       <div style={{ position: "relative" }}>
         <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
-        <span title={typeLabel} style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
+        <span title={cui ? `${typeLabel} · ${cui[lang]}` : typeLabel}
+          style={{ position: "absolute", top: 10, left: 10, height: 30, width: CuIcon ? "auto" : 30, padding: CuIcon ? "0 9px" : 0, borderRadius: CuIcon ? 999 : "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", gap: CuIcon ? 6 : 0, boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
           <Bi size={15} color={cat.c} />
+          {CuIcon && <><span style={{ width: 1, height: 15, background: "rgba(0,0,0,.13)" }} /><CuIcon size={15} color={cat.c} /></>}
         </span>
         {galleryCount > 1 && (
           <span style={{ position: "absolute", bottom: 10, right: 10, display: "flex", alignItems: "center", gap: 4, background: "rgba(13,20,40,.7)", color: "#fff", fontSize: 11.5, fontWeight: 700, padding: "3px 8px", borderRadius: 999 }}>
