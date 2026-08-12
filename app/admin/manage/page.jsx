@@ -172,6 +172,20 @@ export default function Manage() {
     setApplying(false);
   }
 
+  const [importingEv, setImportingEv] = useState(false);
+  async function importEvents() {
+    if (!confirm("Import the researched events as DRAFTS? They won't show on the site until you publish each one.")) return;
+    setImportingEv(true); setMsg(null);
+    try {
+      const r = await fetch("/api/import-events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Imported ${j.inserted} events as drafts${j.skipped ? ` · ${j.skipped} already existed` : ""}. Review + publish below.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setImportingEv(false);
+  }
+
   const [checking, setChecking] = useState(false);
   async function checkClosures() {
     setChecking(true); setMsg(null);
@@ -286,6 +300,10 @@ export default function Manage() {
               {isPlace && (
                 <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
                   style={btn(P.navy, !checking)}>{checking ? "Checking Google…" : "Check for closures"}</button>
+              )}
+              {!isPlace && (
+                <button onClick={importEvents} disabled={importingEv} title="Stage the researched events as drafts for review"
+                  style={{ ...btn(P.green, !importingEv), marginLeft: "auto" }}>{importingEv ? "Importing…" : "Import researched events"}</button>
               )}
             </div>
 
