@@ -24,7 +24,7 @@ async function runCheck() {
   if (error) return { error: error.message, status: 500 };
 
   const now = new Date().toISOString();
-  let checked = 0;
+  let checked = 0, hidden = 0;
   const newlyClosed = [], reopened = [];
 
   for (const p of places || []) {
@@ -36,14 +36,14 @@ async function runCheck() {
     if (st === "CLOSED_PERMANENTLY") {
       if (!wasClosed) { patch.closed_at = now; newlyClosed.push(p.name); }
       // Hide it while closed. Only override a live pick; leave draft/archived alone.
-      if (p.status === "published") patch.status = "hidden";
+      if (p.status === "published") { patch.status = "hidden"; hidden++; }
     } else if (st === "OPERATIONAL" && wasClosed) {
       // Reopened: clear the closure and put it back on the live site.
       patch.closed_at = null; patch.status = "published"; reopened.push(p.name);
     }
     await sb.from("places").update(patch).eq("id", p.id);
   }
-  return { ok: true, checked, closedCount: newlyClosed.length, reopenedCount: reopened.length, newlyClosed, reopened };
+  return { ok: true, checked, closedCount: newlyClosed.length, hiddenCount: hidden, reopenedCount: reopened.length, newlyClosed, reopened };
 }
 
 // Manual trigger from the admin tool (password in body).

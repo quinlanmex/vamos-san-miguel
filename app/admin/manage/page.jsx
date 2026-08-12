@@ -102,8 +102,10 @@ export default function Manage() {
       await load();
       const parts = [`Checked ${j.checked}`];
       if (j.closedCount) parts.push(`${j.closedCount} newly closed`);
+      if (j.hiddenCount) parts.push(`${j.hiddenCount} hidden (closed)`);
       if (j.reopenedCount) parts.push(`${j.reopenedCount} reopened`);
-      setMsg({ type: "ok", text: parts.join(" · ") + (j.closedCount || j.reopenedCount ? "" : " · no changes") });
+      const changed = j.closedCount || j.hiddenCount || j.reopenedCount;
+      setMsg({ type: "ok", text: parts.join(" · ") + (changed ? "" : " · no changes") });
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setChecking(false);
   }
