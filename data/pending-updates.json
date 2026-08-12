@@ -1,0 +1,326 @@
+[
+  {
+    "source_ref": "https://www.google.com/maps/place/La+Burger/data=!4m2!3m1!1s0x842b4f767091217f:0x7e937ee5436e1db9",
+    "cuisine": [
+      "burgers",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Lanzafuegos/data=!4m2!3m1!1s0x842b4f7e44b4d495:0x2f8c12e87c76c37f",
+    "cuisine": [
+      "italian"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Restaurante+Patria/data=!4m2!3m1!1s0x842b4f9b188914b9:0x56668c2ac19de51e",
+    "cuisine": [
+      "mexican",
+      "mediterranean",
+      "breakfast",
+      "vineyard"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Amorino/data=!4m2!3m1!1s0x842b51facad4148b:0x20266e658fd38b0c",
+    "cuisine": [
+      "dessert"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Anta%C3%B1o+Cuatro/data=!4m2!3m1!1s0x842b515cd6d23587:0x9f3d23d49822484f",
+    "cuisine": [
+      "mexican",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Arriba+Abajo/data=!4m2!3m1!1s0x842b51ad5108000d:0x954bf7b7c08a6056",
+    "cuisine": [
+      "mexican",
+      "breakfast",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Art+Garden+Cafe/data=!4m2!3m1!1s0x842b51304c6774af:0x79153f81de9c2f4d",
+    "cuisine": [
+      "cafe",
+      "breakfast",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Bakery+Sucr%C3%A9,+SMA./data=!4m2!3m1!1s0x842b517f9b654abd:0x44b06f9836864de7",
+    "cuisine": [
+      "bakery",
+      "cafe",
+      "breakfast",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Bocaciega/data=!4m2!3m1!1s0x842b51472b8bc225:0xf1a18dc6b27b13dc",
+    "cuisine": [
+      "mediterranean",
+      "datenight"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Caf%C3%A9+1910/data=!4m2!3m1!1s0x842b51b332774101:0x4d177224222f57ca",
+    "cuisine": [
+      "mexican",
+      "cafe",
+      "breakfast",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Caf%C3%A9+Murmullo/data=!4m2!3m1!1s0x842b51a43eb4057f:0xf5da16f054687e96",
+    "cuisine": [
+      "cafe",
+      "breakfast",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Casa+Nostra+Restaurant,+Terrace+and+Rooftop/data=!4m2!3m1!1s0x842b51ba8c2d2581:0xebfe42417eb524cf",
+    "cuisine": [
+      "italian",
+      "datenight",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/CHURRER%C3%8DA+PORFIRIO+SAN+MIGUEL+DE+ALLENDE/data=!4m2!3m1!1s0x842b510057a24817:0x176c88fab623ad1b",
+    "cuisine": [
+      "dessert"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Comunidad+by+Our+Habitas/data=!4m2!3m1!1s0x842b51ce28886fa1:0xdcfc5ab6964a1e11",
+    "cuisine": [
+      "mexican",
+      "breakfast",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/CORTADO/data=!4m2!3m1!1s0x842b51819f781aaf:0x8cdd7634652a952f",
+    "cuisine": [
+      "mediterranean",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Cumpanio/data=!4m2!3m1!1s0x842b51ba18053ffd:0xae74efe326bbfa8b",
+    "cuisine": [
+      "bakery",
+      "italian",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Divino+Cielo+Caf%C3%A9/data=!4m2!3m1!1s0x842b51a925c1b391:0x10a18688099555c8",
+    "cuisine": [
+      "cafe",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Don+Taco+Tequila/data=!4m2!3m1!1s0x842b51b7970a71d1:0xc8cac15e7fce34f8",
+    "cuisine": [
+      "mexican"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/D%C3%B4ce+18+Concept+House/data=!4m2!3m1!1s0x842b51b9febb1f15:0x58c9a31bef506707",
+    "cuisine": [
+      "mexican",
+      "datenight",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/El+Caf%C3%A9+Instituto+Allende+Casa+Museo/data=!4m2!3m1!1s0x842b51fca2b03c8f:0x9d76d16d48e3ee69",
+    "cuisine": [
+      "cafe",
+      "breakfast",
+      "coworking",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Fari+Trattoria/data=!4m2!3m1!1s0x842b5138a8c49afb:0x22a7d01dfb490f96",
+    "cuisine": [
+      "italian",
+      "datenight"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Firenze+Restaurant+-+San+Miguel+de+Allende/data=!4m2!3m1!1s0x842b51ba41cada87:0x4bdaaa3f90b2b6a9",
+    "cuisine": [
+      "italian",
+      "datenight"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Florios+San+Miguel/data=!4m2!3m1!1s0x842b511b34cc7e19:0x3157a9356fe0cb8d",
+    "cuisine": [
+      "argentinian",
+      "italian",
+      "datenight",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Hecho+en+M%C3%A9xico/data=!4m2!3m1!1s0x842b51b1d00f418d:0x55bc02b3c5b505c6",
+    "cuisine": [
+      "mexican",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Inside+Cafe/data=!4m2!3m1!1s0x842b51b9d92ba417:0x43e1a5f895e344aa",
+    "cuisine": [
+      "mexican",
+      "asian",
+      "breakfast",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/KAFFI/data=!4m2!3m1!1s0x842b51ad09750e47:0x3bd64872ec181741",
+    "cuisine": [
+      "cafe",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/La+Cabra+Iluminada/data=!4m2!3m1!1s0x842b5123082609db:0x7fabb38637369ebb",
+    "cuisine": [
+      "mexican",
+      "cafe",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/La+Frontera+Restaurant/data=!4m2!3m1!1s0x842b51ad0a403a01:0x98db4cf64c5276fa",
+    "cuisine": [
+      "mexican"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/La+Sacrist%C3%ADa/data=!4m2!3m1!1s0x842b51b0d2a42dbd:0x76a54a6b3b3ecbc6",
+    "cuisine": [
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Lavanda+Caf%C3%A9+de+Especialidad/data=!4m2!3m1!1s0x842b51b0c0fc145b:0x67a0ffb654013b97",
+    "cuisine": [
+      "cafe",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Lima+-+Cocina+Realmente+Peruana/data=!4m2!3m1!1s0x842b518bd5e78527:0xf0b532af97e5023b",
+    "cuisine": [
+      "peruvian"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Lukrezia+Breakfast+and+Brunch/data=!4m2!3m1!1s0x842b515e82b73e27:0x14f56c912e008c1",
+    "cuisine": [
+      "mexican",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Mam%C3%A1+M%C3%ADa/data=!4m2!3m1!1s0x842b51b0b009254b:0x7f73204dcb2ba260",
+    "cuisine": [
+      "italian",
+      "mexican",
+      "groups"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Mi+Bistro+300/data=!4m2!3m1!1s0x842b51b71e2e0b99:0x828c168e958dd6f9",
+    "cuisine": [
+      "mediterranean",
+      "mexican"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/NY+Style+Deli+-+District/data=!4m2!3m1!1s0x842b515b0c43432d:0x1f8e0e4ddc78f9e2",
+    "cuisine": [
+      "burgers",
+      "bakery"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Panina/data=!4m2!3m1!1s0x842b514f206e652d:0x7c9097686cc707f1",
+    "cuisine": [
+      "bakery",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/PANIO+Luciernaga/data=!4m2!3m1!1s0x842b51cc0cda78bf:0xc4f13945e2629824",
+    "cuisine": [
+      "bakery",
+      "cafe",
+      "burgers"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Petit+Four/data=!4m2!3m1!1s0x842b51b7412b1dc7:0xf9c753590aa4d5b7",
+    "cuisine": [
+      "bakery",
+      "dessert",
+      "coworking"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Posada+Coraz%C3%B3n/data=!4m2!3m1!1s0x842b51b081d85775:0xefd7f7b29d38253d",
+    "cuisine": [
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Ra%C3%ADces+Restaurante+SMA/data=!4m2!3m1!1s0x842b51f3cf0a85f5:0xd1ff3fc95c0563f",
+    "cuisine": [
+      "mexican",
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/R%C3%BAstica/data=!4m2!3m1!1s0x842b51d60c8b0181:0x6432092e36691ebd",
+    "cuisine": [
+      "breakfast"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Thai+Kitchen/data=!4m2!3m1!1s0x842b51adc322dd51:0xc7713793ec5be44a",
+    "cuisine": [
+      "asian"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4",
+    "cuisine": [
+      "international",
+      "breakfast",
+      "datenight",
+      "views"
+    ]
+  },
+  {
+    "source_ref": "https://www.google.com/maps/place/Zibu+Allende/data=!4m2!3m1!1s0x842b517780690f77:0x986d088ad8081e73",
+    "cuisine": [
+      "mexican",
+      "asian",
+      "datenight"
+    ]
+  }
+]

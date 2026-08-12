@@ -2,13 +2,14 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { CUISINES, GOODFOR } from "../../../components/cuisines";
+import { Salad, Sprout } from "lucide-react";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
 const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comunidad", "Community"], ["charlas", "Talks"], ["mercados", "Markets"], ["bienestar", "Wellness"]];
 const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
 const LIST_LABEL = Object.fromEntries(LISTS);
 const AUD = [["family", "Family"], ["teens", "Teens"]];
-const DIET = [["vegetarian", "Vegetarian"], ["vegan", "Vegan"]];
+const DIET = [["vegetarian", "Vegetarian", Salad], ["vegan", "Vegan", Sprout]];
 const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
 const STATUS_COLOR = { published: "#2F7A63", hidden: "#B4791F", draft: "#6E604F", archived: "#9A8F7E" };
 const STATUS_LABEL = Object.fromEntries(STATUS);
@@ -157,6 +158,20 @@ export default function Manage() {
     for (let k = 0; k < arr.length; k++) await patchRow(arr[k].id, { featured_rank: k });
   }
 
+  const [applying, setApplying] = useState(false);
+  async function applyUpdates() {
+    if (!confirm("Apply the reviewed cuisine + views/vineyard tags to all matching picks? This sets each restaurant's tags to the researched set.")) return;
+    setApplying(true); setMsg(null);
+    try {
+      const r = await fetch("/api/apply-updates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Applied tags to ${j.applied} picks${j.notFound ? ` · ${j.notFound} not matched` : ""}.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setApplying(false);
+  }
+
   const [checking, setChecking] = useState(false);
   async function checkClosures() {
     setChecking(true); setMsg(null);
@@ -265,8 +280,12 @@ export default function Manage() {
                 <strong style={{ color: P.green }}>{liveCount}</strong> live · {allRows.length - liveCount} hidden/other
               </span>
               {isPlace && (
+                <button onClick={applyUpdates} disabled={applying} title="Apply the reviewed cuisine + views/vineyard tags"
+                  style={{ ...btn(P.green, !applying), marginLeft: "auto" }}>{applying ? "Applying…" : "Apply reviewed tags"}</button>
+              )}
+              {isPlace && (
                 <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
-                  style={{ ...btn(P.navy, !checking), marginLeft: "auto" }}>{checking ? "Checking Google…" : "Check for closures"}</button>
+                  style={btn(P.navy, !checking)}>{checking ? "Checking Google…" : "Check for closures"}</button>
               )}
             </div>
 
@@ -365,8 +384,8 @@ export default function Manage() {
                       {GOODFOR.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
                         <button key={k} onClick={() => toggleIn(r, "cuisine", k)} style={mini(on, P.green)}><Ic size={11} /> {CUISINES[k].en}</button>
                       ); })}
-                      {DIET.map(([k, l]) => { const on = (r.diet || []).includes(k); return (
-                        <button key={k} onClick={() => toggleIn(r, "diet", k)} style={mini(on, P.green)}>{l}</button>
+                      {DIET.map(([k, l, Ic]) => { const on = (r.diet || []).includes(k); return (
+                        <button key={k} onClick={() => toggleIn(r, "diet", k)} style={mini(on, P.green)}><Ic size={11} /> {l}</button>
                       ); })}
                     </div>
                   )}
