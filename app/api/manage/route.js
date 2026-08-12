@@ -55,9 +55,10 @@ export async function POST(req) {
       if (kind === "place") {
         row.editorial = true;
         if (row.name == null) return Response.json({ error: "Name is required." }, { status: 400 });
-        // Manually marking a place permanently closed stamps closed_at; reopening clears it.
+        // Manually marking a place permanently closed stamps closed_at and hides it; reopening clears it.
         if (record && Object.prototype.hasOwnProperty.call(record, "business_status")) {
-          row.closed_at = record.business_status === "CLOSED_PERMANENTLY" ? new Date().toISOString() : null;
+          if (record.business_status === "CLOSED_PERMANENTLY") { row.closed_at = new Date().toISOString(); row.status = "hidden"; }
+          else { row.closed_at = null; }
         }
       }
       else { if (row.title_en == null && row.title_es == null) return Response.json({ error: "A title is required." }, { status: 400 }); if (!row.end_date && row.start_date) row.end_date = row.start_date; }

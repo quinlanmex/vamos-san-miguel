@@ -19,7 +19,7 @@ async function runCheck() {
   const sb = supabaseAdmin();
   const { data: places, error } = await sb
     .from("places")
-    .select("id,name,google_place_id,business_status,closed_at")
+    .select("id,name,google_place_id,business_status,closed_at,status")
     .not("google_place_id", "is", null);
   if (error) return { error: error.message, status: 500 };
 
@@ -31,11 +31,15 @@ async function runCheck() {
     const st = await fetchStatus(p.google_place_id, key);
     if (!st) continue;
     checked++;
+    const wasClosed = p.business_status === "CLOSED_PERMANENTLY";
     const patch = { business_status: st, status_checked_at: now };
-    if (st === "CLOSED_PERMANENTLY" && p.business_status !== "CLOSED_PERMANENTLY") {
-      patch.closed_at = now; newlyClosed.push(p.name);
-    } else if (st === "OPERATIONAL" && p.business_status === "CLOSED_PERMANENTLY") {
-      patch.closed_at = null; reopened.push(p.name); // reopened -> reappears on the live site
+    if (st === "CLOSED_PERMANENTLY") {
+      if (!wasClosed) { patch.closed_at = now; newlyClosed.push(p.name); }
+      // Hide it while closed. Only override a live pick; leave draft/archived alone.
+      if (p.status === "published") patch.status = "hidden";
+    } else if (st === "OPERATIONAL" && wasClosed) {
+      // Reopened: clear the closure and put it back on the live site.
+      patch.closed_at = null; patch.status = "published"; reopened.push(p.name);
     }
     await sb.from("places").update(patch).eq("id", p.id);
   }
