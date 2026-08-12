@@ -174,14 +174,14 @@ export default function Manage() {
 
   const [importingEv, setImportingEv] = useState(false);
   async function importEvents() {
-    if (!confirm("Import the researched events as DRAFTS? They won't show on the site until you publish each one.")) return;
+    if (!confirm("Import the researched events? Verified ones publish; a few with inferred times come in as drafts. Only future events show on the site.")) return;
     setImportingEv(true); setMsg(null);
     try {
       const r = await fetch("/api/import-events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Failed");
       await load();
-      setMsg({ type: "ok", text: `Imported ${j.inserted} events as drafts${j.skipped ? ` · ${j.skipped} already existed` : ""}. Review + publish below.` });
+      setMsg({ type: "ok", text: `Imported ${j.inserted} events${j.skipped ? ` · ${j.skipped} already existed` : ""}. High-confidence ones are live; drafts are staged below.` });
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setImportingEv(false);
   }

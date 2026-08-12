@@ -4,9 +4,9 @@ import events from "../../../data/events-import.json";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Stages researched events (data/events-import.json) as DRAFTS for owner review.
-// Drafts never show on the live site (it filters status=published), so nothing goes
-// public until the owner publishes each one.
+// Imports researched events (data/events-import.json). Events only need to be real, not
+// personally vetted, so HIGH-confidence ones publish directly; LOW-confidence ones (times
+// inferred) come in as drafts for a quick look. The live site only shows future events.
 export async function POST(req) {
   const { password } = await req.json().catch(() => ({}));
   if (password !== process.env.ADMIN_PASSWORD) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,7 +24,7 @@ export async function POST(req) {
     if (have.has(key)) { skipped++; continue; }
     have.add(key);
     rows.push({
-      status: "draft",
+      status: e.confidence === "LOW" ? "draft" : "published",
       title_en: e.title_en, title_es: e.title_es || null,
       blurb_en: e.blurb_en || null, blurb_es: e.blurb_es || null,
       price_en: e.price_en || null, price_es: e.price_es || null,

@@ -15,7 +15,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Flamenco y FLAMEnCO: Latido Flamenco",
@@ -33,7 +34,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Playreaders: \"Later Life\"",
@@ -51,7 +53,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "FASMA: Three Cultures United by Music",
@@ -69,7 +72,8 @@
     "price_es": null,
     "origin_name": "Mexico News Daily",
     "origin_url": "https://mexiconewsdaily.com/culture/san-miguel-de-allende-arts-festival-returns-with-over-100-events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "FASMA: Singing & Piano Recital (Katzarava)",
@@ -87,7 +91,8 @@
     "price_es": null,
     "origin_name": "Mexico News Daily",
     "origin_url": "https://mexiconewsdaily.com/culture/san-miguel-de-allende-arts-festival-returns-with-over-100-events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "FASMA Closing: Josep Sole Coll, Vatican Organist",
@@ -105,7 +110,8 @@
     "price_es": "Gratis",
     "origin_name": "Mexico News Daily",
     "origin_url": "https://mexiconewsdaily.com/culture/san-miguel-de-allende-arts-festival-returns-with-over-100-events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "FASMA Closing: FutuRock Youth Concert",
@@ -123,7 +129,8 @@
     "price_es": "Gratis",
     "origin_name": "Mexico News Daily",
     "origin_url": "https://mexiconewsdaily.com/culture/san-miguel-de-allende-arts-festival-returns-with-over-100-events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Theatre: Life & Work of Allende y Unzaga",
@@ -141,7 +148,8 @@
     "price_es": "40 MXN",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "El Grito de Dolores (Independence Eve)",
@@ -159,7 +167,8 @@
     "price_es": "Gratis",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/mexico/guanajuato/san-miguel-de-allende/mexico-holidays/shout-of-dolores/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Independence Day Civic Parade",
@@ -177,7 +186,8 @@
     "price_es": "Gratis",
     "origin_name": "Guanajuato.mx",
     "origin_url": "https://guanajuato.mx/en/heritage-city/events-2/civic-festivities-in-commemoration-of-independence-in-san-miguel-de-allende/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "TOSMA Organic Farmers Market",
@@ -195,7 +205,8 @@
     "price_es": "Entrada libre",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/mexico/guanajuato/san-miguel-de-allende/shopping-2/tosma-farmers-market-of-san-miguel/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Tuesday & Sunday Tianguis Market",
@@ -213,7 +224,8 @@
     "price_es": "Entrada libre",
     "origin_name": "The Culture Trip",
     "origin_url": "https://theculturetrip.com/north-america/mexico/articles/4-markets-to-explore-in-san-miguel-de-allende",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Guided Tours of El Charco del Ingenio",
@@ -231,7 +243,8 @@
     "price_es": "150 MXN",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/mexico/guanajuato/san-miguel-de-allende/tours-el-charco/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Natural History Tour (English) - El Charco",
@@ -249,7 +262,8 @@
     "price_es": "150 MXN (100 MXN socios)",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/mexico/guanajuato/san-miguel-de-allende/tours-el-charco/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "Bird Watching Tour - El Charco",
@@ -267,7 +281,8 @@
     "price_es": "150 MXN (100 MXN socios)",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/mexico/guanajuato/san-miguel-de-allende/bird-watching-tours-at-el-charco-del-ingenio-botanical-garden/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   },
   {
     "title_en": "San Miguel Walking Tour (Follow Me Tours)",
@@ -285,7 +300,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "LOW"
   },
   {
     "title_en": "Cine Bacco Weekly Film Screenings",
@@ -303,7 +319,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "LOW"
   },
   {
     "title_en": "Aqua Fit Classes",
@@ -321,7 +338,8 @@
     "price_es": null,
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "LOW"
   },
   {
     "title_en": "Come Walk the Dogs",
@@ -339,6 +357,7 @@
     "price_es": "Gratis",
     "origin_name": "Discover San Miguel de Allende",
     "origin_url": "https://discoversma.com/events/events/",
-    "discovered_via": "agent-research"
+    "discovered_via": "agent-research",
+    "confidence": "HIGH"
   }
 ]
