@@ -5,7 +5,7 @@
 
 update places set cuisine = '{burgers,groups}' where source_ref = 'https://www.google.com/maps/place/La+Burger/data=!4m2!3m1!1s0x842b4f767091217f:0x7e937ee5436e1db9';
 update places set cuisine = '{italian}' where source_ref = 'https://www.google.com/maps/place/Lanzafuegos/data=!4m2!3m1!1s0x842b4f7e44b4d495:0x2f8c12e87c76c37f';
-update places set cuisine = '{breakfast}' where source_ref = 'https://www.google.com/maps/place/Restaurante+Patria/data=!4m2!3m1!1s0x842b4f9b188914b9:0x56668c2ac19de51e';
+update places set cuisine = '{mexican,mediterranean,breakfast}' where source_ref = 'https://www.google.com/maps/place/Restaurante+Patria/data=!4m2!3m1!1s0x842b4f9b188914b9:0x56668c2ac19de51e';
 update places set cuisine = '{dessert}' where source_ref = 'https://www.google.com/maps/place/Amorino/data=!4m2!3m1!1s0x842b51facad4148b:0x20266e658fd38b0c';
 update places set cuisine = '{mexican,groups}' where source_ref = 'https://www.google.com/maps/place/Anta%C3%B1o+Cuatro/data=!4m2!3m1!1s0x842b515cd6d23587:0x9f3d23d49822484f';
 update places set cuisine = '{mexican,breakfast}' where source_ref = 'https://www.google.com/maps/place/Arriba+Abajo/data=!4m2!3m1!1s0x842b51ad5108000d:0x954bf7b7c08a6056';
@@ -45,5 +45,5 @@ update places set cuisine = '{breakfast}' where source_ref = 'https://www.google
 update places set cuisine = '{mexican,breakfast}' where source_ref = 'https://www.google.com/maps/place/Ra%C3%ADces+Restaurante+SMA/data=!4m2!3m1!1s0x842b51f3cf0a85f5:0xd1ff3fc95c0563f';
 update places set cuisine = '{breakfast}' where source_ref = 'https://www.google.com/maps/place/R%C3%BAstica/data=!4m2!3m1!1s0x842b51d60c8b0181:0x6432092e36691ebd';
 update places set cuisine = '{asian}' where source_ref = 'https://www.google.com/maps/place/Thai+Kitchen/data=!4m2!3m1!1s0x842b51adc322dd51:0xc7713793ec5be44a';
-update places set cuisine = '{asian,datenight,groups}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
+update places set cuisine = '{international,breakfast,datenight,views}' where source_ref = 'https://www.google.com/maps/place/Trazo+1810/data=!4m2!3m1!1s0x842b51b74e354c0b:0xcae64b279c984f4';
 update places set cuisine = '{mexican,asian,datenight}' where source_ref = 'https://www.google.com/maps/place/Zibu+Allende/data=!4m2!3m1!1s0x842b517780690f77:0x986d088ad8081e73';

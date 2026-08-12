@@ -1,8 +1,8 @@
-import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus } from "lucide-react";
+import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus, Globe, Mountain, Grape } from "lucide-react";
 
-// "Good for" amenity facets (stored in the cuisine array, but shown as their own group,
-// since they coexist with a cuisine rather than replacing it).
-export const GOODFOR = ["coworking", "datenight", "groups"];
+// "Good for" amenity/feature facets (stored in the cuisine array, but shown as their own
+// group, since they coexist with a cuisine rather than replacing it).
+export const GOODFOR = ["coworking", "datenight", "groups", "views", "vineyard"];
 
 // Lucide has no chili/pepper, so this is a hand-drawn one for the Mexican facet.
 // Horizontal crescent body tapering to a point on the left, stem curling up-right.
@@ -19,6 +19,7 @@ export function Chili({ size = 24, color = "currentColor", ...props }) {
 export const CUISINES = {
   mexican:      { en: "Mexican",             es: "Mexicana",                  Icon: Chili },
   mediterranean:{ en: "Mediterranean",       es: "Mediterránea",              Icon: Citrus },
+  international: { en: "International",        es: "Internacional",             Icon: Globe },
   italian:     { en: "Italian & Pizza",      es: "Italiana y pizza",          Icon: Pizza },
   asian:       { en: "Asian",                es: "Asiática",                  Icon: Soup },
   peruvian:    { en: "Peruvian",             es: "Peruana",                   Icon: Fish },
@@ -29,6 +30,8 @@ export const CUISINES = {
   coworking:   { en: "Coworking",            es: "Coworking",                 Icon: Laptop },
   datenight:   { en: "Date night",           es: "Cita romántica",            Icon: Heart },
   groups:      { en: "Groups",               es: "Grupos",                    Icon: Users },
+  views:       { en: "Views",                es: "Vistas",                    Icon: Mountain },
+  vineyard:    { en: "Vineyard",             es: "Viñedo",                    Icon: Grape },
   bakery:      { en: "Bakery",               es: "Panadería",                 Icon: Croissant },
   dessert:     { en: "Dessert",              es: "Postres",                   Icon: IceCreamCone },
 };
