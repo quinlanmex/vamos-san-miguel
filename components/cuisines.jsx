@@ -5,8 +5,8 @@ import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried,
 export function Chili({ size = 24, color = "currentColor", ...props }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M3.5 15C5 20 14 21 18.5 14c2-3 1-5.5-1.5-5.2C11 9.6 6.5 11.5 3.5 15Z" />
-      <path d="M17 8.8c.5-3.3 2-4.2 4-3.6" />
+      <path d="M3.6 13.4c-.6 4 2.4 7.2 6.6 7.2 5 0 8.2-3.9 8.2-8 0-2.2-1.4-3.4-3.2-3-4.8 1-8 1.3-11.6 3.8Z" />
+      <path d="M15.2 9.6c.6-3 2-4 4.2-3.5" />
     </svg>
   );
 }
