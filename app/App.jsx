@@ -452,6 +452,12 @@ export default function App() {
           .filterbar > button { pointer-events: auto; }
           .has-filterbar main { padding-bottom: 128px !important; }
         }
+        .picks-layout { display: block; }
+        .filter-rail { margin-bottom: 20px; }
+        @media (min-width: 680px) {
+          .picks-layout { display: grid; grid-template-columns: 216px 1fr; gap: 26px; align-items: start; }
+          .filter-rail { margin-bottom: 0; position: sticky; top: 92px; max-height: calc(100vh - 108px); overflow-y: auto; padding-right: 4px; }
+        }
         button:focus-visible, [tabindex]:focus-visible { outline: 3px solid ${P.marigold}; outline-offset: 2px; border-radius: 10px; }
         .leaflet-container { font-family: inherit; border-radius: 16px; }
         @keyframes qpUp { from { transform: translateY(14px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
@@ -733,12 +739,13 @@ export default function App() {
             </>
             )}
 
-            {/* Filters — inline on desktop; on mobile they live in the bottom filter sheet. */}
-            <div className="filters-inline" style={{ marginBottom: 20 }}>
-              <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
-            </div>
-
+            {/* Desktop: sticky filter rail beside the grid. Mobile: filters live in the bottom sheet. */}
+            <div className="picks-layout">
+              <div className="filters-inline filter-rail">
+                <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
+                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
+              </div>
+              <div className="picks-main">
             {favFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: P.inkSoft }}>
                 <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "0 0 6px" }}>{t.none}</p>
@@ -759,6 +766,8 @@ export default function App() {
                 </div>
               </section>
             ))}
+              </div>
+            </div>
           </>
         ) : view === "move" ? (
           <div>
