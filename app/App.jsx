@@ -395,14 +395,19 @@ export default function App() {
 
   const anyFilter = cats.size || aud.size || dateF !== "all" || query.trim();
 
-  // Restaurants-only sub-filters (cuisine + diet) apply only when a type is chosen.
+  // Cuisines are OR'd (show any selected cuisine); good-for + diet are AND'd (must-have).
+  const selCuisines = [...favCuisine].filter((c) => !GOODFOR.includes(c));
+  const selGoodfor = [...favCuisine].filter((c) => GOODFOR.includes(c));
   const favFiltered = favLists
     .filter((l) => !favType || l.key === favType)
-    .map((l) => ({ ...l, items: l.items.filter((it) =>
-      (!favAud.size || (it.audience || []).some((a) => favAud.has(a))) &&
-      (!favDiet.size || (it.diet || []).some((x) => favDiet.has(x))) &&
-      (!favCuisine.size || (it.cuisine || []).some((c) => favCuisine.has(c)))
-    ) }))
+    .map((l) => ({ ...l, items: l.items.filter((it) => {
+      const cz = it.cuisine || [];
+      const cuisineOK = !selCuisines.length || selCuisines.some((c) => cz.includes(c));
+      const goodforOK = selGoodfor.every((g) => cz.includes(g));
+      const dietOK = [...favDiet].every((d) => (it.diet || []).includes(d));
+      const audOK = !favAud.size || (it.audience || []).some((a) => favAud.has(a));
+      return cuisineOK && goodforOK && dietOK && audOK;
+    }) }))
     .filter((l) => l.items.length);
 
   const shownCount = favFiltered.reduce((n, l) => n + l.items.length, 0);
@@ -629,11 +634,17 @@ export default function App() {
                     ? `Nuestros ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()} favoritos`
                     : `Our favorite ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()}`}
                 </h1>
-                <p style={{ color: P.inkSoft, margin: "0 0 12px", fontSize: 14.5, lineHeight: 1.5 }}>
-                  {lang === "es"
-                    ? `${shownCount} ${shownCount === 1 ? "lugar" : "lugares"} · Elegidos a mano, nunca pagados.`
-                    : `${shownCount} ${shownCount === 1 ? "place" : "places"} · Hand-picked, never paid for.`}
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "0 0 12px" }}>
+                  <p style={{ color: P.inkSoft, margin: 0, fontSize: 14.5, lineHeight: 1.5 }}>
+                    {lang === "es"
+                      ? `${shownCount} ${shownCount === 1 ? "lugar" : "lugares"} · Elegidos a mano, nunca pagados.`
+                      : `${shownCount} ${shownCount === 1 ? "place" : "places"} · Hand-picked, never paid for.`}
+                  </p>
+                  <button onClick={() => setFilterSheet(true)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "5px 13px", borderRadius: 999 }}>
+                    <SlidersHorizontal size={14} /> {lang === "es" ? "Cambiar" : "Change"}
+                  </button>
+                </div>
                 {(() => {
                   const cats = [
                     ...[...favCuisine].map((k) => CUISINES[k] && { label: CUISINES[k][lang], Icon: CUISINES[k].Icon, good: GOODFOR.includes(k) }),
@@ -643,10 +654,11 @@ export default function App() {
                   return (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                       {cats.map((c, i) => { const Ic = c.Icon; return (
-                        <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, padding: "4px 11px", borderRadius: 999,
-                          border: `1px solid ${c.good ? "#CFE3D6" : P.line}`, background: c.good ? "#EEF5F0" : P.chipBg, color: c.good ? GREEN : P.coral }}>
+                        <button key={i} onClick={() => setFilterSheet(true)} title={lang === "es" ? "Cambiar filtros" : "Change filters"}
+                          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, padding: "4px 11px", borderRadius: 999, cursor: "pointer",
+                            border: `1px solid ${c.good ? "#CFE3D6" : P.line}`, background: c.good ? "#EEF5F0" : P.chipBg, color: c.good ? GREEN : P.coral }}>
                           <Ic size={12} /> {c.label}
-                        </span>
+                        </button>
                       ); })}
                     </div>
                   );

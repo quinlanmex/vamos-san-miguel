@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { CUISINES } from "../../../components/cuisines";
+import { CUISINES, GOODFOR } from "../../../components/cuisines";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
 const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comunidad", "Community"], ["charlas", "Talks"], ["mercados", "Markets"], ["bienestar", "Wellness"]];
@@ -186,6 +186,7 @@ export default function Manage() {
               {rows.map((r) => {
                 const closed = r.business_status === "CLOSED_PERMANENTLY";
                 const live = r.status === "published" && !closed;
+                const noCuisine = isPlace && r.list_key === "rest" && !(r.cuisine || []).some((c) => !GOODFOR.includes(c));
                 const closedOn = r.closed_at ? new Date(r.closed_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
                 return (
                 <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12, opacity: live ? 1 : 0.62 }}>
@@ -195,6 +196,7 @@ export default function Manage() {
                     <div style={{ fontSize: 12, color: P.inkSoft }}>
                       {r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
                       {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}
+                      {noCuisine && <span style={{ color: "#B4791F", fontWeight: 700 }}> · ⚠ no cuisine</span>}
                     </div>
                   </div>
                   <select value={r.status || "published"} disabled={busy} onChange={(e) => setStatus(r.id, e.target.value)} title="Change visibility"
