@@ -7,6 +7,7 @@ import {
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
   Utensils, Wine, Palette,
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
+  SlidersHorizontal,
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -349,6 +350,7 @@ export default function App() {
   const [savedPlaces, setSavedPlaces] = useState(() => loadSet("qp_saved_places"));
   const [detail, setDetail] = useState(null); // event object or null
   const [placeDetail, setPlaceDetail] = useState(null); // pick object or null
+  const [filterSheet, setFilterSheet] = useState(false); // mobile filter sheet
   const [events, setEvents] = useState(SEED_EVENTS);
   const [favLists, setFavLists] = useState(SEED_FAV_LISTS);
   const t = T[lang];
@@ -403,11 +405,7 @@ export default function App() {
     ) }))
     .filter((l) => l.items.length);
 
-  // Which cuisines actually exist among restaurant picks (so we never show an empty filter).
-  const restCuisines = new Set(
-    (favLists.find((l) => l.key === "rest")?.items || []).flatMap((it) => it.cuisine || [])
-  );
-  const availCuisines = Object.keys(CUISINES).filter((k) => restCuisines.has(k));
+  const shownCount = favFiltered.reduce((n, l) => n + l.items.length, 0);
 
   const savedEvents = useMemo(
     () => events.filter((e) => saved.has(e.id)).sort((a, b) => d(a.start) - d(b.start)), [saved, events]);
@@ -419,7 +417,7 @@ export default function App() {
   const toggleSavePlace = (name) => toggle(setSavedPlaces, savedPlaces, name);
 
   return (
-    <div style={{ background: P.plaster, color: P.ink, minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif", transition: "background .2s ease, color .2s ease" }}>
+    <div className={view === "faves" ? "has-filterbar" : ""} style={{ background: P.plaster, color: P.ink, minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif", transition: "background .2s ease, color .2s ease" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; }
@@ -439,7 +437,15 @@ export default function App() {
         .viewnav-top { display: none; }
         @media (min-width: 680px) { .viewnav-top { display: flex; } }
         .viewnav-bottom { display: none; }
-        @media (max-width: 679px) { .viewnav-bottom { display: flex; } main { padding-bottom: 82px !important; } }
+        .filterbar { display: none; }
+        @media (max-width: 679px) {
+          .viewnav-bottom { display: flex; }
+          main { padding-bottom: 82px !important; }
+          .filters-inline { display: none; }
+          .filterbar { display: flex; position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom)); justify-content: center; z-index: 901; padding: 0 16px; pointer-events: none; }
+          .filterbar > button { pointer-events: auto; }
+          .has-filterbar main { padding-bottom: 128px !important; }
+        }
         button:focus-visible, [tabindex]:focus-visible { outline: 3px solid ${P.marigold}; outline-offset: 2px; border-radius: 10px; }
         .leaflet-container { font-family: inherit; border-radius: 16px; }
         @keyframes qpUp { from { transform: translateY(14px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
@@ -659,72 +665,11 @@ export default function App() {
               );
             })()}
 
-            {/* Primary type filter — Restaurants first. Selecting a type reveals its sub-filters. */}
-            <div className="catrow" style={{ marginBottom: favType === "rest" ? 9 : 18 }}>
-              <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavAud(new Set()); }} className="chip"
-                style={{ cursor: "pointer", padding: "7px 15px", borderRadius: 999, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0,
-                  border: `1px solid ${favType === "" ? P.cobalt : P.line}`, background: favType === "" ? P.cobalt : P.chipBg, color: favType === "" ? "#fff" : P.ink }}>
-                {t.all}
-              </button>
-              {TYPE_ORDER.map((k) => {
-                const on = favType === k;
-                const Ic = PLACE_TYPE[k].Icon;
-                return (
-                  <button key={k} onClick={() => { setFavType(on ? "" : k); if (k !== "rest") { setFavCuisine(new Set()); setFavDiet(new Set()); } }} className="chip"
-                    style={{ cursor: "pointer", padding: "7px 15px", borderRadius: 999, fontSize: 14, fontWeight: 700, whiteSpace: "nowrap",
-                      display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
-                      border: `1px solid ${on ? P.cobalt : P.line}`, background: on ? P.cobalt : P.chipBg, color: on ? "#fff" : P.ink }}>
-                    <Ic size={15} /> {TYPE_LABEL_PLURAL[k][lang]}
-                  </button>
-                );
-              })}
+            {/* Filters — inline on desktop; on mobile they live in the bottom filter sheet. */}
+            <div className="filters-inline" style={{ marginBottom: 20 }}>
+              <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
+                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
             </div>
-
-            {/* Restaurant sub-filters: cuisine + dietary. Only when Restaurants is selected. */}
-            {favType === "rest" && (
-              <div className="catrow" style={{ marginBottom: 18, paddingLeft: 2 }}>
-                {Object.keys(CUISINES)
-                  .filter((k) => k !== "coworking")
-                  .sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]))
-                  .map((k) => {
-                    const on = favCuisine.has(k);
-                    const CIc = CUISINES[k].Icon;
-                    return (
-                      <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
-                        style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
-                          display: "flex", alignItems: "center", gap: 5,
-                          border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                        <CIc size={13} /> {CUISINES[k][lang]}
-                      </button>
-                    );
-                  })}
-                <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />
-                {(() => {
-                  const on = favCuisine.has("coworking");
-                  const Cw = CUISINES.coworking.Icon;
-                  return (
-                    <button onClick={() => toggle(setFavCuisine, favCuisine, "coworking")} className="chip"
-                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-                        display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-                        border: `1px solid ${on ? "#2F7A63" : P.line}`, background: on ? "#2F7A63" : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                      <Cw size={13} /> {CUISINES.coworking[lang]}
-                    </button>
-                  );
-                })()}
-                {Object.entries(DIET).map(([k, dt]) => {
-                  const on = favDiet.has(k);
-                  const Ic = dt.Icon;
-                  return (
-                    <button key={k} onClick={() => toggle(setFavDiet, favDiet, k)} className="chip"
-                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-                        display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-                        border: `1px solid ${on ? "#2F7A63" : P.line}`, background: on ? "#2F7A63" : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                      <Ic size={13} /> {dt[lang]}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
 
             {favFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: P.inkSoft }}>
@@ -837,6 +782,46 @@ export default function App() {
         })}
       </nav>
 
+      {/* Mobile: floating Filters pill (Local Picks only) */}
+      {view === "faves" && (
+        <div className="filterbar">
+          <button onClick={() => setFilterSheet(true)}
+            style={{ display: "inline-flex", alignItems: "center", gap: 9, border: "none", cursor: "pointer",
+              background: P.cobalt, color: "#fff", fontWeight: 700, fontSize: 14.5, padding: "12px 20px", borderRadius: 999, boxShadow: "0 6px 20px rgba(13,20,40,.30)" }}>
+            <SlidersHorizontal size={17} />
+            {favType ? TYPE_LABEL_PLURAL[favType][lang] : (lang === "es" ? "Filtrar lugares" : "Filter places")}
+            {(favCuisine.size + favDiet.size) > 0 && (
+              <span style={{ background: P.coral, color: "#fff", fontSize: 12, fontWeight: 800, minWidth: 20, height: 20, borderRadius: 999, display: "grid", placeItems: "center", padding: "0 6px" }}>{favCuisine.size + favDiet.size}</span>
+            )}
+          </button>
+        </div>
+      )}
+
+      {filterSheet && (
+        <div onClick={() => setFilterSheet(false)} role="dialog" aria-modal="true" aria-label={lang === "es" ? "Filtros" : "Filters"}
+          style={{ position: "fixed", inset: 0, background: P.scrim, display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}
+            style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "88vh", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
+            <div style={{ position: "sticky", top: 0, background: P.sheet, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${P.line}` }}>
+              <h2 style={{ fontFamily: "Georgia, serif", fontSize: 20, margin: 0 }}>{lang === "es" ? "Filtros" : "Filters"}</h2>
+              <button onClick={() => setFilterSheet(false)} aria-label={t.back} style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, display: "grid", placeItems: "center" }}><X size={22} /></button>
+            </div>
+            <div style={{ padding: "16px 18px 12px" }}>
+              <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
+                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
+            </div>
+            <div style={{ position: "sticky", bottom: 0, background: P.sheet, display: "flex", gap: 10, padding: "12px 18px calc(14px + env(safe-area-inset-bottom))", borderTop: `1px solid ${P.line}` }}>
+              <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); }}
+                style={{ flexShrink: 0, border: `1px solid ${P.line}`, background: P.chipBg, color: P.ink, cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "12px 16px", borderRadius: 12 }}>{lang === "es" ? "Limpiar" : "Clear"}</button>
+              <button onClick={() => setFilterSheet(false)}
+                style={{ flex: 1, border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 15, padding: "12px 16px", borderRadius: 12 }}>
+                {lang === "es" ? `Ver ${shownCount} lugares` : `Show ${shownCount} places`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {detail && (
         <EventDetail e={detail} lang={lang} t={t} P={P} saved={saved.has(detail.id)}
           onSave={() => toggle(setSaved, saved, detail.id)} onClose={() => setDetail(null)} />
@@ -942,6 +927,80 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
       <Media img={e.img} cat={e.cat} iconSize={26}
         style={{ width: 96, flexShrink: 0, alignSelf: "stretch", height: "auto" }} />
     </article>
+  );
+}
+
+/* ---- Filter groups (shared by desktop inline + mobile sheet) ----- */
+const GREEN = "#2F7A63";
+function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet, setFavDiet, lang, t, P }) {
+  const flip = (setter, set, k) => setter(() => { const s = new Set(set); s.has(k) ? s.delete(k) : s.add(k); return s; });
+  const clearType = (k) => { setFavType(k); if (k !== "rest") { setFavCuisine(new Set()); setFavDiet(new Set()); } };
+  const Label = ({ children }) => (
+    <div style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 8px" }}>{children}</div>
+  );
+  const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 };
+  const cuisines = Object.keys(CUISINES).filter((k) => k !== "coworking").sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+      <div>
+        <Label>{lang === "es" ? "Tipo" : "Type"}</Label>
+        <div className="catrow">
+          <button onClick={() => clearType("")}
+            style={{ ...base, padding: "7px 15px", fontSize: 14, fontWeight: 700, border: `1px solid ${favType === "" ? P.cobalt : P.line}`, background: favType === "" ? P.cobalt : P.chipBg, color: favType === "" ? "#fff" : P.ink }}>{t.all}</button>
+          {TYPE_ORDER.map((k) => {
+            const on = favType === k; const Ic = PLACE_TYPE[k].Icon;
+            return (
+              <button key={k} onClick={() => clearType(on ? "" : k)}
+                style={{ ...base, padding: "7px 15px", fontSize: 14, fontWeight: 700, border: `1px solid ${on ? P.cobalt : P.line}`, background: on ? P.cobalt : P.chipBg, color: on ? "#fff" : P.ink }}>
+                <Ic size={15} /> {TYPE_LABEL_PLURAL[k][lang]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {favType === "rest" && (
+        <>
+          <div>
+            <Label>{lang === "es" ? "Cocina" : "Cuisine"}</Label>
+            <div className="catrow">
+              {cuisines.map((k) => {
+                const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
+                return (
+                  <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
+                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                    <Ic size={13} /> {CUISINES[k][lang]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <Label>{lang === "es" ? "Ideal para" : "Good for"}</Label>
+            <div className="catrow">
+              {(() => {
+                const on = favCuisine.has("coworking"); const Cw = CUISINES.coworking.Icon;
+                return (
+                  <button onClick={() => flip(setFavCuisine, favCuisine, "coworking")}
+                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
+                    <Cw size={13} /> {CUISINES.coworking[lang]}
+                  </button>
+                );
+              })()}
+              {Object.entries(DIET).map(([k, dt]) => {
+                const on = favDiet.has(k); const Ic = dt.Icon;
+                return (
+                  <button key={k} onClick={() => flip(setFavDiet, favDiet, k)}
+                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
+                    <Ic size={13} /> {dt[lang]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
