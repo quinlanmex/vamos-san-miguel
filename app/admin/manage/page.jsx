@@ -13,6 +13,7 @@ const CUISINE = [["mexican", "Mexican"], ["italian", "Italian & Pizza"], ["asian
 const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
 const STATUS_COLOR = { published: "#2F7A63", hidden: "#B4791F", draft: "#6E604F", archived: "#9A8F7E" };
 const STATUS_LABEL = Object.fromEntries(STATUS);
+const BIZ_STATUS = [["OPERATIONAL", "Open"], ["CLOSED_PERMANENTLY", "Permanently closed"], ["CLOSED_TEMPORARILY", "Temporarily closed"]];
 
 const field = { width: "100%", padding: "9px 11px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", color: P.ink, background: "#fff", boxSizing: "border-box" };
 const label = { fontSize: 12, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4, display: "block" };
@@ -91,6 +92,22 @@ export default function Manage() {
   }
   const removePhoto = (url) => setEditing((e) => ({ ...e, photos: (e.photos || []).filter((p) => p !== url) }));
 
+  const [checking, setChecking] = useState(false);
+  async function checkClosures() {
+    setChecking(true); setMsg(null);
+    try {
+      const r = await fetch("/api/check-closures", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Check failed");
+      await load();
+      const parts = [`Checked ${j.checked}`];
+      if (j.closedCount) parts.push(`${j.closedCount} newly closed`);
+      if (j.reopenedCount) parts.push(`${j.reopenedCount} reopened`);
+      setMsg({ type: "ok", text: parts.join(" · ") + (j.closedCount || j.reopenedCount ? "" : " · no changes") });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setChecking(false);
+  }
+
   async function setStatus(id, status) {
     setBusy(true); setMsg(null);
     try { await api({ action: "setStatus", kind, id, record: { status } }); await load(); }
@@ -158,17 +175,26 @@ export default function Manage() {
               <span style={{ fontSize: 13, color: P.inkSoft, whiteSpace: "nowrap" }}>
                 <strong style={{ color: P.green }}>{liveCount}</strong> live · {allRows.length - liveCount} hidden/other
               </span>
+              {isPlace && (
+                <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
+                  style={{ ...btn(P.navy, !checking), marginLeft: "auto" }}>{checking ? "Checking Google…" : "Check for closures"}</button>
+              )}
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {rows.map((r) => {
-                const live = r.status === "published";
+                const closed = r.business_status === "CLOSED_PERMANENTLY";
+                const live = r.status === "published" && !closed;
+                const closedOn = r.closed_at ? new Date(r.closed_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
                 return (
-                <div key={r.id} style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12, opacity: live ? 1 : 0.62 }}>
-                  <span title={STATUS_LABEL[r.status] || r.status} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: STATUS_COLOR[r.status] || P.inkSoft }} />
+                <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "11px 14px", display: "flex", alignItems: "center", gap: 12, opacity: live ? 1 : 0.62 }}>
+                  <span title={closed ? "Permanently closed" : (STATUS_LABEL[r.status] || r.status)} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: closed ? P.coral : (STATUS_COLOR[r.status] || P.inkSoft) }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
-                    <div style={{ fontSize: 12, color: P.inkSoft }}>{r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span></div>
+                    <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
+                    <div style={{ fontSize: 12, color: P.inkSoft }}>
+                      {r.category}{isPlace ? ` · ${r.list_key || ""}` : (r.start_date ? ` · ${r.start_date}` : "")} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
+                      {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}
+                    </div>
                   </div>
                   <select value={r.status || "published"} disabled={busy} onChange={(e) => setStatus(r.id, e.target.value)} title="Change visibility"
                     style={{ ...field, width: "auto", padding: "7px 9px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
@@ -268,6 +294,10 @@ export default function Manage() {
                 </div>
               )}
               <div><label style={label}>Status</label><select style={field} value={editing.status || "published"} onChange={(e) => upd("status", e.target.value)}>{STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+              {isPlace && (
+                <div><label style={label}>Open / closed <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(auto-checked from Google)</span></label>
+                  <select style={field} value={editing.business_status || "OPERATIONAL"} onChange={(e) => upd("business_status", e.target.value)}>{BIZ_STATUS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+              )}
             </div>
             <button onClick={save} disabled={busy} style={{ ...btn(P.coral, !busy), marginTop: 16, width: "100%", padding: 13, fontSize: 15 }}>{busy ? "Saving…" : "Save"}</button>
           </div>

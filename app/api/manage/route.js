@@ -7,7 +7,7 @@ const EVENT_COLS = ["status", "title_en", "title_es", "blurb_en", "blurb_es", "p
   "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng"];
 const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_es", "category",
   "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
-  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip"];
+  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status"];
 
 function clean(record, cols) {
   const out = {};
@@ -52,7 +52,14 @@ export async function POST(req) {
 
     if (action === "save") {
       const row = clean(record || {}, cols);
-      if (kind === "place") { row.editorial = true; if (row.name == null) return Response.json({ error: "Name is required." }, { status: 400 }); }
+      if (kind === "place") {
+        row.editorial = true;
+        if (row.name == null) return Response.json({ error: "Name is required." }, { status: 400 });
+        // Manually marking a place permanently closed stamps closed_at; reopening clears it.
+        if (record && Object.prototype.hasOwnProperty.call(record, "business_status")) {
+          row.closed_at = record.business_status === "CLOSED_PERMANENTLY" ? new Date().toISOString() : null;
+        }
+      }
       else { if (row.title_en == null && row.title_es == null) return Response.json({ error: "A title is required." }, { status: 400 }); if (!row.end_date && row.start_date) row.end_date = row.start_date; }
       row.updated_at = new Date().toISOString();
       if (id) {
