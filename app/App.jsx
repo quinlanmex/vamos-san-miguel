@@ -7,22 +7,12 @@ import {
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
   Utensils, Wine, Palette,
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
-  Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup,
 } from "lucide-react";
-
-/* Custom chili icon (Lucide has no chili/pepper) for the Mexican cuisine facet. */
-function Chili({ size = 24, color = "currentColor", ...props }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M11 5c-.3-1.4-1.5-2.3-3-2.3" />
-      <path d="M11 5c4.4 0 7.5 3.3 7.5 7.5S15 20 10.5 20 3 15.5 3 11" />
-    </svg>
-  );
-}
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
+import { CUISINES } from "../components/cuisines";
 
 /* ------------------------------------------------------------------ *
  *  Qué Pasa · San Miguel  —  working-name prototype
@@ -68,19 +58,7 @@ const DIET = {
   vegan:      { es: "Vegano",      en: "Vegan",      Icon: Sprout },
 };
 
-/* Cuisine facet — a restaurant sub-filter, only shown when Restaurants is selected. */
-const CUISINES = {
-  mexican:     { en: "Mexican",              es: "Mexicana",                    Icon: Chili },
-  italian:     { en: "Italian & Pizza",      es: "Italiana y pizza",            Icon: Pizza },
-  asian:       { en: "Asian",                es: "Asiática",                    Icon: Soup },
-  peruvian:    { en: "Peruvian",             es: "Peruana",                     Icon: Fish },
-  argentinian: { en: "Argentinian",          es: "Argentina",                   Icon: Beef },
-  burgers:     { en: "Burgers & Sandwiches", es: "Hamburguesas y sándwiches",   Icon: Sandwich },
-  breakfast:   { en: "Breakfast",            es: "Desayuno",                    Icon: EggFried },
-  cafe:        { en: "Café & Coffee",        es: "Café",                        Icon: Coffee },
-  bakery:      { en: "Bakery",               es: "Panadería",                   Icon: Croissant },
-  dessert:     { en: "Dessert",              es: "Postres",                     Icon: IceCreamCone },
-};
+/* Cuisine facet (CUISINES) is imported from ../components/cuisines and shared with the admin. */
 
 /* Top-level Local Picks type facets, in display order (Restaurants first). */
 const TYPE_ORDER = ["rest", "bar", "live"];
@@ -479,7 +457,7 @@ export default function App() {
             alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
             className="brandlogo" />
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
-            {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab], ["move", lang === "es" ? "Mudarse aquí" : "Move Here"]].map(([k, label]) => {
+            {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab]].map(([k, label]) => {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
                 color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                 display: "flex", alignItems: "center", gap: 6, textDecoration: "none" };
@@ -825,7 +803,7 @@ export default function App() {
       <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
         background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
         justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
-        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["saved", t.savedTab, Heart], ["move", lang === "es" ? "Mudarse" : "Move", Footprints]].map(([k, label, Ic]) => {
+        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
           const tabStyle = { border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
             color: view === k ? P.coral : P.inkSoft, fontSize: 11, fontWeight: 700, position: "relative", minWidth: 66, textDecoration: "none" };
           if (k === "move") return (
@@ -1018,9 +996,11 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const cuisineLabels = (it.cuisine || []).map((c) => CUISINES[c] && CUISINES[c][lang]).filter(Boolean);
-  const dietLabels = (it.diet || []).map((d) => DIET[d] && DIET[d][lang]).filter(Boolean);
-  const audLabels = (it.audience || []).map((a) => AUDIENCES[a] && AUDIENCES[a][lang]).filter(Boolean);
+  const tagItems = [
+    ...(it.cuisine || []).map((c) => CUISINES[c] && { label: CUISINES[c][lang], Icon: CUISINES[c].Icon }),
+    ...(it.diet || []).map((d) => DIET[d] && { label: DIET[d][lang], Icon: DIET[d].Icon }),
+    ...(it.audience || []).map((a) => AUDIENCES[a] && { label: AUDIENCES[a][lang], Icon: AUDIENCES[a].Icon }),
+  ].filter(Boolean);
   const priceStr = it.price ? "$".repeat(Math.max(1, Math.min(4, it.price))) : null;
   const es = lang === "es";
 
@@ -1080,11 +1060,11 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
           </div>
 
           {/* Tags */}
-          {(cuisineLabels.length > 0 || dietLabels.length > 0 || audLabels.length > 0) && (
+          {tagItems.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "13px 0 4px" }}>
-              {[...cuisineLabels, ...dietLabels, ...audLabels].map((lbl, i) => (
-                <span key={i} style={{ fontSize: 12, fontWeight: 600, color: P.inkSoft, background: P.chipBg, border: `1px solid ${P.line}`, padding: "4px 10px", borderRadius: 999 }}>{lbl}</span>
-              ))}
+              {tagItems.map((tg, i) => { const TI = tg.Icon; return (
+                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: P.inkSoft, background: P.chipBg, border: `1px solid ${P.line}`, padding: "4px 10px", borderRadius: 999 }}>{TI && <TI size={12} />}{tg.label}</span>
+              ); })}
             </div>
           )}
 

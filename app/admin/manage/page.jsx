@@ -1,15 +1,13 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { CUISINES } from "../../../components/cuisines";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
 const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comunidad", "Community"], ["charlas", "Talks"], ["mercados", "Markets"], ["bienestar", "Wellness"]];
 const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
 const AUD = [["family", "Family"], ["teens", "Teens"]];
 const DIET = [["vegetarian", "Vegetarian"], ["vegan", "Vegan"]];
-const CUISINE = [["mexican", "Mexican"], ["italian", "Italian & Pizza"], ["asian", "Asian"], ["peruvian", "Peruvian"],
-  ["argentinian", "Argentinian"], ["burgers", "Burgers & Sandwiches"], ["breakfast", "Breakfast"], ["cafe", "Café & Coffee"],
-  ["bakery", "Bakery"], ["dessert", "Dessert"]];
 const STATUS = [["published", "Published"], ["hidden", "Hidden"], ["draft", "Draft"], ["archived", "Archived"]];
 const STATUS_COLOR = { published: "#2F7A63", hidden: "#B4791F", draft: "#6E604F", archived: "#9A8F7E" };
 const STATUS_LABEL = Object.fromEntries(STATUS);
@@ -229,7 +227,7 @@ export default function Manage() {
                   <div><label style={label}>Category</label><select style={field} value={editing.category || ""} onChange={(e) => upd("category", e.target.value)}>{CATS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
                   <div><label style={label}>Audience</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{AUD.map(([k, l]) => <button key={k} onClick={() => toggle("audience", k)} style={chip((editing.audience || []).includes(k), P.navy)}>{l}</button>)}</div></div>
                   <div><label style={label}>Dietary</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{DIET.map(([k, l]) => <button key={k} onClick={() => toggle("diet", k)} style={chip((editing.diet || []).includes(k), P.green)}>{l}</button>)}</div></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Cuisine <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(restaurant sub-filters)</span></label><div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>{CUISINE.map(([k, l]) => <button key={k} onClick={() => toggle("cuisine", k)} style={chip((editing.cuisine || []).includes(k), P.coral)}>{l}</button>)}</div></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Cuisine <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(restaurant sub-filters)</span></label><div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>{Object.entries(CUISINES).map(([k, v]) => { const Ic = v.Icon; return <button key={k} onClick={() => toggle("cuisine", k)} style={{ ...chip((editing.cuisine || []).includes(k), P.coral), display: "inline-flex", alignItems: "center", gap: 5 }}><Ic size={13} /> {v.en}</button>; })}</div></div>
                   <div><label style={label}>Area</label><input style={field} value={editing.area || ""} onChange={(e) => upd("area", e.target.value)} /></div>
                   <div><label style={label}>Website</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} placeholder="https://…" /></div>
                   <div><label style={label}>Phone</label><input style={field} value={editing.phone || ""} onChange={(e) => upd("phone", e.target.value)} placeholder="+52 415 …" /></div>

@@ -46,7 +46,7 @@ const CUISINE_MAP = {
   "Best Mexican Food": ["mexican"], "Best Italian": ["italian"], "Best Pizza": ["italian"],
   "Best Asian": ["asian"], "Best Peruvian": ["peruvian"], "Best Argentinian": ["argentinian"],
   "Best sandwiches_burgers": ["burgers"], "Best breakfasts": ["breakfast"],
-  "Cafe for working": ["cafe"], "Best coffee": ["cafe"], "Best bakeries": ["bakery"], "Dessert": ["dessert"],
+  "Cafe for working": ["cafe", "coworking"], "Best coffee": ["cafe"], "Best bakeries": ["bakery"], "Dessert": ["dessert"],
 };
 function cuisineOf(cand) {
   const lists = Array.isArray(cand.sourceList) ? cand.sourceList : [cand.sourceList].filter(Boolean);
