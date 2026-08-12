@@ -1,4 +1,8 @@
-import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop } from "lucide-react";
+import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users } from "lucide-react";
+
+// "Good for" amenity facets (stored in the cuisine array, but shown as their own group,
+// since they coexist with a cuisine rather than replacing it).
+export const GOODFOR = ["coworking", "datenight", "groups"];
 
 // Lucide has no chili/pepper, so this is a hand-drawn one for the Mexican facet.
 // Horizontal crescent body tapering to a point on the left, stem curling up-right.
@@ -22,6 +26,8 @@ export const CUISINES = {
   breakfast:   { en: "Breakfast",            es: "Desayuno",                  Icon: EggFried },
   cafe:        { en: "Café & Coffee",        es: "Café",                      Icon: Coffee },
   coworking:   { en: "Coworking",            es: "Coworking",                 Icon: Laptop },
+  datenight:   { en: "Date night",           es: "Cita romántica",            Icon: Heart },
+  groups:      { en: "Groups",               es: "Grupos",                    Icon: Users },
   bakery:      { en: "Bakery",               es: "Panadería",                 Icon: Croissant },
   dessert:     { en: "Dessert",              es: "Postres",                   Icon: IceCreamCone },
 };

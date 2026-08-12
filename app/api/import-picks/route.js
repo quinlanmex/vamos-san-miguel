@@ -47,6 +47,7 @@ const CUISINE_MAP = {
   "Best Asian": ["asian"], "Best Peruvian": ["peruvian"], "Best Argentinian": ["argentinian"],
   "Best sandwiches_burgers": ["burgers"], "Best breakfasts": ["breakfast"],
   "Cafe for working": ["cafe", "coworking"], "Best coffee": ["cafe"], "Best bakeries": ["bakery"], "Dessert": ["dessert"],
+  "Date night restaurants": ["datenight"],
 };
 function cuisineOf(cand) {
   const lists = Array.isArray(cand.sourceList) ? cand.sourceList : [cand.sourceList].filter(Boolean);

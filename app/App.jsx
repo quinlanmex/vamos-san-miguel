@@ -13,7 +13,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
-import { CUISINES } from "../components/cuisines";
+import { CUISINES, GOODFOR } from "../components/cuisines";
 
 /* ------------------------------------------------------------------ *
  *  Qué Pasa · San Miguel  —  working-name prototype
@@ -406,6 +406,7 @@ export default function App() {
     .filter((l) => l.items.length);
 
   const shownCount = favFiltered.reduce((n, l) => n + l.items.length, 0);
+  const favActive = favType !== "" || favCuisine.size > 0 || favDiet.size > 0;
 
   const savedEvents = useMemo(
     () => events.filter((e) => saved.has(e.id)).sort((a, b) => d(a.start) - d(b.start)), [saved, events]);
@@ -617,6 +618,42 @@ export default function App() {
           </>
         ) : view === "faves" ? (
           <>
+            {favActive ? (
+              /* Results header — shown once any filter is active (replaces the hero + intro). */
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
+                  San Miguel de Allende <span style={{ color: P.inkSoft }}>· {lang === "es" ? "Recomendaciones locales" : "Local Picks"}</span>
+                </p>
+                <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(24px, 4vw, 34px)", margin: "0 0 8px", letterSpacing: "-.01em", lineHeight: 1.08 }}>
+                  {lang === "es"
+                    ? `Nuestros ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()} favoritos`
+                    : `Our favorite ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()}`}
+                </h1>
+                <p style={{ color: P.inkSoft, margin: "0 0 12px", fontSize: 14.5, lineHeight: 1.5 }}>
+                  {lang === "es"
+                    ? `${shownCount} ${shownCount === 1 ? "lugar" : "lugares"} · Elegidos a mano, nunca pagados.`
+                    : `${shownCount} ${shownCount === 1 ? "place" : "places"} · Hand-picked, never paid for.`}
+                </p>
+                {(() => {
+                  const cats = [
+                    ...[...favCuisine].map((k) => CUISINES[k] && { label: CUISINES[k][lang], Icon: CUISINES[k].Icon, good: GOODFOR.includes(k) }),
+                    ...[...favDiet].map((k) => DIET[k] && { label: DIET[k][lang], Icon: DIET[k].Icon, good: true }),
+                  ].filter(Boolean);
+                  if (!cats.length) return null;
+                  return (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {cats.map((c, i) => { const Ic = c.Icon; return (
+                        <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, padding: "4px 11px", borderRadius: 999,
+                          border: `1px solid ${c.good ? "#CFE3D6" : P.line}`, background: c.good ? "#EEF5F0" : P.chipBg, color: c.good ? GREEN : P.coral }}>
+                          <Ic size={12} /> {c.label}
+                        </span>
+                      ); })}
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+            <>
             {/* Editorial page header */}
             <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
               San Miguel de Allende <span style={{ color: P.inkSoft }}>· {lang === "es" ? "Recomendaciones locales" : "Local Picks"}</span>
@@ -664,6 +701,8 @@ export default function App() {
                 </div>
               );
             })()}
+            </>
+            )}
 
             {/* Filters — inline on desktop; on mobile they live in the bottom filter sheet. */}
             <div className="filters-inline" style={{ marginBottom: 20 }}>
@@ -939,7 +978,7 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
     <div style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 8px" }}>{children}</div>
   );
   const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 };
-  const cuisines = Object.keys(CUISINES).filter((k) => k !== "coworking").sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
+  const cuisines = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
       <div>
@@ -978,15 +1017,15 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
           <div>
             <Label>{lang === "es" ? "Ideal para" : "Good for"}</Label>
             <div className="catrow">
-              {(() => {
-                const on = favCuisine.has("coworking"); const Cw = CUISINES.coworking.Icon;
+              {GOODFOR.map((k) => {
+                const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
                 return (
-                  <button onClick={() => flip(setFavCuisine, favCuisine, "coworking")}
+                  <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
                     style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
-                    <Cw size={13} /> {CUISINES.coworking[lang]}
+                    <Ic size={13} /> {CUISINES[k][lang]}
                   </button>
                 );
-              })()}
+              })}
               {Object.entries(DIET).map(([k, dt]) => {
                 const on = favDiet.has(k); const Ic = dt.Icon;
                 return (
@@ -1017,18 +1056,18 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
   const Bi = ty.Icon;
   const cuisineKeys = it.list_key === "rest" ? (it.cuisine || []) : [];
-  const primaryCuisine = cuisineKeys.find((c) => c !== "coworking" && CUISINES[c]);
-  const isCoworking = cuisineKeys.includes("coworking");
+  const primaryCuisine = cuisineKeys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+  const goodforKeys = cuisineKeys.filter((c) => GOODFOR.includes(c));
   const dietKey = (it.diet || []).includes("vegan") ? "vegan" : (it.diet || []).includes("vegetarian") ? "vegetarian" : null;
   // A café reads better than "Restaurant" when coffee is its primary cuisine.
   const typeLabel = primaryCuisine === "cafe" ? "Café" : ty[lang];
-  // Extra badge icons (after the type icon): cuisine, coworking, dietary.
+  // Extra badge icons (after the type icon): cuisine, good-for facets, dietary.
   const extraIcons = [
     primaryCuisine && CUISINES[primaryCuisine].Icon,
-    isCoworking && CUISINES.coworking.Icon,
+    ...goodforKeys.map((k) => CUISINES[k].Icon),
     dietKey && DIET[dietKey].Icon,
   ].filter(Boolean);
-  const badgeTitle = [typeLabel, primaryCuisine && CUISINES[primaryCuisine][lang], isCoworking && CUISINES.coworking[lang], dietKey && DIET[dietKey][lang]].filter(Boolean).join(" · ");
+  const badgeTitle = [typeLabel, primaryCuisine && CUISINES[primaryCuisine][lang], ...goodforKeys.map((k) => CUISINES[k][lang]), dietKey && DIET[dietKey][lang]].filter(Boolean).join(" · ");
   const galleryCount = (it.img ? 1 : 0) + (it.photos ? it.photos.length : 0);
   return (
     <div className="card placecard" onClick={onOpen} role="button" tabIndex={0}
