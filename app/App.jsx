@@ -63,9 +63,9 @@ const DIET = {
 /* Top-level Local Picks type facets, in display order (Restaurants first). */
 const TYPE_ORDER = ["rest", "bar", "live"];
 const TYPE_LABEL_PLURAL = {
-  rest: { en: "Restaurants", es: "Restaurantes" },
-  bar:  { en: "Bars",        es: "Bares" },
-  live: { en: "Venues",      es: "Lugares" },
+  rest: { en: "Restaurants & Cafés", es: "Restaurantes y cafés" },
+  bar:  { en: "Bars",               es: "Bares" },
+  live: { en: "Venues",             es: "Lugares" },
 };
 
 /* Seed / offline fallback — the app loads live data from Supabase and only
@@ -683,19 +683,34 @@ export default function App() {
             {/* Restaurant sub-filters: cuisine + dietary. Only when Restaurants is selected. */}
             {favType === "rest" && (
               <div className="catrow" style={{ marginBottom: 18, paddingLeft: 2 }}>
-                {Object.keys(CUISINES).map((k) => {
-                  const on = favCuisine.has(k);
-                  const CIc = CUISINES[k].Icon;
+                {Object.keys(CUISINES)
+                  .filter((k) => k !== "coworking")
+                  .sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]))
+                  .map((k) => {
+                    const on = favCuisine.has(k);
+                    const CIc = CUISINES[k].Icon;
+                    return (
+                      <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
+                        style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                          display: "flex", alignItems: "center", gap: 5,
+                          border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                        <CIc size={13} /> {CUISINES[k][lang]}
+                      </button>
+                    );
+                  })}
+                <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />
+                {(() => {
+                  const on = favCuisine.has("coworking");
+                  const Cw = CUISINES.coworking.Icon;
                   return (
-                    <button key={k} onClick={() => toggle(setFavCuisine, favCuisine, k)} className="chip"
-                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
-                        display: "flex", alignItems: "center", gap: 5,
-                        border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                      <CIc size={13} /> {CUISINES[k][lang]}
+                    <button onClick={() => toggle(setFavCuisine, favCuisine, "coworking")} className="chip"
+                      style={{ cursor: "pointer", padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
+                        display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+                        border: `1px solid ${on ? "#2F7A63" : P.line}`, background: on ? "#2F7A63" : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                      <Cw size={13} /> {CUISINES.coworking[lang]}
                     </button>
                   );
-                })}
-                <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "3px 4px", flexShrink: 0 }} />
+                })()}
                 {Object.entries(DIET).map(([k, dt]) => {
                   const on = favDiet.has(k);
                   const Ic = dt.Icon;
@@ -941,10 +956,20 @@ const PLACE_TYPE = {
 function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
   const cat = CATS[it.cat] || { c: P.coral, es: "", en: "", Icon: Utensils };
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
-  const typeLabel = ty[lang];
   const Bi = ty.Icon;
-  const cui = (it.list_key === "rest" && (it.cuisine || []).length) ? CUISINES[it.cuisine[0]] : null;
-  const CuIcon = cui ? cui.Icon : null;
+  const cuisineKeys = it.list_key === "rest" ? (it.cuisine || []) : [];
+  const primaryCuisine = cuisineKeys.find((c) => c !== "coworking" && CUISINES[c]);
+  const isCoworking = cuisineKeys.includes("coworking");
+  const dietKey = (it.diet || []).includes("vegan") ? "vegan" : (it.diet || []).includes("vegetarian") ? "vegetarian" : null;
+  // A café reads better than "Restaurant" when coffee is its primary cuisine.
+  const typeLabel = primaryCuisine === "cafe" ? "Café" : ty[lang];
+  // Extra badge icons (after the type icon): cuisine, coworking, dietary.
+  const extraIcons = [
+    primaryCuisine && CUISINES[primaryCuisine].Icon,
+    isCoworking && CUISINES.coworking.Icon,
+    dietKey && DIET[dietKey].Icon,
+  ].filter(Boolean);
+  const badgeTitle = [typeLabel, primaryCuisine && CUISINES[primaryCuisine][lang], isCoworking && CUISINES.coworking[lang], dietKey && DIET[dietKey][lang]].filter(Boolean).join(" · ");
   const galleryCount = (it.img ? 1 : 0) + (it.photos ? it.photos.length : 0);
   return (
     <div className="card placecard" onClick={onOpen} role="button" tabIndex={0}
@@ -953,10 +978,11 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
       style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", cursor: onOpen ? "pointer" : "default" }}>
       <div style={{ position: "relative" }}>
         <Media img={it.img} cat={it.cat} iconSize={30} style={{ width: "100%", height: 150 }} />
-        <span title={cui ? `${typeLabel} · ${cui[lang]}` : typeLabel}
-          style={{ position: "absolute", top: 10, left: 10, height: 30, width: CuIcon ? "auto" : 30, padding: CuIcon ? "0 9px" : 0, borderRadius: CuIcon ? 999 : "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", gap: CuIcon ? 6 : 0, boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
+        <span title={badgeTitle}
+          style={{ position: "absolute", top: 10, left: 10, height: 30, width: extraIcons.length ? "auto" : 30, padding: extraIcons.length ? "0 9px" : 0, borderRadius: extraIcons.length ? 999 : "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 1px 5px rgba(0,0,0,.18)" }}>
           <Bi size={15} color={cat.c} />
-          {CuIcon && <><span style={{ width: 1, height: 15, background: "rgba(0,0,0,.13)" }} /><CuIcon size={15} color={cat.c} /></>}
+          {extraIcons.length > 0 && <span style={{ width: 1, height: 15, background: "rgba(0,0,0,.13)" }} />}
+          {extraIcons.map((Ic, i) => <Ic key={i} size={15} color={cat.c} />)}
         </span>
         {galleryCount > 1 && (
           <span style={{ position: "absolute", bottom: 10, right: 10, display: "flex", alignItems: "center", gap: 4, background: "rgba(13,20,40,.7)", color: "#fff", fontSize: 11.5, fontWeight: 700, padding: "3px 8px", borderRadius: 999 }}>
