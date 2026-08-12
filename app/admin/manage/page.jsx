@@ -160,14 +160,14 @@ export default function Manage() {
 
   const [applying, setApplying] = useState(false);
   async function applyUpdates() {
-    if (!confirm("Apply the reviewed cuisine + views/vineyard tags to all matching picks? This sets each restaurant's tags to the researched set.")) return;
+    if (!confirm("Add the reviewed cuisine + views/vineyard tags to all matching picks? This only ADDS tags (your manual edits are kept).")) return;
     setApplying(true); setMsg(null);
     try {
       const r = await fetch("/api/apply-updates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Failed");
       await load();
-      setMsg({ type: "ok", text: `Applied tags to ${j.applied} picks${j.notFound ? ` · ${j.notFound} not matched` : ""}.` });
+      setMsg({ type: "ok", text: `${j.applied} picks checked · ${j.added || 0} tags added${j.notFound ? ` · ${j.notFound} not matched` : ""}.` });
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setApplying(false);
   }
