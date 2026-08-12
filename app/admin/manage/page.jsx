@@ -105,7 +105,8 @@ export default function Manage() {
       if (j.hiddenCount) parts.push(`${j.hiddenCount} hidden (closed)`);
       if (j.reopenedCount) parts.push(`${j.reopenedCount} reopened`);
       const changed = j.closedCount || j.hiddenCount || j.reopenedCount;
-      setMsg({ type: "ok", text: parts.join(" · ") + (changed ? "" : " · no changes") });
+      if (j.updateError) { setMsg({ type: "err", text: `${parts.join(" · ")} · DB error: ${j.updateError}` }); }
+      else { setMsg({ type: "ok", text: parts.join(" · ") + (changed ? "" : " · no changes") }); }
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setChecking(false);
   }

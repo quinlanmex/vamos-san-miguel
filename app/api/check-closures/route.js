@@ -26,6 +26,7 @@ async function runCheck() {
   const now = new Date().toISOString();
   let checked = 0, hidden = 0;
   const newlyClosed = [], reopened = [];
+  let updateError = null;
 
   for (const p of places || []) {
     const st = await fetchStatus(p.google_place_id, key);
@@ -33,17 +34,20 @@ async function runCheck() {
     checked++;
     const wasClosed = p.business_status === "CLOSED_PERMANENTLY";
     const patch = { business_status: st, status_checked_at: now };
+    let willHide = false;
     if (st === "CLOSED_PERMANENTLY") {
       if (!wasClosed) { patch.closed_at = now; newlyClosed.push(p.name); }
       // Hide it while closed. Only override a live pick; leave draft/archived alone.
-      if (p.status === "published") { patch.status = "hidden"; hidden++; }
+      if (p.status === "published") { patch.status = "hidden"; willHide = true; }
     } else if (st === "OPERATIONAL" && wasClosed) {
       // Reopened: clear the closure and put it back on the live site.
       patch.closed_at = null; patch.status = "published"; reopened.push(p.name);
     }
-    await sb.from("places").update(patch).eq("id", p.id);
+    const { error: uerr } = await sb.from("places").update(patch).eq("id", p.id);
+    if (uerr) { if (!updateError) updateError = `${p.name}: ${uerr.message}`; continue; }
+    if (willHide) hidden++;
   }
-  return { ok: true, checked, closedCount: newlyClosed.length, hiddenCount: hidden, reopenedCount: reopened.length, newlyClosed, reopened };
+  return { ok: true, checked, closedCount: newlyClosed.length, hiddenCount: hidden, reopenedCount: reopened.length, newlyClosed, reopened, updateError };
 }
 
 // Manual trigger from the admin tool (password in body).
