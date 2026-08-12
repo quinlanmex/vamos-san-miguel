@@ -1,4 +1,8 @@
-<!-- Meta: A practical 3-day San Miguel de Allende itinerary with morning, afternoon, and evening plans for first-time visitors. -->
+---
+title: 3 Days in San Miguel de Allende: A Practical Itinerary
+description: A practical 3-day San Miguel de Allende itinerary with morning, afternoon, and evening plans for first-time visitors.
+type: plan
+---
 
 # 3 Days in San Miguel de Allende: A Practical Itinerary
 

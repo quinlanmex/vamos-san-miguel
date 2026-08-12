@@ -1,4 +1,8 @@
-<!-- Meta: The best day trips from San Miguel de Allende, from the Atotonilco sanctuary and nearby hot springs to Guanajuato and Dolores Hidalgo. -->
+---
+title: Best Day Trips from San Miguel de Allende
+description: The best day trips from San Miguel de Allende, from the Atotonilco sanctuary and nearby hot springs to Guanajuato and Dolores Hidalgo.
+type: plan
+---
 
 # Best Day Trips from San Miguel de Allende
 

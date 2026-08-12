@@ -1,4 +1,8 @@
-<!-- Meta: How to get to San Miguel de Allende by air and bus, plus taxis, Uber, and walking once you arrive. -->
+---
+title: Getting To and Around San Miguel de Allende
+description: How to get to San Miguel de Allende by air and bus, plus taxis, Uber, and walking once you arrive.
+type: plan
+---
 
 # Getting To and Around San Miguel de Allende
 

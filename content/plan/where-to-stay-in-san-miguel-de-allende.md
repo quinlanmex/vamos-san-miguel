@@ -1,4 +1,8 @@
-<!-- Meta: A neighborhood-by-neighborhood guide to where to stay in San Miguel de Allende, with booking tips for Centro, San Antonio, and more. -->
+---
+title: Where to Stay in San Miguel de Allende: Neighborhoods and Booking Tips
+description: A neighborhood-by-neighborhood guide to where to stay in San Miguel de Allende, with booking tips for Centro, San Antonio, and more.
+type: plan
+---
 
 # Where to Stay in San Miguel de Allende: Neighborhoods and Booking Tips
 
