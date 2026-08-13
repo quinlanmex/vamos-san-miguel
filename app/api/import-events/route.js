@@ -29,7 +29,7 @@ export async function POST(req) {
       blurb_en: e.blurb_en || null, blurb_es: e.blurb_es || null,
       price_en: e.price_en || null, price_es: e.price_es || null,
       category: e.category, audience: [],
-      start_date: e.start_date || null, end_date: e.end_date || null, start_time: e.start_time || null,
+      start_date: e.start_date || null, end_date: e.end_date || e.start_date || null, start_time: e.start_time || null,
       recurring: !!e.recurring, venue: e.venue || null, area: e.area || null,
       origin_name: e.origin_name || null, origin_url: e.origin_url || null,
       discovered_via: e.discovered_via || "agent-research", photo_url: null, lat: null, lng: null,

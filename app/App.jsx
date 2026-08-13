@@ -475,10 +475,11 @@ export default function App() {
             alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
             className="brandlogo" />
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
-            {[["faves", t.faves], ["events", t.events], ["saved", t.savedTab]].map(([k, label]) => {
+            {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["saved", t.savedTab]].map(([k, label]) => {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
                 color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                 display: "flex", alignItems: "center", gap: 6, textDecoration: "none" };
+              if (k === "plan") return <a key={k} href="/plan" style={{ ...tabStyle, color: P.ink }}>{label}</a>;
               if (k === "move") return <a key={k} href="/move" style={{ ...tabStyle, color: P.ink }}>{label}</a>;
               return (
                 <button key={k} onClick={() => setView(k)} style={tabStyle}>
@@ -844,11 +845,11 @@ export default function App() {
       <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
         background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
         justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
-        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
+        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["plan", lang === "es" ? "Planea" : "Plan", MapIcon], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
           const tabStyle = { border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-            color: view === k ? P.coral : P.inkSoft, fontSize: 11, fontWeight: 700, position: "relative", minWidth: 66, textDecoration: "none" };
-          if (k === "move") return (
-            <a key={k} href="/move" style={{ ...tabStyle, color: P.inkSoft }}>
+            color: view === k ? P.coral : P.inkSoft, fontSize: 11, fontWeight: 700, position: "relative", minWidth: 58, textDecoration: "none" };
+          if (k === "plan") return (
+            <a key={k} href="/plan" style={{ ...tabStyle, color: P.inkSoft }}>
               <Ic size={21} /> {label}
             </a>
           );

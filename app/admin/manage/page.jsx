@@ -172,6 +172,19 @@ export default function Manage() {
     setApplying(false);
   }
 
+  const [discovering, setDiscovering] = useState(false);
+  async function discoverEvents() {
+    setDiscovering(true); setMsg(null);
+    try {
+      const r = await fetch("/api/discover-events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Scanned online sources · found ${j.found}, added ${j.added} new event(s).` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setDiscovering(false);
+  }
+
   const [importingEv, setImportingEv] = useState(false);
   async function importEvents() {
     if (!confirm("Import the researched events? Verified ones publish; a few with inferred times come in as drafts. Only future events show on the site.")) return;
@@ -302,8 +315,12 @@ export default function Manage() {
                   style={btn(P.navy, !checking)}>{checking ? "Checking Google…" : "Check for closures"}</button>
               )}
               {!isPlace && (
-                <button onClick={importEvents} disabled={importingEv} title="Stage the researched events as drafts for review"
-                  style={{ ...btn(P.green, !importingEv), marginLeft: "auto" }}>{importingEv ? "Importing…" : "Import researched events"}</button>
+                <button onClick={discoverEvents} disabled={discovering} title="Scan public sources now for new events (also runs automatically daily)"
+                  style={{ ...btn(P.green, !discovering), marginLeft: "auto" }}>{discovering ? "Scanning…" : "Discover events now"}</button>
+              )}
+              {!isPlace && (
+                <button onClick={importEvents} disabled={importingEv} title="Import the initial researched batch"
+                  style={btn(P.navy, !importingEv)}>{importingEv ? "Importing…" : "Import initial batch"}</button>
               )}
             </div>
 
