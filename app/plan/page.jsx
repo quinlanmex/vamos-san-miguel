@@ -1,6 +1,10 @@
 import Link from "next/link";
 import PageShell from "../../components/PageShell";
-import { getPlanPages } from "../../lib/content";
+import { getPlanArticles } from "../../lib/articles";
+
+// Content comes from the DB (Google Docs sync); re-fetch every 5 min so edits
+// appear without a redeploy.
+export const revalidate = 300;
 
 export const metadata = {
   title: "Plan Your Trip to San Miguel de Allende | Vamos San Miguel",
@@ -13,8 +17,8 @@ export const metadata = {
   },
 };
 
-export default function PlanHub() {
-  const pages = getPlanPages();
+export default async function PlanHub() {
+  const pages = await getPlanArticles();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",

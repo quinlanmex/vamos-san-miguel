@@ -2,14 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageShell from "../../../components/PageShell";
 import Markdown from "../../../components/Markdown";
-import { getPlanPages, getPlanPage } from "../../../lib/content";
+import { getPlanArticles, getPlanArticle } from "../../../lib/articles";
 
-export function generateStaticParams() {
-  return getPlanPages().map((p) => ({ slug: p.slug }));
+// Content comes from the DB (Google Docs sync); re-fetch every 5 min so edits
+// appear without a redeploy.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  return (await getPlanArticles()).map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const page = getPlanPage(params.slug);
+export async function generateMetadata({ params }) {
+  const page = await getPlanArticle(params.slug);
   if (!page) return { title: "Not found | Vamos San Miguel" };
   return {
     title: `${page.title} | Vamos San Miguel`,
@@ -34,8 +38,8 @@ function faqFrom(body) {
   return faqs;
 }
 
-export default function PlanGuide({ params }) {
-  const page = getPlanPage(params.slug);
+export default async function PlanGuide({ params }) {
+  const page = await getPlanArticle(params.slug);
   if (!page) notFound();
   const faqs = faqFrom(page.body);
 

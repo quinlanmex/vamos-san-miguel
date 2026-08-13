@@ -279,7 +279,10 @@ export default function Manage() {
   return (
     <div style={{ minHeight: "100vh", background: P.cream, color: P.ink, fontFamily: "system-ui, sans-serif" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "22px 18px 70px" }}>
-        <Link href="/admin" style={{ color: P.navy, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Back to admin</Link>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link href="/admin" style={{ color: P.navy, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Back to admin</Link>
+          <Link href="/admin/articles" style={{ color: P.coral, fontWeight: 700, fontSize: 13, textDecoration: "none" }}>Guides · Docs sync →</Link>
+        </div>
         <h1 style={{ fontFamily: "Georgia, serif", fontSize: 28, margin: "12px 0 14px" }}>Manage content</h1>
 
         <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
