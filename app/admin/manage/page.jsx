@@ -22,6 +22,26 @@ const mini = (on, c) => ({ cursor: "pointer", display: "inline-flex", alignItems
 const CUI_KEYS = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a].en.localeCompare(CUISINES[b].en));
 const btn = (bg, on = true) => ({ padding: "9px 15px", border: "none", borderRadius: 9, background: on ? bg : P.inkSoft, color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: on ? "pointer" : "default" });
 
+// Pull [lat, lng] out of a "lat, lng" string or a pasted Google Maps URL (several formats).
+function parseCoords(s) {
+  if (!s) return null;
+  const t = String(s).trim();
+  const pats = [
+    /^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/, // "lat, lng"
+    /@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,                        // .../@lat,lng,17z
+    /!3d(-?\d{1,3}\.\d+)!4d(-?\d{1,3}\.\d+)/,                    // !3dlat!4dlng
+    /[?&](?:q|query|ll)=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,      // ?q=lat,lng
+  ];
+  for (const re of pats) {
+    const m = t.match(re);
+    if (m) {
+      const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+      if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) return [lat, lng];
+    }
+  }
+  return null;
+}
+
 export default function Manage() {
   const [pw, setPw] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -35,6 +55,7 @@ export default function Manage() {
   const [sortBy, setSortBy] = useState("name"); // name / newest / attention
   const [selected, setSelected] = useState(new Set()); // bulk-selected ids
   const [uploading, setUploading] = useState(false);
+  const [coordPaste, setCoordPaste] = useState(""); // paste-a-Maps-link box in the editor
 
   const api = useCallback(async (body) => {
     const r = await fetch("/api/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, ...body }) });
@@ -185,6 +206,19 @@ export default function Manage() {
     setDiscovering(false);
   }
 
+  const [geocoding, setGeocoding] = useState(false);
+  async function geocodeEvents() {
+    setGeocoding(true); setMsg(null);
+    try {
+      const r = await fetch("/api/geocode-events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Geocoded ${j.geocoded || 0} event(s)${j.note ? " · " + j.note : ""}.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setGeocoding(false);
+  }
+
   const [importingEv, setImportingEv] = useState(false);
   async function importEvents() {
     if (!confirm("Import the researched events? Verified ones publish; a few with inferred times come in as drafts. Only future events show on the site.")) return;
@@ -320,6 +354,10 @@ export default function Manage() {
               {!isPlace && (
                 <button onClick={discoverEvents} disabled={discovering} title="Scan public sources now for new events (also runs automatically daily)"
                   style={{ ...btn(P.green, !discovering), marginLeft: "auto" }}>{discovering ? "Scanning…" : "Discover events now"}</button>
+              )}
+              {!isPlace && (
+                <button onClick={geocodeEvents} disabled={geocoding} title="Fill map coordinates for events missing them (never overwrites a manual pin)"
+                  style={btn("#B4791F", !geocoding)}>{geocoding ? "Geocoding…" : "Geocode events"}</button>
               )}
               {!isPlace && (
                 <button onClick={importEvents} disabled={importingEv} title="Import the initial researched batch"
@@ -479,6 +517,33 @@ export default function Manage() {
                   <div><label style={label}>Source URL</label><input style={field} value={editing.origin_url || ""} onChange={(e) => upd("origin_url", e.target.value)} /></div>
                 </>
               )}
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={label}>
+                  Location {editing.lat != null && editing.lng != null
+                    ? <span style={{ color: P.green, fontWeight: 700, textTransform: "none", letterSpacing: 0 }}>· pinned</span>
+                    : <span style={{ color: "#B4791F", fontWeight: 700, textTransform: "none", letterSpacing: 0 }}>· no pin yet</span>}
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8, alignItems: "center" }}>
+                  <input style={field} placeholder="Latitude (e.g. 20.9145)" value={editing.lat ?? ""}
+                    onChange={(e) => upd("lat", e.target.value === "" ? null : Number(e.target.value))} />
+                  <input style={field} placeholder="Longitude (e.g. -100.7436)" value={editing.lng ?? ""}
+                    onChange={(e) => upd("lng", e.target.value === "" ? null : Number(e.target.value))} />
+                  {editing.lat != null && editing.lng != null
+                    ? <a href={`https://www.google.com/maps/search/?api=1&query=${editing.lat},${editing.lng}`} target="_blank" rel="noreferrer"
+                        style={{ fontSize: 12.5, fontWeight: 700, color: P.coral, textDecoration: "none", whiteSpace: "nowrap" }}>Preview ↗</a>
+                    : <span />}
+                </div>
+                <input style={{ ...field, marginTop: 6 }} value={coordPaste}
+                  placeholder="Or paste a Google Maps link / 'lat, lng' here to autofill"
+                  onChange={(e) => {
+                    const v = e.target.value; setCoordPaste(v);
+                    const c = parseCoords(v);
+                    if (c) { upd("lat", c[0]); upd("lng", c[1]); setCoordPaste(""); }
+                  }} />
+                <p style={{ fontSize: 11.5, color: P.inkSoft, margin: "6px 0 0" }}>
+                  Manual coordinates are never overwritten by automatic jobs. Clear both fields to un-pin.
+                </p>
+              </div>
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={label}>{isPlace ? "Main photo (card thumbnail)" : "Photo"}</label>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>

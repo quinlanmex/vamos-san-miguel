@@ -9,7 +9,7 @@ import {
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
@@ -339,6 +339,8 @@ export default function App() {
   const [view, setView] = useState("faves");
   const [eventLayout, setEventLayout] = useState("list"); // list | map
   const [picksLayout, setPicksLayout] = useState("list"); // list | map (Local Picks)
+  const [savedLayout, setSavedLayout] = useState("list"); // list | map (Saved trip)
+  const [stay, setStay] = useState(null); // [lat, lng] — where the visitor is staying (device-stored)
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
   const [aud, setAud] = useState(new Set());
@@ -359,6 +361,10 @@ export default function App() {
 
   useEffect(() => { localStorage.setItem("qp_saved_events", JSON.stringify([...saved])); }, [saved]);
   useEffect(() => { localStorage.setItem("qp_saved_places", JSON.stringify([...savedPlaces])); }, [savedPlaces]);
+
+  // "Where you're staying" pin — stored on the device only.
+  useEffect(() => { try { const s = JSON.parse(localStorage.getItem("qp_stay") || "null"); if (Array.isArray(s) && s.length === 2) setStay(s); } catch {} }, []);
+  useEffect(() => { try { stay ? localStorage.setItem("qp_stay", JSON.stringify(stay)) : localStorage.removeItem("qp_stay"); } catch {} }, [stay]);
 
   // Load live data from Supabase; keep the seed as offline fallback.
   useEffect(() => {
@@ -470,11 +476,15 @@ export default function App() {
       <header style={{ background: P.card, color: P.ink, borderBottom: `1px solid ${P.line}`, position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
         <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
-          <img
-            src={`/logo-${theme === "dark" ? "dark" : "light"}${lang === "es" ? "-es" : ""}.svg`}
-            onError={(e) => { const en = `/logo-${theme === "dark" ? "dark" : "light"}.svg`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
-            alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
-            className="brandlogo" />
+          <button type="button" aria-label={lang === "es" ? "Inicio" : "Home"}
+            onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "block" }}>
+            <img
+              src={`/logo-${theme === "dark" ? "dark" : "light"}${lang === "es" ? "-es" : ""}.svg`}
+              onError={(e) => { const en = `/logo-${theme === "dark" ? "dark" : "light"}.svg`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
+              alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
+              className="brandlogo" />
+          </button>
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
             {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["saved", t.savedTab]].map(([k, label]) => {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
@@ -745,9 +755,19 @@ export default function App() {
             </>
             )}
 
-            {/* List / Map segmented toggle for Local Picks */}
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-              <div style={{ display: "flex", background: P.chipBg, border: `1px solid ${P.line}`, borderRadius: 999, padding: 3 }}>
+            {/* Desktop: sticky filter rail beside the grid. Mobile: filters live in the bottom sheet. */}
+            <div className="picks-layout">
+              <div className="filters-inline filter-rail">
+                <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
+                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
+              </div>
+              <div className="picks-main">
+            {/* Toolbar: count on the left, List/Map toggle on the right */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 12 }}>
+              <span style={{ fontSize: 13, color: P.inkSoft, fontWeight: 600 }}>
+                {favFiltered.reduce((n, l) => n + (l.items ? l.items.length : 0), 0)} {lang === "es" ? "lugares" : "places"}
+              </span>
+              <div style={{ display: "flex", background: P.chipBg, border: `1px solid ${P.line}`, borderRadius: 999, padding: 3, flexShrink: 0 }}>
                 {[["list", ListIcon, t.listView], ["map", MapIcon, t.mapView]].map(([k, Ic, label]) => (
                   <button key={k} onClick={() => setPicksLayout(k)} aria-pressed={picksLayout === k}
                     style={{ border: "none", cursor: "pointer", padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 600,
@@ -758,14 +778,6 @@ export default function App() {
                 ))}
               </div>
             </div>
-
-            {/* Desktop: sticky filter rail beside the grid. Mobile: filters live in the bottom sheet. */}
-            <div className="picks-layout">
-              <div className="filters-inline filter-rail">
-                <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
-              </div>
-              <div className="picks-main">
             {picksLayout === "map" ? (
               <PicksMap lists={favFiltered} lang={lang} t={t} P={P} onOpen={setPlaceDetail} />
             ) : favFiltered.length === 0 ? (
@@ -828,6 +840,28 @@ export default function App() {
             </div>
           ) : (
             <>
+              {/* Toolbar: title + List/Map toggle (map = "My Trip" planner) */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, gap: 12 }}>
+                <h2 className="disp" style={{ fontSize: 15, fontWeight: 800, margin: 0, color: P.ink }}>
+                  {lang === "es" ? "Mi viaje" : "My Trip"}
+                </h2>
+                <div style={{ display: "flex", background: P.chipBg, border: `1px solid ${P.line}`, borderRadius: 999, padding: 3, flexShrink: 0 }}>
+                  {[["list", ListIcon, t.listView], ["map", MapIcon, t.mapView]].map(([k, Ic, label]) => (
+                    <button key={k} onClick={() => setSavedLayout(k)} aria-pressed={savedLayout === k}
+                      style={{ border: "none", cursor: "pointer", padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                        display: "flex", alignItems: "center", gap: 5,
+                        background: savedLayout === k ? P.cobalt : "transparent", color: savedLayout === k ? "#fff" : P.inkSoft }}>
+                      <Ic size={14} /> {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {savedLayout === "map" ? (
+                <TripMap places={savedPlaceItems} events={savedEvents} stay={stay} setStay={setStay}
+                  lang={lang} t={t} P={P} onOpenPlace={setPlaceDetail} onOpenEvent={setDetail} />
+              ) : (
+              <>
               {savedEvents.length > 0 && (
                 <section style={{ marginBottom: 24 }}>
                   <h2 className="disp" style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>{t.savedEvents}</h2>
@@ -850,6 +884,8 @@ export default function App() {
                     ))}
                   </div>
                 </section>
+              )}
+              </>
               )}
             </>
           )
@@ -1032,6 +1068,97 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
           </Marker>
         ))}
       </MapContainer>
+    </div>
+  );
+}
+
+/* ---- Saved "My Trip" map ------------------------------------------ */
+const stayIcon = () =>
+  L.divIcon({
+    className: "qp-stay",
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);background:#0D1B36;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)">
+      <span style="transform:rotate(45deg);color:#fff;font-size:14px;line-height:1">★</span></span>`,
+    iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28],
+  });
+
+function ClickToSetStay({ onSet }) {
+  useMapEvents({ click(e) { onSet([e.latlng.lat, e.latlng.lng]); } });
+  return null;
+}
+
+function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpenEvent }) {
+  const placePins = places.filter((p) => p.lat && p.lng);
+  const eventPins = events.filter((e) => e.lat && e.lng);
+  // Fit to the saved items only (stable), so dropping the stay pin doesn't re-zoom.
+  const fitPts = [...placePins.map((p) => [p.lat, p.lng]), ...eventPins.map((e) => [e.lat, e.lng])];
+  const center = stay || fitPts[0] || [20.9145, -100.7436];
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+        <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft }}>
+          {stay
+            ? (lang === "es" ? "Tu alojamiento está fijado. Toca el mapa para moverlo." : "Your stay is pinned. Tap the map to move it.")
+            : (lang === "es" ? "Toca el mapa para marcar dónde te hospedas." : "Tap the map to mark where you're staying.")}
+        </p>
+        {stay && (
+          <button onClick={() => setStay(null)}
+            style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "5px 12px", borderRadius: 999 }}>
+            {lang === "es" ? "Quitar alojamiento" : "Remove stay pin"}
+          </button>
+        )}
+      </div>
+      <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(440px, 68vh, 640px)" }}>
+        <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {fitPts.length > 0 && <FitBoundsPts pts={fitPts} />}
+          <ClickToSetStay onSet={setStay} />
+
+          {placePins.map((p, i) => (
+            <Marker key={"p" + p.name + i} position={[p.lat, p.lng]} icon={catIcon(P.coral)}>
+              <Popup>
+                <strong style={{ fontFamily: "Georgia, serif" }}>{p.name}</strong>
+                {p.area && <><br /><span style={{ color: "#6B5D4F" }}>{p.area}</span></>}
+                <br />
+                <button onClick={() => onOpenPlace(p)}
+                  style={{ marginTop: 6, border: "none", background: P.coral, color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                  {t.details} →
+                </button>
+              </Popup>
+            </Marker>
+          ))}
+
+          {eventPins.map((e, i) => (
+            <Marker key={"e" + e.id + i} position={[e.lat, e.lng]} icon={catIcon((CATS[e.cat] || { c: P.cobalt }).c)}>
+              <Popup>
+                <strong style={{ fontFamily: "Georgia, serif" }}>{e.title[lang]}</strong>
+                {e.venue && <><br /><span style={{ color: "#6B5D4F" }}>{e.venue}</span></>}
+                <br />
+                <button onClick={() => onOpenEvent(e)}
+                  style={{ marginTop: 6, border: "none", background: (CATS[e.cat] || { c: P.cobalt }).c, color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                  {t.details} →
+                </button>
+              </Popup>
+            </Marker>
+          ))}
+
+          {stay && (
+            <Marker position={stay} icon={stayIcon()}>
+              <Popup>
+                <strong style={{ fontFamily: "Georgia, serif" }}>{lang === "es" ? "Dónde te hospedas" : "Where you're staying"}</strong>
+                <br />
+                <button onClick={() => setStay(null)}
+                  style={{ marginTop: 6, border: "none", background: P.navy, color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                  {lang === "es" ? "Quitar" : "Remove"}
+                </button>
+              </Popup>
+            </Marker>
+          )}
+        </MapContainer>
+      </div>
     </div>
   );
 }
