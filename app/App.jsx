@@ -338,6 +338,7 @@ export default function App() {
   const [theme, setTheme] = useState("light");
   const [view, setView] = useState("faves");
   const [eventLayout, setEventLayout] = useState("list"); // list | map
+  const [picksLayout, setPicksLayout] = useState("list"); // list | map (Local Picks)
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
   const [aud, setAud] = useState(new Set());
@@ -744,6 +745,20 @@ export default function App() {
             </>
             )}
 
+            {/* List / Map segmented toggle for Local Picks */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+              <div style={{ display: "flex", background: P.chipBg, border: `1px solid ${P.line}`, borderRadius: 999, padding: 3 }}>
+                {[["list", ListIcon, t.listView], ["map", MapIcon, t.mapView]].map(([k, Ic, label]) => (
+                  <button key={k} onClick={() => setPicksLayout(k)} aria-pressed={picksLayout === k}
+                    style={{ border: "none", cursor: "pointer", padding: "5px 11px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                      display: "flex", alignItems: "center", gap: 5,
+                      background: picksLayout === k ? P.cobalt : "transparent", color: picksLayout === k ? "#fff" : P.inkSoft }}>
+                    <Ic size={14} /> {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Desktop: sticky filter rail beside the grid. Mobile: filters live in the bottom sheet. */}
             <div className="picks-layout">
               <div className="filters-inline filter-rail">
@@ -751,7 +766,9 @@ export default function App() {
                   setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
               </div>
               <div className="picks-main">
-            {favFiltered.length === 0 ? (
+            {picksLayout === "map" ? (
+              <PicksMap lists={favFiltered} lang={lang} t={t} P={P} onOpen={setPlaceDetail} />
+            ) : favFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: P.inkSoft }}>
                 <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "0 0 6px" }}>{t.none}</p>
                 <p style={{ margin: 0, fontSize: 14 }}>{t.noneHint}</p>
@@ -949,6 +966,67 @@ function MapView({ events, lang, P, onOpen }) {
                 style={{ marginTop: 6, border: "none", background: CATS[e.cat].c, color: "#fff", cursor: "pointer",
                   padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
                 {T[lang].details} →
+              </button>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}
+
+/* ---- Local Picks map ---------------------------------------------- */
+function FitBoundsPts({ pts }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!pts.length) return;
+    if (pts.length === 1) map.setView(pts[0], 16);
+    else map.fitBounds(pts, { padding: [40, 40], maxZoom: 16 });
+    // Refit only when the set of points meaningfully changes, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, pts.length, pts[0]?.[0], pts[0]?.[1]]);
+  return null;
+}
+
+function PicksMap({ lists, lang, t, P, onOpen }) {
+  const pins = [];
+  lists.forEach((list) => {
+    const color = (CATS[list.cat] || {}).c || P.coral;
+    (list.items || []).forEach((it) => { if (it.lat && it.lng) pins.push({ it, color }); });
+  });
+
+  if (!pins.length) {
+    return (
+      <div style={{ textAlign: "center", padding: "48px 20px", color: P.inkSoft, border: `1px dashed ${P.line}`, borderRadius: 16 }}>
+        <MapIcon size={26} style={{ opacity: .5 }} />
+        <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "10px 0 4px" }}>
+          {lang === "es" ? "Sin ubicaciones en el mapa todavía" : "No map locations yet"}
+        </p>
+        <p style={{ margin: 0, fontSize: 14 }}>
+          {lang === "es" ? "Estos lugares aún no tienen coordenadas." : "These spots don't have coordinates yet."}
+        </p>
+      </div>
+    );
+  }
+
+  const pts = pins.map((p) => [p.it.lat, p.it.lng]);
+  return (
+    <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(420px, 66vh, 620px)" }}>
+      <MapContainer center={pts[0]} zoom={15} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <FitBoundsPts pts={pts} />
+        {pins.map(({ it, color }, i) => (
+          <Marker key={it.name + i} position={[it.lat, it.lng]} icon={catIcon(color)}>
+            <Popup>
+              <strong style={{ fontFamily: "Georgia, serif" }}>{it.name}</strong>
+              {it.area && <><br /><span style={{ color: "#6B5D4F" }}>{it.area}</span></>}
+              <br />
+              <button onClick={() => onOpen(it)}
+                style={{ marginTop: 6, border: "none", background: color, color: "#fff", cursor: "pointer",
+                  padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                {t.details} →
               </button>
             </Popup>
           </Marker>
