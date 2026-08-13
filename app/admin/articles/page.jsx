@@ -78,6 +78,7 @@ export default function ManageArticles() {
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
           <button onClick={() => run("Seeded", "/api/seed-articles", {})} disabled={busy} style={btn(P.navy, !busy)}>Seed from markdown</button>
+          <button onClick={() => run("Created Docs", "/api/provision-docs", {})} disabled={busy} style={btn("#B4791F", !busy)}>Create guide Docs</button>
           <button onClick={() => run("Synced", "/api/sync-docs", {})} disabled={busy} style={btn(P.green, !busy)}>Sync from Google Docs</button>
           <button onClick={load} disabled={busy} style={btn(P.inkSoft, !busy)}>Refresh</button>
         </div>
@@ -96,8 +97,14 @@ export default function ManageArticles() {
                     <span style={{ fontWeight: 700, color: P.navy, fontSize: 15 }}>{row.title || row.slug}</span>
                     <span style={{ fontSize: 12, color: "#B9AE9C", marginLeft: 8 }}>{row.kind}/{row.slug}</span>
                   </div>
-                  <span style={{ fontSize: 12, color: row.synced_at ? P.green : "#B9AE9C" }}>
-                    {row.synced_at ? `Synced ${new Date(row.synced_at).toLocaleDateString()}` : "Not synced"}
+                  <span style={{ fontSize: 12, display: "flex", gap: 10, alignItems: "center" }}>
+                    {row.google_doc_id && (
+                      <a href={`https://docs.google.com/document/d/${row.google_doc_id}/edit`} target="_blank" rel="noreferrer"
+                        style={{ color: P.coral, fontWeight: 700, textDecoration: "none" }}>Open Doc ↗</a>
+                    )}
+                    <span style={{ color: row.synced_at ? P.green : "#B9AE9C" }}>
+                      {row.synced_at ? `Synced ${new Date(row.synced_at).toLocaleDateString()}` : "Not synced"}
+                    </span>
                   </span>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
