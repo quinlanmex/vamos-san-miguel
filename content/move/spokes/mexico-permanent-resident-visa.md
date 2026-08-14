@@ -16,7 +16,7 @@ As with all Mexican residency figures, the thresholds below are pegged to formul
 You qualify for permanent residency by meeting a higher financial bar than temporary asks, or by holding a qualifying tie to Mexico. The common routes are:
 
 - **Income.** Show roughly US$7,400 or more a month in provable foreign-source deposits, well above the temporary threshold.
-- **Savings.** Hold savings in the high six figures, steadily, over the qualifying period.
+- **Savings.** Hold savings of roughly US$290,000 to $300,000, steadily, over the qualifying period.
 - **Retirement.** Prove a stable pension or retirement income that meets the threshold. This is the classic retiree route.
 - **Family.** A close tie to a Mexican citizen, such as a Mexican spouse or child, can open permanent residency and lowers or removes the financial test.
 - **Four years of temporary residency.** After holding temporary residency for four consecutive years, you can convert to permanent without re-proving the income threshold.
@@ -25,7 +25,7 @@ That last route is the one most people actually use. You do not have to hit the 
 
 ## How much income do you need for permanent residency?
 
-Plan on showing about US$7,400 a month in foreign-source income to qualify directly, roughly double the temporary threshold, or savings in the high six figures. Retirees usually document this with pension and Social Security statements plus investment accounts. As with temporary residency, only one family member needs to meet the test, and a spouse and minor children come along as dependents.
+Plan on showing about US$7,400 a month in foreign-source income to qualify directly, roughly double the temporary threshold, or savings of roughly US$290,000 to $300,000. Retirees usually document this with pension and Social Security statements plus investment accounts. As with temporary residency, only one family member needs to meet the test, and a spouse and minor children come along as dependents.
 
 ## Permanent or temporary: which should you choose?
 
@@ -34,8 +34,8 @@ Choose permanent if you qualify outright and you are certain about staying. Choo
 | | Temporary residency | Permanent residency |
 | --- | --- | --- |
 | **Term** | Up to 4 years, renewable | Never expires |
-| **Income shown** | ~US$4,300 / month | ~US$7,400 / month |
-| **Savings alternative** | ~US$70,000+ over 12 months | High six figures |
+| **Income shown** | ~US$4,400 / month | ~US$7,400 / month |
+| **Savings alternative** | ~US$72,000-74,000+ over 12 months | ~US$290,000-300,000 |
 | **Renewals** | Renew and carry a card that expires | None, no card renewals |
 | **Path to citizenship** | After upgrading to permanent | Yes, after several years |
 | **Best for** | Most first-time movers, flexible plans | Retirees and those who qualify outright |

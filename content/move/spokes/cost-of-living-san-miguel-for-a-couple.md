@@ -7,13 +7,13 @@ source_chapters: [ch5.md, ch12.md, ch13.md]
 
 # Cost of Living in San Miguel de Allende for a Couple: A Monthly Budget
 
-A couple can live comfortably in San Miguel de Allende for roughly US$1,800 to $2,500 a month, all in, well under what the same life costs in most U.S. metros. That range is wide on purpose, because your neighborhood and your habits move it more than anything else. This page breaks a two-person budget down category by category so you can build your own number instead of trusting a headline.
+A couple can live comfortably in San Miguel de Allende for roughly US$1,800 to $3,500 a month, all in, well under what the same life costs in most U.S. metros. That range is wide on purpose, because your neighborhood and your habits move it more than anything else. This page breaks a two-person budget down category by category so you can build your own number instead of trusting a headline.
 
 Figures are approximate, in USD, and dated to mid-2026. Peso amounts convert at roughly 18 to 20 pesos per dollar, and the exchange rate is a hidden variable in your real dollar cost, so budget with a little cushion.
 
 ## What does it cost for a couple to live in San Miguel de Allende?
 
-Plan on US$1,800 to $2,500 a month for two people living comfortably, with housing as the biggest swing. A couple who rents a one-bedroom near the Centro Histórico, eats out a few times a week, and keeps a weekly housekeeper lands in the upper half of that range. A couple in a two-bedroom outside Centro who cooks most nights lands lower. Here is a representative monthly budget.
+Plan on US$1,800 to $3,500 a month for two people living comfortably, with housing as the biggest swing. A couple who rents a one-bedroom near the Centro Histórico, eats out a few times a week, and keeps a weekly housekeeper lands in the upper half of that range. A couple in a two-bedroom outside Centro who cooks most nights lands lower. Here is a representative monthly budget.
 
 | Category | Approx. monthly (USD) | Notes |
 | --- | --- | --- |

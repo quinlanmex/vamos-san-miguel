@@ -13,7 +13,7 @@ None of this is tax advice for your situation. Model your actual numbers with a 
 
 ## What is the Foreign Earned Income Exclusion?
 
-The FEIE lets you exclude a large amount of income you earn from work while living abroad, up to an annual limit, so that income is treated as if it never existed for federal income tax purposes. For 2025 the limit is up to US$130,000 per qualifying person, and a married couple who both qualify can each claim it. You claim it on Form 2555, filed with your return.
+The FEIE lets you exclude a large amount of income you earn from work while living abroad, up to an annual limit, so that income is treated as if it never existed for federal income tax purposes. For 2026 the limit is up to US$132,900 per qualifying person, and a married couple who both qualify can each claim it. You claim it on Form 2555, filed with your return.
 
 Two facts keep it honest, and they are where most confusion lives. The FEIE applies only to earned income, and it eliminates federal income tax only. More on both below.
 
@@ -69,7 +69,7 @@ On top of the FEIE, the foreign housing exclusion can remove more taxable income
 
 ## Frequently asked questions
 
-**What is the FEIE limit for 2025?** Up to US$130,000 per qualifying person, and a married couple who both qualify can each claim their own exclusion.
+**What is the FEIE limit for 2026?** Up to US$132,900 per qualifying person, and a married couple who both qualify can each claim their own exclusion.
 
 **Does the FEIE eliminate all my U.S. tax?** No. It eliminates federal income tax on earned income only. Self-employment tax, tax on investment income, and state tax where it applies all remain.
 

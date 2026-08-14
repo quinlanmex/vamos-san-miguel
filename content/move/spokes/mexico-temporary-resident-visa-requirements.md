@@ -15,16 +15,16 @@ One caveat up front. The thresholds and fees below are pegged to Mexican formula
 
 You qualify for a temporary resident visa mainly by proving stable, foreign-source income or savings. A consulate typically wants to see one of two things:
 
-- **Income.** Roughly US$4,300 a month in provable foreign-source deposits, shown across the last six months of bank or investment statements.
-- **Savings.** Around US$70,000 or more held steadily in an account over the prior 12 months.
+- **Income.** Roughly US$4,400 a month in provable foreign-source deposits, shown across the last six months of bank or investment statements.
+- **Savings.** Around US$72,000 to $74,000 or more held steadily in an account over the prior 12 months.
 
 Three other paths also lead to temporary residency: owning debt-free Mexican property above a high value threshold, a close family tie to a Mexican citizen, or a substantial business investment. Most first-time movers use the income or savings route, so that is the one this page follows.
 
-A provision that families miss: only one person has to meet the financial test. That person applies as the main applicant, and a spouse and minor children come along as dependents with the same status and no added threshold. A family of four often needs one person showing roughly US$4,300 a month, not four times that. Apply together, request dependent status at the appointment, and bring apostilled marriage and birth certificates for everyone.
+A provision that families miss: only one person has to meet the financial test. That person applies as the main applicant, and a spouse and minor children come along as dependents with the same status and no added threshold. A family of four often needs one person showing roughly US$4,400 a month, not four times that. Apply together, request dependent status at the appointment, and bring apostilled marriage and birth certificates for everyone.
 
 ## How much income do you need to qualify?
 
-Plan on showing about US$4,300 a month in foreign-source income, or about US$70,000 or more in savings, though the exact figure your consulate applies can be higher. The number is tied to a multiple of Mexican minimum wage, so it moves each year. Two habits make the money test easier:
+Plan on showing about US$4,400 a month in foreign-source income, or about US$72,000 to $74,000 or more in savings, though the exact figure your consulate applies can be higher. The number is tied to a multiple of Mexican minimum wage, so it moves each year. Two habits make the money test easier:
 
 - **Show foreign-source deposits, not just a balance.** Regular deposits from a U.S. employer, business, pension, or investment account read cleanly as the kind of income the program is built to attract.
 - **Present the income the way the law reads it.** Mexican immigration law has no box for "digital nomad" or "remote worker." Say "I operate a location-independent business" or "I receive income from my U.S.-based business" instead. Same truthful facts, framed in a category the law contemplates.
@@ -49,7 +49,7 @@ The background check, where required, is usually the slowest item, so start it f
 The process runs in three phases, and knowing the shape of it up front is half the battle.
 
 1. **Document preparation (about 4 to 6 weeks).** Gather and apostille everything above. Order the criminal background check first because it lags.
-2. **Consulate application (about 2 to 8 weeks).** Book an appointment at a consulate that has agreed in advance to process your case, submit your packet, pay the consular visa fee (a flat fee of roughly US$54, separate from the larger residency-card fees you pay later in Mexico), and sit for a brief interview. When approved, the consulate places a visa sticker in your passport.
+2. **Consulate application (about 2 to 8 weeks).** Book an appointment at a consulate that has agreed in advance to process your case, submit your packet, pay the consular visa fee (a flat fee of roughly US$56, separate from the larger residency-card fees you pay later in Mexico), and sit for a brief interview. When approved, the consulate places a visa sticker in your passport.
 3. **Entry and finalization (about 2 to 4 weeks).** With the visa in your passport, you have 180 days to enter Mexico. Within 30 days of arrival you visit an immigration office (INM), file the final paperwork, and receive your physical residency card.
 
 ## How long does the whole process take?
