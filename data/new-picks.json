@@ -47,5 +47,61 @@
     "list_key": "shopping", "category": "mercados", "cuisine": ["family"],
     "desc_en": "San Miguel's main shopping plaza — shops, a supermarket, restaurants, and a cinema under one roof.",
     "desc_es": "La principal plaza comercial de San Miguel: tiendas, supermercado, restaurantes y cine en un mismo lugar."
+  },
+  {
+    "name": "Teatro Ángela Peralta",
+    "query": "Teatro Ángela Peralta San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "The crown-jewel city-center theater — orchestral concerts, opera, dance recitals, and local plays.",
+    "desc_es": "El teatro joya del Centro: conciertos orquestales, ópera, recitales de danza y obras locales."
+  },
+  {
+    "name": "Teatro Santa Ana",
+    "query": "Teatro Santa Ana Biblioteca Pública San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "A cozy 200-seat theater inside the public library, with independent films, lectures, and small productions.",
+    "desc_es": "Un acogedor teatro de 200 butacas dentro de la Biblioteca Pública, con cine independiente, charlas y producciones pequeñas."
+  },
+  {
+    "name": "Foro El Obraje",
+    "query": "Foro El Obraje San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "A multi-use cultural center hosting seasonal arts festivals, chamber music, jazz, and choral concerts.",
+    "desc_es": "Un centro cultural multiusos con festivales de arte por temporada, música de cámara, jazz y conciertos corales."
+  },
+  {
+    "name": "La Troje Amphitheater",
+    "query": "La Troje anfiteatro San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": ["views"],
+    "desc_en": "An outdoor amphitheater for community theater, multidisciplinary arts, and film screenings.",
+    "desc_es": "Un anfiteatro al aire libre para teatro comunitario, artes multidisciplinarias y proyecciones de cine."
+  },
+  {
+    "name": "Raindog Lounge",
+    "query": "Raindog Lounge San Miguel de Allende",
+    "list_key": "live", "category": "musica", "cuisine": ["views", "datenight"],
+    "desc_en": "A multi-level rooftop lounge with nightly jazz, blues, and acoustic sunset sessions.",
+    "desc_es": "Un lounge de varios niveles en azotea con jazz, blues y sesiones acústicas al atardecer."
+  },
+  {
+    "name": "Johnny's Piano Bar",
+    "query": "Johnny's Piano Bar San Miguel de Allende",
+    "list_key": "bar", "category": "musica", "cuisine": ["datenight"],
+    "desc_en": "A staple for intimate, late-night live music and rotating guest artists.",
+    "desc_es": "Un clásico para música en vivo íntima de trasnoche y artistas invitados."
+  },
+  {
+    "name": "Cent'Anni",
+    "query": "Cent'Anni restaurant San Miguel de Allende",
+    "list_key": "rest", "category": "mercados", "cuisine": ["italian", "datenight", "groups"],
+    "desc_en": "Italian dining paired with cabaret-style live entertainment and music.",
+    "desc_es": "Cocina italiana acompañada de espectáculo en vivo estilo cabaret y música."
+  },
+  {
+    "name": "El Jardín",
+    "query": "Jardín Principal El Jardín San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "cuisine": ["family"],
+    "desc_en": "The main square and beating heart of San Miguel — the place everything orbits, day and night.",
+    "desc_es": "El Jardín Principal, corazón de San Miguel: el punto alrededor del cual gira todo, de día y de noche."
   }
 ]
