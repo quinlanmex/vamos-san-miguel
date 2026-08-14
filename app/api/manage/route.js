@@ -7,7 +7,8 @@ const EVENT_COLS = ["status", "title_en", "title_es", "blurb_en", "blurb_es", "p
   "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng"];
 const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_es", "category",
   "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
-  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status", "featured", "featured_rank"];
+  "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status", "featured", "featured_rank",
+  "why_love", "what_to_order", "best_time"];
 
 function clean(record, cols) {
   const out = {};

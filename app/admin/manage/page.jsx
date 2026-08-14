@@ -549,6 +549,13 @@ export default function Manage() {
                     <option value="">—</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option><option value="4">$$$$</option>
                   </select></div>
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Good to know <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(reservations, cash only, rooftop…)</span></label><input style={field} value={editing.tip || ""} onChange={(e) => upd("tip", e.target.value)} /></div>
+                  <div style={{ gridColumn: "1 / -1", borderTop: `1px dashed ${P.line}`, paddingTop: 10, marginTop: 2 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: P.coral }}>Editorial — your hand-picked voice</span>
+                    <span style={{ fontSize: 11.5, color: P.inkSoft, marginLeft: 8 }}>(shown on the listing; never auto-changed)</span>
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Why we love it</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.why_love || ""} onChange={(e) => upd("why_love", e.target.value)} placeholder="What makes this one special / why you send friends here" /></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>What to order / don't miss</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.what_to_order || ""} onChange={(e) => upd("what_to_order", e.target.value)} placeholder="Signature dishes, the thing to get" /></div>
+                  <div><label style={label}>Best time to go</label><input style={field} value={editing.best_time || ""} onChange={(e) => upd("best_time", e.target.value)} placeholder="e.g. sunset for the rooftop; weekday mornings" /></div>
                 </>
               ) : (
                 <>

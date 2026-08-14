@@ -1618,6 +1618,30 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
 
           {it[lang] && <p style={{ fontSize: 15, lineHeight: 1.55, color: P.ink, margin: "14px 0 6px" }}>{it[lang]}</p>}
 
+          {/* Editorial — the hand-picked voice */}
+          {(it.whyLove || it.whatToOrder || it.bestTime) && (
+            <div style={{ margin: "8px 0 4px", display: "grid", gap: 12 }}>
+              {it.whyLove && (
+                <div>
+                  <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.coral, margin: "0 0 3px" }}>{es ? "Por qué nos encanta" : "Why we love it"}</p>
+                  <p style={{ fontSize: 14.5, lineHeight: 1.55, color: P.ink, margin: 0 }}>{it.whyLove}</p>
+                </div>
+              )}
+              {it.whatToOrder && (
+                <div>
+                  <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.coral, margin: "0 0 3px" }}>{es ? "Qué pedir" : "What to order"}</p>
+                  <p style={{ fontSize: 14.5, lineHeight: 1.55, color: P.ink, margin: 0 }}>{it.whatToOrder}</p>
+                </div>
+              )}
+              {it.bestTime && (
+                <p style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13.5, color: P.inkSoft, margin: 0 }}>
+                  <Clock3 size={14} style={{ flexShrink: 0 }} />
+                  <span><strong style={{ color: P.ink }}>{es ? "Mejor momento" : "Best time"}:</strong> {it.bestTime}</span>
+                </p>
+              )}
+            </div>
+          )}
+
           {it.tip && (
             <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#FBF5E9", border: `1px solid ${P.marigold}55`, borderRadius: 12, padding: "11px 13px", margin: "10px 0 4px" }}>
               <Info size={16} style={{ flexShrink: 0, marginTop: 1, color: "#B4791F" }} />
