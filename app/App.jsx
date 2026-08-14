@@ -431,6 +431,17 @@ function ZoomWatch({ onZoom }) {
 }
 const ICON_ZOOM = 16; // at/above this zoom, pins show cuisine icons
 
+// Badge marking a saved item that arrived via a friend's shared link.
+function SharedBadge({ lang, P }) {
+  return (
+    <span style={{ position: "absolute", top: 8, left: 8, zIndex: 5, display: "inline-flex", alignItems: "center", gap: 4,
+      background: P.cobalt, color: "#fff", fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em",
+      padding: "3px 8px", borderRadius: 999, boxShadow: "0 2px 6px rgba(0,0,0,.25)" }}>
+      <Share2 size={10} /> {lang === "es" ? "Compartido" : "Shared"}
+    </span>
+  );
+}
+
 /* ---- Brand emblem: a simplified Parroquia de San Miguel Arcángel — three
  * spires + rose window, SMA's signature landmark. White on the cobalt band. --- */
 function Emblem({ size = 40 }) {
@@ -567,7 +578,9 @@ export default function App() {
   const toggleSavePlace = (name) => toggle(setSavedPlaces, savedPlaces, name);
 
   // ---- Shareable itinerary: encode saved picks + events + stay into a URL ----
-  const [incomingTrip, setIncomingTrip] = useState(null); // { p:[names], e:[ids], s:[lat,lng] }
+  const [sharedNames, setSharedNames] = useState(() => new Set());   // picks that arrived via a shared link
+  const [sharedEventIds, setSharedEventIds] = useState(() => new Set());
+  const [sharedNotice, setSharedNotice] = useState(null);            // { p, e } counts to announce
   const [shareMsg, setShareMsg] = useState("");
   const b64u = {
     enc: (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""),
@@ -578,8 +591,14 @@ export default function App() {
       const p = new URLSearchParams(window.location.search).get("trip");
       if (!p) return;
       const t = b64u.dec(p);
-      if (t && (t.p?.length || t.e?.length || t.s)) setIncomingTrip(t);
-      // Clean the URL so a refresh doesn't re-prompt.
+      if (t && (t.p?.length || t.e?.length || t.s)) {
+        // Import immediately, mark them as "Shared", and take the visitor to Saved.
+        if (t.p?.length) { setSavedPlaces((s) => new Set([...s, ...t.p])); setSharedNames(new Set(t.p)); }
+        if (t.e?.length) { setSaved((s) => new Set([...s, ...t.e])); setSharedEventIds(new Set(t.e)); }
+        if (t.s && !stay) setStay(t.s);
+        setSharedNotice({ p: t.p?.length || 0, e: t.e?.length || 0 });
+        setView("saved");
+      }
       window.history.replaceState({}, "", window.location.pathname);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -592,13 +611,6 @@ export default function App() {
     } catch {}
     try { await navigator.clipboard.writeText(url); setShareMsg(lang === "es" ? "¡Enlace copiado!" : "Link copied!"); setTimeout(() => setShareMsg(""), 2500); }
     catch { setShareMsg(url); }
-  }
-  function importTrip() {
-    if (!incomingTrip) return;
-    if (incomingTrip.p?.length) setSavedPlaces((s) => new Set([...s, ...incomingTrip.p]));
-    if (incomingTrip.e?.length) setSaved((s) => new Set([...s, ...incomingTrip.e]));
-    if (incomingTrip.s && !stay) setStay(incomingTrip.s);
-    setView("saved"); setIncomingTrip(null);
   }
 
   return (
@@ -700,23 +712,18 @@ export default function App() {
       </header>
 
       <main className="wrap720" style={{ padding: "16px 18px 60px" }}>
-        {/* A friend shared a trip via link — offer to import it */}
-        {incomingTrip && (
+        {/* A friend shared their trip — items were imported and marked "Shared" below */}
+        {sharedNotice && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
-            background: P.card, border: `1px solid ${P.cobalt}`, borderRadius: 14, padding: "12px 16px", margin: "0 0 16px" }}>
+            background: "#EEF3FB", border: `1px solid ${P.cobalt}`, borderRadius: 14, padding: "12px 16px", margin: "0 0 16px" }}>
             <span style={{ fontSize: 14, color: P.ink, fontWeight: 600 }}>
               {lang === "es"
-                ? `Un amigo te compartió un viaje: ${incomingTrip.p?.length || 0} lugares · ${incomingTrip.e?.length || 0} eventos.`
-                : `A friend shared a trip: ${incomingTrip.p?.length || 0} places · ${incomingTrip.e?.length || 0} events.`}
+                ? `🎁 Un amigo te compartió su viaje: ${sharedNotice.p} lugares · ${sharedNotice.e} eventos. Los agregamos a tus Guardados (marcados como “Compartido”).`
+                : `🎁 A friend shared their trip: ${sharedNotice.p} places · ${sharedNotice.e} events. We added them to your Saved (marked “Shared”).`}
             </span>
-            <span style={{ display: "flex", gap: 8 }}>
-              <button onClick={importTrip} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "8px 15px", borderRadius: 10 }}>
-                {lang === "es" ? "Agregar a mi viaje" : "Add to my trip"}
-              </button>
-              <button onClick={() => setIncomingTrip(null)} style={{ border: `1px solid ${P.line}`, background: "transparent", color: P.inkSoft, cursor: "pointer", fontWeight: 600, fontSize: 13.5, padding: "8px 13px", borderRadius: 10 }}>
-                {lang === "es" ? "Descartar" : "Dismiss"}
-              </button>
-            </span>
+            <button onClick={() => setSharedNotice(null)} style={{ border: `1px solid ${P.line}`, background: "transparent", color: P.inkSoft, cursor: "pointer", fontWeight: 600, fontSize: 13.5, padding: "8px 13px", borderRadius: 10 }}>
+              {lang === "es" ? "Entendido" : "Got it"}
+            </button>
           </div>
         )}
         {/* view tabs live in the header (desktop) and a bottom bar (mobile) */}
@@ -1070,8 +1077,11 @@ export default function App() {
                   <h2 className="disp" style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>{t.savedEvents}</h2>
                   <div style={{ display: "grid", gap: 12 }}>
                     {savedEvents.map((e) => (
-                      <EventCard key={e.id} e={e} lang={lang} t={t} P={P} saved={saved.has(e.id)}
-                        onSave={() => toggle(setSaved, saved, e.id)} onOpen={() => setDetail(e)} />
+                      <div key={e.id} style={{ position: "relative" }}>
+                        {sharedEventIds.has(e.id) && <SharedBadge lang={lang} P={P} />}
+                        <EventCard e={e} lang={lang} t={t} P={P} saved={saved.has(e.id)}
+                          onSave={() => toggle(setSaved, saved, e.id)} onOpen={() => setDetail(e)} />
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -1081,13 +1091,23 @@ export default function App() {
                   <h2 className="disp" style={{ fontWeight: 700, margin: "0 0 10px", color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", fontSize: 13 }}>{t.savedPlaces}</h2>
                   <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                     {savedPlaceItems.map((it) => (
-                      <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
-                        saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)}
-                        onOpen={() => setPlaceDetail(it)} />
+                      <div key={it.name} style={{ position: "relative" }}>
+                        {sharedNames.has(it.name) && <SharedBadge lang={lang} P={P} />}
+                        <PlaceCard it={it} lang={lang} t={t} P={P}
+                          saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)}
+                          onOpen={() => setPlaceDetail(it)} />
+                      </div>
                     ))}
                   </div>
                 </section>
               )}
+              {/* Encourage building the trip out */}
+              <div style={{ textAlign: "center", marginTop: 20 }}>
+                <button onClick={() => setView("faves")}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14.5, padding: "12px 22px", borderRadius: 12, boxShadow: "0 4px 14px rgba(224,106,99,.28)" }}>
+                  <Search size={17} /> {lang === "es" ? "Agregar más de Recomendaciones locales" : "Add more from Local Picks"}
+                </button>
+              </div>
               </>
               )}
             </>
