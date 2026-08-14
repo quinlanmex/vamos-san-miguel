@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
-import { nearestNeighborhood, neighborhoodRegions, kmFromCentro, IN_TOWN_KM } from "../lib/neighborhoods";
+import { nearestNeighborhood, neighborhoodRegions, kmFromCentro, kmBetween, IN_TOWN_KM } from "../lib/neighborhoods";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
@@ -566,6 +566,41 @@ export default function App() {
   }, [savedPlaces, favLists]);
   const toggleSavePlace = (name) => toggle(setSavedPlaces, savedPlaces, name);
 
+  // ---- Shareable itinerary: encode saved picks + events + stay into a URL ----
+  const [incomingTrip, setIncomingTrip] = useState(null); // { p:[names], e:[ids], s:[lat,lng] }
+  const [shareMsg, setShareMsg] = useState("");
+  const b64u = {
+    enc: (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""),
+    dec: (s) => { try { return JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/"))))); } catch { return null; } },
+  };
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("trip");
+      if (!p) return;
+      const t = b64u.dec(p);
+      if (t && (t.p?.length || t.e?.length || t.s)) setIncomingTrip(t);
+      // Clean the URL so a refresh doesn't re-prompt.
+      window.history.replaceState({}, "", window.location.pathname);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  async function shareTrip() {
+    const payload = { p: [...savedPlaces], e: [...saved], ...(stay ? { s: stay } : {}) };
+    const url = `${window.location.origin}/?trip=${b64u.enc(payload)}`;
+    try {
+      if (navigator.share) { await navigator.share({ title: "My San Miguel trip", url }); return; }
+    } catch {}
+    try { await navigator.clipboard.writeText(url); setShareMsg(lang === "es" ? "¡Enlace copiado!" : "Link copied!"); setTimeout(() => setShareMsg(""), 2500); }
+    catch { setShareMsg(url); }
+  }
+  function importTrip() {
+    if (!incomingTrip) return;
+    if (incomingTrip.p?.length) setSavedPlaces((s) => new Set([...s, ...incomingTrip.p]));
+    if (incomingTrip.e?.length) setSaved((s) => new Set([...s, ...incomingTrip.e]));
+    if (incomingTrip.s && !stay) setStay(incomingTrip.s);
+    setView("saved"); setIncomingTrip(null);
+  }
+
   return (
     <div className={view === "faves" ? "has-filterbar" : ""} style={{ background: P.plaster, color: P.ink, minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif", transition: "background .2s ease, color .2s ease" }}>
       <style>{`
@@ -665,6 +700,25 @@ export default function App() {
       </header>
 
       <main className="wrap720" style={{ padding: "16px 18px 60px" }}>
+        {/* A friend shared a trip via link — offer to import it */}
+        {incomingTrip && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
+            background: P.card, border: `1px solid ${P.cobalt}`, borderRadius: 14, padding: "12px 16px", margin: "0 0 16px" }}>
+            <span style={{ fontSize: 14, color: P.ink, fontWeight: 600 }}>
+              {lang === "es"
+                ? `Un amigo te compartió un viaje: ${incomingTrip.p?.length || 0} lugares · ${incomingTrip.e?.length || 0} eventos.`
+                : `A friend shared a trip: ${incomingTrip.p?.length || 0} places · ${incomingTrip.e?.length || 0} events.`}
+            </span>
+            <span style={{ display: "flex", gap: 8 }}>
+              <button onClick={importTrip} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "8px 15px", borderRadius: 10 }}>
+                {lang === "es" ? "Agregar a mi viaje" : "Add to my trip"}
+              </button>
+              <button onClick={() => setIncomingTrip(null)} style={{ border: `1px solid ${P.line}`, background: "transparent", color: P.inkSoft, cursor: "pointer", fontWeight: 600, fontSize: 13.5, padding: "8px 13px", borderRadius: 10 }}>
+                {lang === "es" ? "Descartar" : "Dismiss"}
+              </button>
+            </span>
+          </div>
+        )}
         {/* view tabs live in the header (desktop) and a bottom bar (mobile) */}
 
         {view === "events" ? (
@@ -983,11 +1037,16 @@ export default function App() {
             </div>
           ) : (
             <>
-              {/* Toolbar: title + List/Map toggle (map = "My Trip" planner) */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, gap: 12 }}>
+              {/* Toolbar: title + Share + List/Map toggle (map = "My Trip" planner) */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, gap: 10, flexWrap: "wrap" }}>
                 <h2 className="disp" style={{ fontSize: 15, fontWeight: 800, margin: 0, color: P.ink }}>
                   {lang === "es" ? "Mi viaje" : "My Trip"}
                 </h2>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={shareTrip}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "6px 13px", borderRadius: 999 }}>
+                  <Share2 size={14} /> {shareMsg || (lang === "es" ? "Compartir viaje" : "Share trip")}
+                </button>
                 <div style={{ display: "flex", background: P.chipBg, border: `1px solid ${P.line}`, borderRadius: 999, padding: 3, flexShrink: 0 }}>
                   {[["list", ListIcon, t.listView], ["map", MapIcon, t.mapView]].map(([k, Ic, label]) => (
                     <button key={k} onClick={() => setSavedLayout(k)} aria-pressed={savedLayout === k}
@@ -997,6 +1056,7 @@ export default function App() {
                       <Ic size={14} /> {label}
                     </button>
                   ))}
+                </div>
                 </div>
               </div>
 
@@ -1266,6 +1326,9 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
   // Fit to the saved items only (stable), so dropping the stay pin doesn't re-zoom.
   const fitPts = [...placePins.map((p) => [p.lat, p.lng]), ...eventPins.map((e) => [e.lat, e.lng])];
   const center = stay || fitPts[0] || [20.9145, -100.7436];
+  // Rough walking time from the stay pin (~4.6 km/h on hilly cobblestones).
+  const walkFromStay = (lat, lng) => stay ? Math.max(1, Math.round(kmBetween(stay[0], stay[1], lat, lng) * 13)) : null;
+  const walkLabel = (lat, lng) => { const m = walkFromStay(lat, lng); return m == null ? null : (lang === "es" ? `~${m} min a pie` : `~${m} min walk`); };
 
   return (
     <div>
@@ -1282,7 +1345,7 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
           </button>
         )}
       </div>
-      <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(440px, 68vh, 640px)" }}>
+      <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(460px, 74vh, 700px)" }}>
         <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -1295,6 +1358,7 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
               <Popup>
                 <strong style={{ fontFamily: "Georgia, serif" }}>{p.name}</strong>
                 <br /><span style={{ color: "#6B5D4F" }}>{areaLabel(p, lang)}</span>
+                {stay && <><br /><span style={{ color: "#2F7A63", fontWeight: 600 }}>{walkLabel(p.lat, p.lng)}</span></>}
                 <br />
                 <button onClick={() => onOpenPlace(p)}
                   style={{ marginTop: 6, border: "none", background: pickColor(p), color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
@@ -1309,6 +1373,7 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
               <Popup>
                 <strong style={{ fontFamily: "Georgia, serif" }}>{e.title[lang]}</strong>
                 {e.venue && <><br /><span style={{ color: "#6B5D4F" }}>{e.venue}</span></>}
+                {stay && <><br /><span style={{ color: "#2F7A63", fontWeight: 600 }}>{walkLabel(e.lat, e.lng)}</span></>}
                 <br />
                 <button onClick={() => onOpenEvent(e)}
                   style={{ marginTop: 6, border: "none", background: (CATS[e.cat] || { c: P.cobalt }).c, color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
