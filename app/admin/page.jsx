@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 const P = { plaster: "#FAF6EF", card: "#fff", ink: "#2A211A", inkSoft: "#6B5D4F", cobalt: "#15539A", rosa: "#E11D74", marigold: "#F2A100", line: "#EAE2D4", green: "#2F7A63" };
 const CATS = [["musica","Music"],["cine","Film"],["tours","Tours"],["comunidad","Community"],["charlas","Talks"],["mercados","Markets"],["bienestar","Wellness"]];
-const LISTS = [["rest","Restaurant / Café"],["bar","Bar / Cantina"],["live","Live music / Venue"],
+const LISTS = [["rest","Restaurant / Café"],["bar","Bar / Cantina"],
   ["wellness","Wellness / Spa"],["parks","Park / Outdoors"],["culture","Arts & Culture"],["shopping","Shopping"]];
 const AUD = [["family","Family"],["teens","Teens"]];
 const DIET = [["vegetarian","Vegetarian"],["vegan","Vegan"]];

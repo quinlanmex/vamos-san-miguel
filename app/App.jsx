@@ -64,11 +64,10 @@ const DIET = {
 /* Cuisine facet (CUISINES) is imported from ../components/cuisines and shared with the admin. */
 
 /* Top-level Local Picks type facets, in display order (Restaurants first). */
-const TYPE_ORDER = ["rest", "bar", "live", "wellness", "parks", "culture", "shopping"];
+const TYPE_ORDER = ["rest", "bar", "wellness", "parks", "culture", "shopping"];
 const TYPE_LABEL_PLURAL = {
   rest: { en: "Restaurants & Cafés", es: "Restaurantes y cafés" },
   bar:  { en: "Bars",               es: "Bares" },
-  live: { en: "Venues",             es: "Lugares" },
   wellness: { en: "Wellness & Spas", es: "Bienestar y spas" },
   parks:    { en: "Parks & Outdoors", es: "Parques y aire libre" },
   culture:  { en: "Arts & Culture",  es: "Arte y cultura" },
