@@ -103,5 +103,26 @@
     "list_key": "parks", "category": "tours", "cuisine": ["family"],
     "desc_en": "The main square and beating heart of San Miguel — the place everything orbits, day and night.",
     "desc_es": "El Jardín Principal, corazón de San Miguel: el punto alrededor del cual gira todo, de día y de noche."
+  },
+  {
+    "name": "Fábrica La Aurora",
+    "query": "Fábrica La Aurora art design center San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "A former textile factory turned art & design center — dozens of galleries, studios, and design shops to wander.",
+    "desc_es": "Una antigua fábrica textil convertida en centro de arte y diseño: decenas de galerías, estudios y tiendas de diseño para recorrer."
+  },
+  {
+    "name": "Centro Cultural El Nigromante (Bellas Artes)",
+    "query": "Centro Cultural Ignacio Ramírez El Nigromante Bellas Artes San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "The Centro Cultural El Nigromante — galleries, murals, and a grand arcaded courtyard in a former convent.",
+    "desc_es": "El Centro Cultural El Nigromante: galerías, murales y un gran patio con arcos en un antiguo convento."
+  },
+  {
+    "name": "Instituto Allende",
+    "query": "Instituto Allende San Miguel de Allende",
+    "list_key": "culture", "category": "cine", "cuisine": [],
+    "desc_en": "A landmark art school and cultural campus, a cornerstone of San Miguel's arts scene since the 1950s.",
+    "desc_es": "Una escuela de arte emblemática y campus cultural, pilar de la escena artística de San Miguel desde los años cincuenta."
   }
 ]
