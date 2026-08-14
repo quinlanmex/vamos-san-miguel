@@ -481,6 +481,7 @@ export default function App() {
   const [eventLayout, setEventLayout] = useState("list"); // list | map
   const [picksLayout, setPicksLayout] = useState("list"); // list | map (Local Picks)
   const [savedLayout, setSavedLayout] = useState("list"); // list | map (Saved trip)
+  const [expandedLists, setExpandedLists] = useState(() => new Set()); // per-list "show all" on the Picks home
   const [stay, setStay] = useState(null); // [lat, lng] — where the visitor is staying (device-stored)
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
@@ -989,21 +990,37 @@ export default function App() {
                 <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "0 0 6px" }}>{t.none}</p>
                 <p style={{ margin: 0, fontSize: 14 }}>{t.noneHint}</p>
               </div>
-            ) : favFiltered.map((list) => (
+            ) : favFiltered.map((list) => {
+              // Favorites first (featured, by rank), then the rest. Show a curated top 10
+              // per section by default so the home doesn't dump 80+ cards at once.
+              const sorted = [...list.items].sort((a, b) =>
+                (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || (a.featured_rank ?? 9999) - (b.featured_rank ?? 9999));
+              const TOP = 10;
+              const expanded = expandedLists.has(list.key);
+              const shown = expanded ? sorted : sorted.slice(0, TOP);
+              return (
               <section key={list.key} style={{ marginBottom: 22 }}>
                 <h2 className="disp" style={{ fontSize: 17, fontWeight: 700, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 3, background: CATS[list.cat].c }} />
                   {list[lang]}
+                  {sorted.length > TOP && <span style={{ fontSize: 13, fontWeight: 600, color: P.inkSoft }}>· {lang === "es" ? `Top ${TOP} de ${sorted.length}` : `Top ${TOP} of ${sorted.length}`}</span>}
                 </h2>
                 <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-                  {list.items.map((it) => (
+                  {shown.map((it) => (
                     <PlaceCard key={it.name} it={it} lang={lang} t={t} P={P}
                       saved={savedPlaces.has(it.name)} onSave={() => toggleSavePlace(it.name)}
                       onOpen={() => setPlaceDetail(it)} />
                   ))}
                 </div>
+                {sorted.length > TOP && (
+                  <button onClick={() => setExpandedLists((s) => { const n = new Set(s); n.has(list.key) ? n.delete(list.key) : n.add(list.key); return n; })}
+                    style={{ marginTop: 12, border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13.5, padding: "9px 18px", borderRadius: 999 }}>
+                    {expanded ? (lang === "es" ? "Mostrar menos" : "Show less") : (lang === "es" ? `Ver los ${sorted.length}` : `Show all ${sorted.length}`)}
+                  </button>
+                )}
               </section>
-            ))}
+              );
+            })}
               </div>
             </div>
           </>
