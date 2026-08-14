@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { CUISINES, GOODFOR } from "../../../components/cuisines";
-import { nearestNeighborhood, kmFromCentro, IN_TOWN_KM } from "../../../lib/neighborhoods";
+import { NEIGHBORHOODS, nearestNeighborhood, kmFromCentro, IN_TOWN_KM } from "../../../lib/neighborhoods";
 import { Salad, Sprout } from "lucide-react";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
@@ -207,6 +207,19 @@ export default function Manage() {
     setDiscovering(false);
   }
 
+  const [driveTiming, setDriveTiming] = useState(false);
+  async function computeDriveTimes() {
+    setDriveTiming(true); setMsg(null);
+    try {
+      const r = await fetch("/api/drive-times", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Filled drive time for ${j.filled || 0} out-of-town pick(s)${j.note ? " · " + j.note : ""}.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setDriveTiming(false);
+  }
+
   const [geocoding, setGeocoding] = useState(false);
   async function geocodeEvents() {
     setGeocoding(true); setMsg(null);
@@ -350,6 +363,10 @@ export default function Manage() {
                   style={{ ...btn(P.green, !applying), marginLeft: "auto" }}>{applying ? "Applying…" : "Apply reviewed tags"}</button>
               )}
               {isPlace && (
+                <button onClick={computeDriveTimes} disabled={driveTiming} title="Fill real driving time from Centro for out-of-town picks (Google Distance Matrix)"
+                  style={btn("#B4791F", !driveTiming)}>{driveTiming ? "Computing…" : "Compute drive times"}</button>
+              )}
+              {isPlace && (
                 <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
                   style={btn(P.navy, !checking)}>{checking ? "Checking Google…" : "Check for closures"}</button>
               )}
@@ -405,6 +422,9 @@ export default function Manage() {
             </label>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <datalist id="qp-hoods">
+                {NEIGHBORHOODS.map((n) => <option key={n.name} value={n.name} />)}
+              </datalist>
               {rows.map((r) => {
                 const closed = r.business_status === "CLOSED_PERMANENTLY";
                 const live = r.status === "published" && !closed;
@@ -414,7 +434,9 @@ export default function Manage() {
                 const nbGeneric = !r.area || /^san miguel(\s+de\s+allende)?$/i.test(String(r.area).trim());
                 const nbOverride = nbGeneric ? "" : r.area;
                 const nbKm = (r.lat != null && r.lng != null) ? kmFromCentro(r.lat, r.lng) : null;
-                const nbAuto = nbKm == null ? "" : nbKm >= IN_TOWN_KM ? `${Math.round(nbKm * 4.8)} min from Centro` : (nearestNeighborhood(r.lat, r.lng) || "Centro");
+                const nbAuto = nbKm == null ? "" : nbKm >= IN_TOWN_KM
+                  ? (r.centro_min != null ? `${r.centro_min} min from Centro` : `~${Math.round(nbKm * 2.0)} min from Centro`)
+                  : (nearestNeighborhood(r.lat, r.lng) || "Centro");
                 return (
                 <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "10px 12px", opacity: live ? 1 : 0.62 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -475,14 +497,23 @@ export default function Manage() {
                   {isPlace && (
                     <div style={{ marginTop: 8, paddingLeft: 53, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
                       <span style={{ fontSize: 11.5, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>Neighborhood</span>
-                      <input key={`${r.id}-nb-${r.area || ""}`} defaultValue={nbOverride}
-                        placeholder={nbAuto ? `${nbAuto} (auto)` : "colonia"}
-                        onBlur={(e) => { const v = e.target.value.trim(); const cur = r.area || ""; if (v !== cur) patchRow(r.id, { area: v || null }); }}
-                        title="Type to override; leave blank to use the auto value. A manual value is never changed automatically."
+                      {/* Dropdown of all colonias (via datalist) that also accepts a custom name. Shows the
+                          current value; picking the auto value clears the override so it stays automatic. */}
+                      <input list="qp-hoods" key={`${r.id}-nb-${r.area || ""}`} defaultValue={nbOverride || nbAuto}
+                        placeholder="colonia"
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v === nbAuto || v === "") { if (!nbGeneric) patchRow(r.id, { area: null }); }
+                          else if (v !== (r.area || "")) patchRow(r.id, { area: v });
+                        }}
+                        title="Choose a colonia or type a custom name. Leave it on the auto value to stay automatic. A manual value is never changed automatically."
                         style={{ ...field, width: 210, padding: "5px 9px", fontSize: 12.5 }} />
-                      {!nbGeneric
-                        ? <button onClick={() => patchRow(r.id, { area: null })} style={{ border: "none", background: "transparent", color: P.coral, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>reset to auto</button>
-                        : <span style={{ fontSize: 11.5, color: "#B9AE9C" }}>auto</span>}
+                      <span style={{ fontSize: 11.5, color: nbGeneric ? "#B9AE9C" : P.green, fontWeight: nbGeneric ? 400 : 700 }}>
+                        {nbGeneric ? "auto" : "manual"}
+                      </span>
+                      {!nbGeneric && (
+                        <button onClick={() => patchRow(r.id, { area: null })} style={{ border: "none", background: "transparent", color: P.coral, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>reset to auto</button>
+                      )}
                     </div>
                   )}
                 </div>

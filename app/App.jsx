@@ -305,8 +305,10 @@ function areaLabel(it, lang) {
   if (it.lat != null && it.lng != null) {
     const km = kmFromCentro(it.lat, it.lng);
     if (km >= IN_TOWN_KM) {
-      const min = Math.max(5, Math.round(km * 4.8));
-      return lang === "es" ? `${min} min del Centro` : `${min} min from Centro`;
+      // Real driving time when we have it; otherwise a highway-speed estimate (marked ~).
+      if (it.centro_min != null) return lang === "es" ? `${it.centro_min} min del Centro` : `${it.centro_min} min from Centro`;
+      const min = Math.max(5, Math.round(km * 2.0));
+      return lang === "es" ? `~${min} min del Centro` : `~${min} min from Centro`;
     }
     return nearestNeighborhood(it.lat, it.lng) || "Centro";
   }
