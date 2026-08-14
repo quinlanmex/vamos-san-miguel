@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
@@ -302,16 +303,21 @@ function kmFromCentro(lat, lng) {
   const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(CENTRO[0])) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
+const IN_TOWN_KM = 4; // within this radius we show the neighborhood; beyond, a drive time
+function isGenericArea(area) { return !area || /^san miguel(\s+de\s+allende)?$/i.test(area); }
+
 function areaLabel(it, lang) {
   const area = (it.area || "").trim();
-  if (/centro/i.test(area)) return "Centro";
   if (it.lat != null && it.lng != null) {
     const km = kmFromCentro(it.lat, it.lng);
-    if (km < 0.75) return "Centro";
-    const min = Math.max(2, Math.round(km * 4.8)); // ~in-town driving pace
-    return lang === "es" ? `${min} min del Centro` : `${min} min from Centro`;
+    if (km >= IN_TOWN_KM) {
+      const min = Math.max(5, Math.round(km * 4.8)); // ~in-town driving pace
+      return lang === "es" ? `${min} min del Centro` : `${min} min from Centro`;
+    }
+    // In-town: show the neighborhood name if we have a real one, else Centro.
+    return isGenericArea(area) ? "Centro" : area;
   }
-  return area || "San Miguel de Allende";
+  return isGenericArea(area) ? "San Miguel de Allende" : area;
 }
 
 const catIcon = (color) =>
@@ -322,6 +328,57 @@ const catIcon = (color) =>
       box-shadow:0 2px 6px rgba(0,0,0,.35)"></span>`,
     iconSize: [22, 22], iconAnchor: [11, 22], popupAnchor: [0, -20],
   });
+
+/* ---- Neighborhood coloring + cuisine pins (map) ------------------- */
+const HOOD_COLORS = {
+  "Centro": "#E06A63", "San Antonio": "#2F7A63", "Guadiana": "#15539A",
+  "San Rafael": "#B4791F", "La Lejona": "#7A4FA3", "Los Frailes": "#C24E7A",
+  "Independencia": "#0D9488", "La Aurora": "#D97706", "Atascadero": "#4B6BAF",
+  "El Chorro": "#9A6A2F", "Countryside": "#8A7E6B",
+};
+const HOOD_OTHER = "#8A7E6B";
+function neighborhoodOf(it) {
+  if (it.lat != null && it.lng != null && kmFromCentro(it.lat, it.lng) >= IN_TOWN_KM) return "Countryside";
+  const a = (it.area || "").trim();
+  return isGenericArea(a) ? "Centro" : a;
+}
+const hoodColor = (name) => HOOD_COLORS[name] || HOOD_OTHER;
+
+// Primary-cuisine icon component for a pick (falls back to its type icon).
+function pickIconComp(it) {
+  const keys = it.list_key === "rest" ? (it.cuisine || []) : [];
+  const primary = keys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+  return primary ? CUISINES[primary].Icon : (PLACE_TYPE[it.list_key] || PLACE_TYPE.rest).Icon;
+}
+// Cache rendered icon SVG markup so we don't re-serialize per marker per render.
+const _glyphCache = {};
+function pickGlyph(it) {
+  const keys = it.list_key === "rest" ? (it.cuisine || []) : [];
+  const primary = keys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+  const cacheKey = primary || `type:${it.list_key || "rest"}`;
+  if (!_glyphCache[cacheKey]) {
+    const Ic = pickIconComp(it);
+    _glyphCache[cacheKey] = renderToStaticMarkup(<Ic size={15} color="#fff" strokeWidth={2.4} />);
+  }
+  return _glyphCache[cacheKey];
+}
+// Small colored dot when zoomed out; a cuisine-icon pin (colored by neighborhood) when zoomed in.
+function placeMarkerIcon(it, zoomedIn) {
+  const color = hoodColor(neighborhoodOf(it));
+  if (!zoomedIn) return catIcon(color);
+  return L.divIcon({
+    className: "qp-cpin",
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)">
+      <span style="transform:rotate(45deg);display:flex">${pickGlyph(it)}</span></span>`,
+    iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28],
+  });
+}
+function ZoomWatch({ onZoom }) {
+  const map = useMapEvents({ zoomend() { onZoom(map.getZoom()); } });
+  return null;
+}
+const ICON_ZOOM = 16; // at/above this zoom, pins show cuisine icons
 
 /* ---- Brand emblem: a simplified Parroquia de San Miguel Arcángel — three
  * spires + rose window, SMA's signature landmark. White on the cobalt band. --- */
@@ -463,6 +520,10 @@ export default function App() {
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
         .brandlogo { height: 58px; width: auto; max-width: 66vw; display: block; }
         @media (min-width: 680px) { .brandlogo { height: 92px; max-width: 440px; } }
+        /* Stopgap: clip the baked-in tagline band off the bottom of the logo image.
+           Tune --logo-crop (0 = none) if the wordmark or tagline shows through. */
+        .brandlogo-crop { --logo-crop: 0.28; display: block; overflow: hidden; height: calc(58px * (1 - var(--logo-crop))); line-height: 0; }
+        @media (min-width: 680px) { .brandlogo-crop { height: calc(92px * (1 - var(--logo-crop))); } }
         .hero-split { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 600px) { .hero-split { grid-template-columns: 1.25fr 1fr; } }
         .wrap720 { max-width: 720px; margin: 0 auto; }
@@ -501,11 +562,13 @@ export default function App() {
           <button type="button" aria-label={lang === "es" ? "Inicio" : "Home"}
             onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
             style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "block" }}>
-            <img
-              src={`/logo-${theme === "dark" ? "dark" : "light"}${lang === "es" ? "-es" : ""}.svg`}
-              onError={(e) => { const en = `/logo-${theme === "dark" ? "dark" : "light"}.svg`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
-              alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
-              className="brandlogo" />
+            <span className="brandlogo-crop">
+              <img
+                src={`/logo-${theme === "dark" ? "dark" : "light"}${lang === "es" ? "-es" : ""}.svg`}
+                onError={(e) => { const en = `/logo-${theme === "dark" ? "dark" : "light"}.svg`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
+                alt={lang === "es" ? "Vamos San Miguel — Eventos · Recomendaciones · Guía local" : "Vamos San Miguel — Events · Local Picks · Insider Guide"}
+                className="brandlogo" />
+            </span>
           </button>
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
             {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["saved", t.savedTab]].map(([k, label]) => {
@@ -1047,13 +1110,13 @@ function FitBoundsPts({ pts }) {
 }
 
 function PicksMap({ lists, lang, t, P, onOpen }) {
-  const pins = [];
-  lists.forEach((list) => {
-    const color = (CATS[list.cat] || {}).c || P.coral;
-    (list.items || []).forEach((it) => { if (it.lat && it.lng) pins.push({ it, color }); });
-  });
+  const [zoom, setZoom] = useState(15);
+  const zoomedIn = zoom >= ICON_ZOOM;
 
-  if (!pins.length) {
+  const items = [];
+  lists.forEach((list) => (list.items || []).forEach((it) => { if (it.lat && it.lng) items.push(it); }));
+
+  if (!items.length) {
     return (
       <div style={{ textAlign: "center", padding: "48px 20px", color: P.inkSoft, border: `1px dashed ${P.line}`, borderRadius: 16 }}>
         <MapIcon size={26} style={{ opacity: .5 }} />
@@ -1067,29 +1130,51 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
     );
   }
 
-  const pts = pins.map((p) => [p.it.lat, p.it.lng]);
+  const pts = items.map((it) => [it.lat, it.lng]);
+  // Legend: only the neighborhoods actually present, most common first.
+  const counts = {};
+  items.forEach((it) => { const h = neighborhoodOf(it); counts[h] = (counts[h] || 0) + 1; });
+  const hoods = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
   return (
-    <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(420px, 66vh, 620px)" }}>
-      <MapContainer center={pts[0]} zoom={15} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <FitBoundsPts pts={pts} />
-        {pins.map(({ it, color }, i) => (
-          <Marker key={it.name + i} position={[it.lat, it.lng]} icon={catIcon(color)}>
-            <Popup>
-              <strong style={{ fontFamily: "Georgia, serif" }}>{it.name}</strong>
-              {it.area && <><br /><span style={{ color: "#6B5D4F" }}>{it.area}</span></>}
-              <br />
-              <button onClick={() => onOpen(it)}
-                style={{ marginTop: 6, border: "none", background: color, color: "#fff", cursor: "pointer",
-                  padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
-                {t.details} →
-              </button>
-            </Popup>
-          </Marker>
+    <div>
+      <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(420px, 66vh, 620px)" }}>
+        <MapContainer center={pts[0]} zoom={15} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <FitBoundsPts pts={pts} />
+          <ZoomWatch onZoom={setZoom} />
+          {items.map((it, i) => (
+            <Marker key={it.name + i} position={[it.lat, it.lng]} icon={placeMarkerIcon(it, zoomedIn)}>
+              <Popup>
+                <strong style={{ fontFamily: "Georgia, serif" }}>{it.name}</strong>
+                <br /><span style={{ color: "#6B5D4F" }}>{areaLabel(it, lang)}</span>
+                <br />
+                <button onClick={() => onOpen(it)}
+                  style={{ marginTop: 6, border: "none", background: hoodColor(neighborhoodOf(it)), color: "#fff", cursor: "pointer",
+                    padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                  {t.details} →
+                </button>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+      {/* Neighborhood legend + zoom hint */}
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 12px", marginTop: 10 }}>
+        {hoods.map((h) => (
+          <span key={h} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: P.inkSoft, fontWeight: 600 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: hoodColor(h), flexShrink: 0 }} />
+            {h === "Countryside" ? (lang === "es" ? "Afueras" : "Countryside") : h}
+          </span>
         ))}
-      </MapContainer>
+        {!zoomedIn && (
+          <span style={{ fontSize: 12, color: "#B9AE9C", marginLeft: "auto" }}>
+            {lang === "es" ? "Acerca para ver íconos de cocina" : "Zoom in for cuisine icons"}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@
     { "path": "/api/check-closures", "schedule": "0 8 * * 1" },
     { "path": "/api/discover-events", "schedule": "0 9 * * *" },
     { "path": "/api/geocode-events", "schedule": "30 9 * * *" },
+    { "path": "/api/geocode-picks", "schedule": "0 7 * * 1" },
     { "path": "/api/sync-docs", "schedule": "0 10 * * *" }
   ]
 }

@@ -219,6 +219,19 @@ export default function Manage() {
     setGeocoding(false);
   }
 
+  const [labeling, setLabeling] = useState(false);
+  async function labelNeighborhoods() {
+    setLabeling(true); setMsg(null);
+    try {
+      const r = await fetch("/api/geocode-picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: `Labeled ${j.labeled || 0} pick(s) with a neighborhood${j.note ? " · " + j.note : ""}.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setLabeling(false);
+  }
+
   const [importingEv, setImportingEv] = useState(false);
   async function importEvents() {
     if (!confirm("Import the researched events? Verified ones publish; a few with inferred times come in as drafts. Only future events show on the site.")) return;
@@ -346,6 +359,10 @@ export default function Manage() {
               {isPlace && (
                 <button onClick={applyUpdates} disabled={applying} title="Apply the reviewed cuisine + views/vineyard tags"
                   style={{ ...btn(P.green, !applying), marginLeft: "auto" }}>{applying ? "Applying…" : "Apply reviewed tags"}</button>
+              )}
+              {isPlace && (
+                <button onClick={labelNeighborhoods} disabled={labeling} title="Fill in the neighborhood (colonia) for in-town picks by reverse-geocoding; never overwrites a neighborhood you set"
+                  style={btn("#B4791F", !labeling)}>{labeling ? "Labeling…" : "Label neighborhoods"}</button>
               )}
               {isPlace && (
                 <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
