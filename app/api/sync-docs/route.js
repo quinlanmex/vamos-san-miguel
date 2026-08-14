@@ -7,7 +7,7 @@ export const maxDuration = 120;
 // Google Docs -> website sync. Each articles row can point at a Google Doc via
 // google_doc_id; this pulls each mapped Doc, converts it to markdown, and writes
 // it to body_md. Runs on a daily cron and on-demand from the admin page.
-async function run() {
+export async function run() {
   const sb = supabaseAdmin();
   const { data: rows, error } = await sb
     .from("articles")

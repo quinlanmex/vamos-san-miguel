@@ -29,7 +29,7 @@ async function matrix(key, origins) {
   });
 }
 
-async function run() {
+export async function run() {
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!key) return { ok: false, error: "GOOGLE_MAPS_API_KEY not configured", status: 500 };
   const sb = supabaseAdmin();

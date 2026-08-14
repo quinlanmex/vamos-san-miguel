@@ -13,7 +13,7 @@ async function fetchStatus(placeId, key) {
   return (data.result && data.result.business_status) || "OPERATIONAL";
 }
 
-async function runCheck() {
+export async function runCheck() {
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!key) return { error: "GOOGLE_MAPS_API_KEY not configured", status: 500 };
   const sb = supabaseAdmin();

@@ -54,7 +54,7 @@ ${text}`;
   try { return JSON.parse(m[0]); } catch { return []; }
 }
 
-async function run() {
+export async function run() {
   if (!process.env.ANTHROPIC_API_KEY) return { error: "ANTHROPIC_API_KEY not configured", status: 500 };
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const sb = supabaseAdmin();
