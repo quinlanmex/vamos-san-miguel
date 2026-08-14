@@ -325,6 +325,39 @@ function neighborhoodOf(it) {
   return "Centro";
 }
 
+// Open-now status computed from Google Places periods, in San Miguel local time.
+function openStatus(hoursJson, lang) {
+  const periods = hoursJson && hoursJson.periods;
+  if (!periods || !periods.length) return null;
+  if (periods.length === 1 && periods[0].open && !periods[0].close && periods[0].open.time === "0000")
+    return { open: true, text: lang === "es" ? "Abierto 24 h" : "Open 24 hours" };
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Mexico_City", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+    const wd = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[parts.find((p) => p.type === "weekday").value];
+    const cur = parseInt(parts.find((p) => p.type === "hour").value) * 60 + parseInt(parts.find((p) => p.type === "minute").value);
+    const curMin = wd * 1440 + cur;
+    for (const p of periods) {
+      if (!p.open) continue;
+      const openMin = p.open.day * 1440 + parseInt(p.open.time.slice(0, 2)) * 60 + parseInt(p.open.time.slice(2));
+      let closeMin = p.close ? p.close.day * 1440 + parseInt(p.close.time.slice(0, 2)) * 60 + parseInt(p.close.time.slice(2)) : openMin + 1440;
+      if (closeMin <= openMin) closeMin += 7 * 1440;
+      if ((curMin >= openMin && curMin < closeMin) || (curMin + 7 * 1440 >= openMin && curMin + 7 * 1440 < closeMin))
+        return { open: true, text: lang === "es" ? "Abierto ahora" : "Open now" };
+    }
+    return { open: false, text: lang === "es" ? "Cerrado ahora" : "Closed now" };
+  } catch { return null; }
+}
+const ATTR_LABELS = {
+  reservable: { en: "Reservations", es: "Reservaciones" },
+  vegetarian: { en: "Vegetarian options", es: "Opciones vegetarianas" },
+  wheelchair: { en: "Wheelchair accessible", es: "Accesible en silla" },
+  beer: { en: "Beer", es: "Cerveza" },
+  wine: { en: "Wine", es: "Vino" },
+  takeout: { en: "Takeout", es: "Para llevar" },
+  delivery: { en: "Delivery", es: "A domicilio" },
+  dine_in: { en: "Dine-in", es: "Para comer aquí" },
+};
+
 const catIcon = (color) =>
   L.divIcon({
     className: "qp-pin",
@@ -1592,9 +1625,44 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
             </div>
           )}
 
+          {/* Attribute chips (from Google Places) — only show the ones that are true */}
+          {(() => {
+            const a = it.attrs || {};
+            const keys = Object.keys(ATTR_LABELS).filter((k) => a[k] === true);
+            if (!keys.length) return null;
+            return (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+                {keys.map((k) => (
+                  <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: "#2F7A63", background: "#EEF5F0", border: "1px solid #CFE3D6", borderRadius: 999, padding: "4px 11px" }}>
+                    <Check size={12} /> {ATTR_LABELS[k][lang]}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
+
           {/* Practical info */}
           <div style={{ marginTop: 14 }}>
-            {it.hours && <Row icon={Clock3}>{it.hours}</Row>}
+            {(() => {
+              const st = openStatus(it.hoursJson, lang);
+              const week = it.hoursJson && it.hoursJson.weekday_text;
+              if (!st && !week && !it.hours) return null;
+              return (
+                <details style={{ marginBottom: 4 }}>
+                  <summary style={{ display: "flex", alignItems: "center", gap: 9, cursor: week ? "pointer" : "default", listStyle: "none", fontSize: 14, color: P.inkSoft, padding: "5px 0" }}>
+                    <Clock3 size={15} style={{ flexShrink: 0, color: P.inkSoft }} />
+                    {st && <span style={{ fontWeight: 700, color: st.open ? "#2F7A63" : "#C0554E" }}>{st.text}</span>}
+                    {st && (week || it.hours) && <span style={{ color: "#B9AE9C" }}>·</span>}
+                    <span>{it.hours || (es ? "Ver horario" : "See hours")}</span>
+                  </summary>
+                  {week && (
+                    <div style={{ padding: "6px 0 4px 24px", display: "grid", gap: 2 }}>
+                      {week.map((line, i) => <span key={i} style={{ fontSize: 13, color: P.inkSoft }}>{line}</span>)}
+                    </div>
+                  )}
+                </details>
+              );
+            })()}
             {it.phone && <Row icon={Phone} href={`tel:${it.phone}`}>{it.phone}</Row>}
             {it.website && <Row icon={Globe} href={it.website}>{es ? "Sitio web" : "Website"}</Row>}
             {it.mapsUrl && <Row icon={MapPin} href={it.mapsUrl}>{es ? "Abrir en Google Maps" : "Open in Google Maps"}</Row>}
