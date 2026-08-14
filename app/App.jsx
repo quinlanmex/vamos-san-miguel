@@ -374,7 +374,7 @@ const CUISINE_COLOR = {
   mexican: "#D64545", italian: "#2F8F4E", asian: "#C7541F", peruvian: "#1E7FA8",
   argentinian: "#7A3E2E", mediterranean: "#1F9E89", international: "#5B6BB5",
   burgers: "#B4791F", breakfast: "#E0912F", cafe: "#8A5A2B", bakery: "#C77DAE",
-  dessert: "#D6608A",
+  dessert: "#D6608A", bbq: "#8C3B2B",
 };
 const TYPE_COLOR = { rest: "#D64545", bar: "#7A3E9E", live: "#15539A" };
 function pickColor(it) {

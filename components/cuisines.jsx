@@ -1,8 +1,20 @@
-import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus, Globe, Mountain, Grape } from "lucide-react";
+import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus, Globe, Mountain, Grape, Flame, Baby } from "lucide-react";
 
 // "Good for" amenity/feature facets (stored in the cuisine array, but shown as their own
 // group, since they coexist with a cuisine rather than replacing it).
-export const GOODFOR = ["coworking", "datenight", "groups", "views", "vineyard"];
+export const GOODFOR = ["coworking", "datenight", "groups", "family", "playground", "views", "vineyard"];
+
+// Lucide has no playground icon — a simple slide + ladder.
+export function Playground({ size = 24, color = "currentColor", ...props }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M5 21 V6" />
+      <path d="M5 6 L19 21" />
+      <path d="M5 21 H11" />
+      <path d="M5 10 H8 M5 13 H8 M5 16 H8" />
+    </svg>
+  );
+}
 
 // Lucide has no chili/pepper, so this is a hand-drawn one for the Mexican facet.
 // Horizontal crescent body tapering to a point on the left, stem curling up-right.
@@ -25,11 +37,14 @@ export const CUISINES = {
   peruvian:    { en: "Peruvian",             es: "Peruana",                   Icon: Fish },
   argentinian: { en: "Argentinian",          es: "Argentina",                 Icon: Beef },
   burgers:     { en: "Burgers & Sandwiches", es: "Hamburguesas y sándwiches", Icon: Sandwich },
+  bbq:         { en: "BBQ & Smokehouse",     es: "BBQ y ahumados",            Icon: Flame },
   breakfast:   { en: "Breakfast",            es: "Desayuno",                  Icon: EggFried },
   cafe:        { en: "Café & Coffee",        es: "Café",                      Icon: Coffee },
   coworking:   { en: "Coworking",            es: "Coworking",                 Icon: Laptop },
   datenight:   { en: "Date night",           es: "Cita romántica",            Icon: Heart },
   groups:      { en: "Groups",               es: "Grupos",                    Icon: Users },
+  family:      { en: "Family",               es: "Familia",                   Icon: Baby },
+  playground:  { en: "Playground",           es: "Juegos infantiles",         Icon: Playground },
   views:       { en: "Views",                es: "Vistas",                    Icon: Mountain },
   vineyard:    { en: "Vineyard",             es: "Viñedo",                    Icon: Grape },
   bakery:      { en: "Bakery",               es: "Panadería",                 Icon: Croissant },
