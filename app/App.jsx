@@ -1330,20 +1330,51 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
   const walkFromStay = (lat, lng) => stay ? Math.max(1, Math.round(kmBetween(stay[0], stay[1], lat, lng) * 13)) : null;
   const walkLabel = (lat, lng) => { const m = walkFromStay(lat, lng); return m == null ? null : (lang === "es" ? `~${m} min a pie` : `~${m} min walk`); };
 
+  // Set the stay pin from a typed hotel/address or a pasted map link / "lat, lng".
+  const [stayQuery, setStayQuery] = useState("");
+  const [staySearching, setStaySearching] = useState(false);
+  const [stayErr, setStayErr] = useState("");
+  async function setStayFromText(raw) {
+    const q = (raw || "").trim(); if (!q) return;
+    setStayErr("");
+    const m = q.match(/@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/) || q.match(/^(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)$/) || q.match(/[?&](?:q|query|ll)=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/);
+    if (m) { setStay([parseFloat(m[1]), parseFloat(m[2])]); setStayQuery(""); return; }
+    setStaySearching(true);
+    try {
+      const r = await fetch(`/api/geocode-address?q=${encodeURIComponent(q)}`);
+      const j = await r.json();
+      if (j.ok && j.lat && j.lng) { setStay([j.lat, j.lng]); setStayQuery(""); }
+      else setStayErr(lang === "es" ? "No encontramos ese lugar. Intenta con la dirección." : "Couldn't find that. Try the full address.");
+    } catch { setStayErr(lang === "es" ? "Error de búsqueda." : "Search error."); }
+    setStaySearching(false);
+  }
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
-        <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft }}>
-          {stay
-            ? (lang === "es" ? "Tu alojamiento está fijado. Toca el mapa para moverlo." : "Your stay is pinned. Tap the map to move it.")
-            : (lang === "es" ? "Toca el mapa para marcar dónde te hospedas." : "Tap the map to mark where you're staying.")}
-        </p>
-        {stay && (
-          <button onClick={() => setStay(null)}
-            style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "5px 12px", borderRadius: 999 }}>
-            {lang === "es" ? "Quitar alojamiento" : "Remove stay pin"}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input
+            value={stayQuery}
+            onChange={(e) => setStayQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") setStayFromText(stayQuery); }}
+            placeholder={lang === "es" ? "Hotel, dirección o enlace del mapa" : "Hotel name, address, or map link"}
+            style={{ flex: 1, minWidth: 200, padding: "9px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.card, color: P.ink }} />
+          <button onClick={() => setStayFromText(stayQuery)} disabled={staySearching || !stayQuery.trim()}
+            style={{ border: "none", background: staySearching || !stayQuery.trim() ? P.inkSoft : P.cobalt, color: "#fff", cursor: staySearching ? "default" : "pointer", fontWeight: 700, fontSize: 13.5, padding: "9px 16px", borderRadius: 10 }}>
+            {staySearching ? (lang === "es" ? "Buscando…" : "Finding…") : (lang === "es" ? "Fijar alojamiento" : "Set stay")}
           </button>
-        )}
+          {stay && (
+            <button onClick={() => { setStay(null); setStayErr(""); }}
+              style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "8px 12px", borderRadius: 10 }}>
+              {lang === "es" ? "Quitar" : "Remove"}
+            </button>
+          )}
+        </div>
+        <p style={{ margin: "6px 0 0", fontSize: 12.5, color: stayErr ? P.coral : P.inkSoft }}>
+          {stayErr || (stay
+            ? (lang === "es" ? "Alojamiento fijado. También puedes tocar el mapa para moverlo." : "Stay pinned. You can also tap the map to move it.")
+            : (lang === "es" ? "O toca el mapa para marcar dónde te hospedas." : "Or tap the map to drop your stay pin."))}
+        </p>
       </div>
       <div style={{ border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", height: "clamp(460px, 74vh, 700px)" }}>
         <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
