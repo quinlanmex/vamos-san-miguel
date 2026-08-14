@@ -1,0 +1,51 @@
+[
+  {
+    "name": "La Gruta",
+    "query": "La Gruta Spa hot springs San Miguel de Allende",
+    "list_key": "wellness", "category": "bienestar", "cuisine": ["family"],
+    "desc_en": "A beloved hot-springs spa just outside town, with warm thermal pools and a tunnel that opens into a domed grotto.",
+    "desc_es": "Un querido balneario de aguas termales a las afueras, con albercas tibias y un túnel que se abre a una gruta abovedada."
+  },
+  {
+    "name": "Haus",
+    "query": "Haus spa wellness San Miguel de Allende",
+    "list_key": "wellness", "category": "bienestar", "cuisine": [],
+    "desc_en": "A modern wellness spa for massage, treatments, and a calm reset.",
+    "desc_es": "Un spa de bienestar moderno para masajes, tratamientos y un respiro tranquilo."
+  },
+  {
+    "name": "Mama Mia Campestre",
+    "query": "Mama Mia Campestre San Miguel de Allende",
+    "list_key": "rest", "category": "mercados", "cuisine": ["mexican", "family", "groups"],
+    "desc_en": "The countryside outpost of a San Miguel classic — Mexican food, open-air tables, and room for the whole group.",
+    "desc_es": "La sede campestre de un clásico sanmiguelense: comida mexicana, mesas al aire libre y espacio para todo el grupo."
+  },
+  {
+    "name": "Smoked and Low",
+    "query": "Smoked and Low BBQ San Miguel de Allende",
+    "list_key": "rest", "category": "mercados", "cuisine": ["bbq"],
+    "desc_en": "Slow-smoked barbecue done low and slow — brisket, ribs, and proper smokehouse craft.",
+    "desc_es": "Barbacoa ahumada a fuego lento: brisket, costillas y el verdadero arte del ahumado."
+  },
+  {
+    "name": "Parque Juárez",
+    "query": "Parque Juárez San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "cuisine": ["family", "playground"],
+    "desc_en": "San Miguel's leafy central park — shaded paths, birdsong, a playground, and easy weekend life.",
+    "desc_es": "El frondoso parque central de San Miguel: senderos con sombra, cantos de aves, juegos infantiles y vida de fin de semana."
+  },
+  {
+    "name": "Xote Parque Acuático",
+    "query": "Xote Parque Acuático ecoparque San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "cuisine": ["family"],
+    "desc_en": "An eco water park with thermal pools and slides — a full family day out near town.",
+    "desc_es": "Un parque acuático ecológico con albercas termales y toboganes: un día completo en familia cerca del pueblo."
+  },
+  {
+    "name": "La Luciérnaga",
+    "query": "La Luciérnaga plaza comercial San Miguel de Allende",
+    "list_key": "shopping", "category": "mercados", "cuisine": ["family"],
+    "desc_en": "San Miguel's main shopping plaza — shops, a supermarket, restaurants, and a cinema under one roof.",
+    "desc_es": "La principal plaza comercial de San Miguel: tiendas, supermercado, restaurantes y cine en un mismo lugar."
+  }
+]
