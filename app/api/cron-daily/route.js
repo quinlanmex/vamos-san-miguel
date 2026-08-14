@@ -1,4 +1,5 @@
 import { run as discoverEvents } from "../discover-events/route";
+import { run as ingestNewsletters } from "../ingest-newsletters/route";
 import { run as geocodeEvents } from "../geocode-events/route";
 import { run as driveTimes } from "../drive-times/route";
 import { run as syncDocs } from "../sync-docs/route";
@@ -14,6 +15,7 @@ export const maxDuration = 300; // Pro allows up to 300s; Hobby caps at 60s (bes
 async function runAll() {
   const jobs = [
     ["discoverEvents", discoverEvents],   // pull new future events from public sources
+    ["ingestNewsletters", ingestNewsletters], // parse event newsletters from the shared inbox
     ["geocodeEvents", geocodeEvents],     // fill event map coordinates
     ["driveTimes", driveTimes],           // fill drive time from Centro for out-of-town picks
     ["syncDocs", syncDocs],               // pull guide edits from Google Docs
