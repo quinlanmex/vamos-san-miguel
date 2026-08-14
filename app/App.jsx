@@ -9,8 +9,9 @@ import {
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polygon, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
+import { nearestNeighborhood, neighborhoodRegions, kmFromCentro, IN_TOWN_KM } from "../lib/neighborhoods";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
@@ -293,58 +294,60 @@ function dateLabelFor(e, lang, t) {
     : `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]}`;
 }
 
-// Location label for picks. Centro spots show "Centro"; anything farther out shows an
-// estimated drive time from the Jardín. Distance is straight-line (haversine), so the
-// minutes are an approximation, not a routed driving time.
-const CENTRO = [20.9143, -100.7436]; // Jardín Principal / Parroquia
-function kmFromCentro(lat, lng) {
-  const R = 6371, toRad = (x) => (x * Math.PI) / 180;
-  const dLat = toRad(lat - CENTRO[0]), dLng = toRad(lng - CENTRO[1]);
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(CENTRO[0])) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(s));
-}
-const IN_TOWN_KM = 4; // within this radius we show the neighborhood; beyond, a drive time
+// Location label for picks. In-town spots show their colonia (assigned by nearest OSM
+// anchor, computed live); out-of-town spots show an estimated drive time from the Jardín.
+// A manually set area (anything that isn't blank/"San Miguel de Allende") always wins.
 function isGenericArea(area) { return !area || /^san miguel(\s+de\s+allende)?$/i.test(area); }
 
 function areaLabel(it, lang) {
   const area = (it.area || "").trim();
+  if (!isGenericArea(area)) return area; // manual override
   if (it.lat != null && it.lng != null) {
     const km = kmFromCentro(it.lat, it.lng);
     if (km >= IN_TOWN_KM) {
-      const min = Math.max(5, Math.round(km * 4.8)); // ~in-town driving pace
+      const min = Math.max(5, Math.round(km * 4.8));
       return lang === "es" ? `${min} min del Centro` : `${min} min from Centro`;
     }
-    // In-town: show the neighborhood name if we have a real one, else Centro.
-    return isGenericArea(area) ? "Centro" : area;
+    return nearestNeighborhood(it.lat, it.lng) || "Centro";
   }
-  return isGenericArea(area) ? "San Miguel de Allende" : area;
+  return "San Miguel de Allende";
+}
+// The colonia a pick belongs to (for map coloring/legend), respecting a manual override.
+function neighborhoodOf(it) {
+  const area = (it.area || "").trim();
+  if (!isGenericArea(area)) return area;
+  if (it.lat != null && it.lng != null) {
+    if (kmFromCentro(it.lat, it.lng) >= IN_TOWN_KM) return "Countryside";
+    return nearestNeighborhood(it.lat, it.lng) || "Centro";
+  }
+  return "Centro";
 }
 
 const catIcon = (color) =>
   L.divIcon({
     className: "qp-pin",
-    html: `<span style="display:block;width:22px;height:22px;border-radius:50% 50% 50% 0;
+    html: `<span style="display:block;width:20px;height:20px;border-radius:50% 50% 50% 0;
       transform:rotate(-45deg);background:${color};border:2.5px solid #fff;
       box-shadow:0 2px 6px rgba(0,0,0,.35)"></span>`,
-    iconSize: [22, 22], iconAnchor: [11, 22], popupAnchor: [0, -20],
+    iconSize: [20, 20], iconAnchor: [10, 20], popupAnchor: [0, -18],
   });
 
-/* ---- Neighborhood coloring + cuisine pins (map) ------------------- */
-const HOOD_COLORS = {
-  "Centro": "#E06A63", "San Antonio": "#2F7A63", "Guadiana": "#15539A",
-  "San Rafael": "#B4791F", "La Lejona": "#7A4FA3", "Los Frailes": "#C24E7A",
-  "Independencia": "#0D9488", "La Aurora": "#D97706", "Atascadero": "#4B6BAF",
-  "El Chorro": "#9A6A2F", "Countryside": "#8A7E6B",
+/* ---- Cuisine-colored pins (map) ----------------------------------- */
+// Each cuisine/type gets its own color so restaurant types are identifiable even zoomed
+// out. Neighborhoods are shown as soft regions instead (see PicksMap), not via pin color.
+const CUISINE_COLOR = {
+  mexican: "#D64545", italian: "#2F8F4E", asian: "#C7541F", peruvian: "#1E7FA8",
+  argentinian: "#7A3E2E", mediterranean: "#1F9E89", international: "#5B6BB5",
+  burgers: "#B4791F", breakfast: "#E0912F", cafe: "#8A5A2B", bakery: "#C77DAE",
+  dessert: "#D6608A",
 };
-const HOOD_OTHER = "#8A7E6B";
-function neighborhoodOf(it) {
-  if (it.lat != null && it.lng != null && kmFromCentro(it.lat, it.lng) >= IN_TOWN_KM) return "Countryside";
-  const a = (it.area || "").trim();
-  return isGenericArea(a) ? "Centro" : a;
+const TYPE_COLOR = { rest: "#D64545", bar: "#7A3E9E", live: "#15539A" };
+function pickColor(it) {
+  const keys = it.list_key === "rest" ? (it.cuisine || []) : [];
+  const primary = keys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+  if (primary && CUISINE_COLOR[primary]) return CUISINE_COLOR[primary];
+  return TYPE_COLOR[it.list_key] || TYPE_COLOR.rest;
 }
-const hoodColor = (name) => HOOD_COLORS[name] || HOOD_OTHER;
-
-// Primary-cuisine icon component for a pick (falls back to its type icon).
 function pickIconComp(it) {
   const keys = it.list_key === "rest" ? (it.cuisine || []) : [];
   const primary = keys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
@@ -362,9 +365,9 @@ function pickGlyph(it) {
   }
   return _glyphCache[cacheKey];
 }
-// Small colored dot when zoomed out; a cuisine-icon pin (colored by neighborhood) when zoomed in.
+// Colored dot when zoomed out; a cuisine-icon pin when zoomed in — both colored by cuisine.
 function placeMarkerIcon(it, zoomedIn) {
-  const color = hoodColor(neighborhoodOf(it));
+  const color = pickColor(it);
   if (!zoomedIn) return catIcon(color);
   return L.divIcon({
     className: "qp-cpin",
@@ -373,6 +376,14 @@ function placeMarkerIcon(it, zoomedIn) {
       <span style="transform:rotate(45deg);display:flex">${pickGlyph(it)}</span></span>`,
     iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28],
   });
+}
+// Legend entry (color + label) for a pick, by primary cuisine or type.
+function pickLegendKey(it, lang) {
+  const keys = it.list_key === "rest" ? (it.cuisine || []) : [];
+  const primary = keys.find((c) => !GOODFOR.includes(c) && CUISINES[c]);
+  if (primary && CUISINE_COLOR[primary]) return { key: primary, label: CUISINES[primary][lang], color: CUISINE_COLOR[primary] };
+  const pt = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
+  return { key: it.list_key || "rest", label: pt[lang], color: TYPE_COLOR[it.list_key] || TYPE_COLOR.rest };
 }
 function ZoomWatch({ onZoom }) {
   const map = useMapEvents({ zoomend() { onZoom(map.getZoom()); } });
@@ -1131,10 +1142,11 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
   }
 
   const pts = items.map((it) => [it.lat, it.lng]);
-  // Legend: only the neighborhoods actually present, most common first.
-  const counts = {};
-  items.forEach((it) => { const h = neighborhoodOf(it); counts[h] = (counts[h] || 0) + 1; });
-  const hoods = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  const regions = neighborhoodRegions();
+  // Legend by cuisine/type (matches pin colors), most common first.
+  const byKey = {};
+  items.forEach((it) => { const e = pickLegendKey(it, lang); (byKey[e.key] ||= { ...e, n: 0 }).n++; });
+  const legend = Object.values(byKey).sort((a, b) => b.n - a.n);
 
   return (
     <div>
@@ -1143,6 +1155,13 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {/* Soft neighborhood regions with borders + hover labels */}
+          {regions.map((r) => (
+            <Polygon key={r.name} positions={r.latlngs}
+              pathOptions={{ color: r.color, weight: 1.5, opacity: 0.7, fillColor: r.color, fillOpacity: 0.16 }}>
+              <Tooltip sticky opacity={1}>{r.name}</Tooltip>
+            </Polygon>
+          ))}
           <FitBoundsPts pts={pts} />
           <ZoomWatch onZoom={setZoom} />
           {items.map((it, i) => (
@@ -1152,7 +1171,7 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
                 <br /><span style={{ color: "#6B5D4F" }}>{areaLabel(it, lang)}</span>
                 <br />
                 <button onClick={() => onOpen(it)}
-                  style={{ marginTop: 6, border: "none", background: hoodColor(neighborhoodOf(it)), color: "#fff", cursor: "pointer",
+                  style={{ marginTop: 6, border: "none", background: pickColor(it), color: "#fff", cursor: "pointer",
                     padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
                   {t.details} →
                 </button>
@@ -1161,12 +1180,12 @@ function PicksMap({ lists, lang, t, P, onOpen }) {
           ))}
         </MapContainer>
       </div>
-      {/* Neighborhood legend + zoom hint */}
+      {/* Cuisine legend + zoom hint */}
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 12px", marginTop: 10 }}>
-        {hoods.map((h) => (
-          <span key={h} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: P.inkSoft, fontWeight: 600 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", background: hoodColor(h), flexShrink: 0 }} />
-            {h === "Countryside" ? (lang === "es" ? "Afueras" : "Countryside") : h}
+        {legend.map((e) => (
+          <span key={e.key} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: P.inkSoft, fontWeight: 600 }}>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: e.color, flexShrink: 0 }} />
+            {e.label}
           </span>
         ))}
         {!zoomedIn && (
@@ -1225,13 +1244,13 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
           <ClickToSetStay onSet={setStay} />
 
           {placePins.map((p, i) => (
-            <Marker key={"p" + p.name + i} position={[p.lat, p.lng]} icon={catIcon(P.coral)}>
+            <Marker key={"p" + p.name + i} position={[p.lat, p.lng]} icon={catIcon(pickColor(p))}>
               <Popup>
                 <strong style={{ fontFamily: "Georgia, serif" }}>{p.name}</strong>
-                {p.area && <><br /><span style={{ color: "#6B5D4F" }}>{p.area}</span></>}
+                <br /><span style={{ color: "#6B5D4F" }}>{areaLabel(p, lang)}</span>
                 <br />
                 <button onClick={() => onOpenPlace(p)}
-                  style={{ marginTop: 6, border: "none", background: P.coral, color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
+                  style={{ marginTop: 6, border: "none", background: pickColor(p), color: "#fff", cursor: "pointer", padding: "5px 10px", borderRadius: 8, fontSize: 12.5, fontWeight: 600 }}>
                   {t.details} →
                 </button>
               </Popup>

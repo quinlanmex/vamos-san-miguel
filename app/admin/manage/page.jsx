@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { CUISINES, GOODFOR } from "../../../components/cuisines";
+import { nearestNeighborhood, kmFromCentro, IN_TOWN_KM } from "../../../lib/neighborhoods";
 import { Salad, Sprout } from "lucide-react";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
@@ -219,18 +220,6 @@ export default function Manage() {
     setGeocoding(false);
   }
 
-  const [labeling, setLabeling] = useState(false);
-  async function labelNeighborhoods() {
-    setLabeling(true); setMsg(null);
-    try {
-      const r = await fetch("/api/geocode-picks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || "Failed");
-      await load();
-      setMsg({ type: "ok", text: `Labeled ${j.labeled || 0} pick(s) with a neighborhood${j.note ? " · " + j.note : ""}.` });
-    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
-    setLabeling(false);
-  }
 
   const [importingEv, setImportingEv] = useState(false);
   async function importEvents() {
@@ -361,10 +350,6 @@ export default function Manage() {
                   style={{ ...btn(P.green, !applying), marginLeft: "auto" }}>{applying ? "Applying…" : "Apply reviewed tags"}</button>
               )}
               {isPlace && (
-                <button onClick={labelNeighborhoods} disabled={labeling} title="Fill in the neighborhood (colonia) for in-town picks by reverse-geocoding; never overwrites a neighborhood you set"
-                  style={btn("#B4791F", !labeling)}>{labeling ? "Labeling…" : "Label neighborhoods"}</button>
-              )}
-              {isPlace && (
                 <button onClick={checkClosures} disabled={checking} title="Check every pick against Google for permanent closures"
                   style={btn(P.navy, !checking)}>{checking ? "Checking Google…" : "Check for closures"}</button>
               )}
@@ -425,6 +410,11 @@ export default function Manage() {
                 const live = r.status === "published" && !closed;
                 const noCuisine = isPlace && r.list_key === "rest" && !(r.cuisine || []).some((c) => !GOODFOR.includes(c));
                 const closedOn = r.closed_at ? new Date(r.closed_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null;
+                // Neighborhood: manual override (r.area if it's a real colonia) vs the live auto value.
+                const nbGeneric = !r.area || /^san miguel(\s+de\s+allende)?$/i.test(String(r.area).trim());
+                const nbOverride = nbGeneric ? "" : r.area;
+                const nbKm = (r.lat != null && r.lng != null) ? kmFromCentro(r.lat, r.lng) : null;
+                const nbAuto = nbKm == null ? "" : nbKm >= IN_TOWN_KM ? `${Math.round(nbKm * 4.8)} min from Centro` : (nearestNeighborhood(r.lat, r.lng) || "Centro");
                 return (
                 <div key={r.id} style={{ background: closed ? "#FBEEEC" : P.card, border: `1px solid ${closed ? P.coral + "55" : P.line}`, borderRadius: 11, padding: "10px 12px", opacity: live ? 1 : 0.62 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -480,6 +470,19 @@ export default function Manage() {
                       {DIET.map(([k, l, Ic]) => { const on = (r.diet || []).includes(k); return (
                         <button key={k} onClick={() => toggleIn(r, "diet", k)} style={mini(on, P.green)}><Ic size={11} /> {l}</button>
                       ); })}
+                    </div>
+                  )}
+                  {isPlace && (
+                    <div style={{ marginTop: 8, paddingLeft: 53, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>Neighborhood</span>
+                      <input key={`${r.id}-nb-${r.area || ""}`} defaultValue={nbOverride}
+                        placeholder={nbAuto ? `${nbAuto} (auto)` : "colonia"}
+                        onBlur={(e) => { const v = e.target.value.trim(); const cur = r.area || ""; if (v !== cur) patchRow(r.id, { area: v || null }); }}
+                        title="Type to override; leave blank to use the auto value. A manual value is never changed automatically."
+                        style={{ ...field, width: 210, padding: "5px 9px", fontSize: 12.5 }} />
+                      {!nbGeneric
+                        ? <button onClick={() => patchRow(r.id, { area: null })} style={{ border: "none", background: "transparent", color: P.coral, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>reset to auto</button>
+                        : <span style={{ fontSize: 11.5, color: "#B9AE9C" }}>auto</span>}
                     </div>
                   )}
                 </div>
