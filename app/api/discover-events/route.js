@@ -12,6 +12,7 @@ const SOURCES = [
   "https://discoversma.com/events/list/",
   "https://discoversma.com/events/month/",
   "https://labibliotecapublica.org/taquilla/",
+  "https://mexiconewsdaily.com/events/san-miguel-de-allende/",
 ];
 const CATS = ["musica", "cine", "tours", "comunidad", "charlas", "mercados", "bienestar"];
 
@@ -32,7 +33,7 @@ async function fetchText(url) {
       .replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 30000);
+      .slice(0, 45000);
   } catch { return null; }
 }
 
