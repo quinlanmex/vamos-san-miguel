@@ -3,6 +3,7 @@ import { run as ingestNewsletters } from "../ingest-newsletters/route";
 import { run as geocodeEvents } from "../geocode-events/route";
 import { run as driveTimes } from "../drive-times/route";
 import { run as enrichPicks } from "../enrich-picks/route";
+import { run as draftPicks } from "../draft-picks/route";
 import { run as syncDocs } from "../sync-docs/route";
 import { runCheck as checkClosures } from "../check-closures/route";
 
@@ -20,6 +21,7 @@ async function runAll() {
     ["geocodeEvents", geocodeEvents],     // fill event map coordinates
     ["driveTimes", driveTimes],           // fill drive time from Centro for out-of-town picks
     ["enrichPicks", enrichPicks],         // pull hours + practical attributes for picks
+    ["draftPicks", draftPicks],           // draft editorial notes for picks that lack them
     ["syncDocs", syncDocs],               // pull guide edits from Google Docs
     ["checkClosures", checkClosures],     // hide permanently-closed picks
   ];
