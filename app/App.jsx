@@ -292,6 +292,28 @@ function dateLabelFor(e, lang, t) {
     : `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]}`;
 }
 
+// Location label for picks. Centro spots show "Centro"; anything farther out shows an
+// estimated drive time from the Jardín. Distance is straight-line (haversine), so the
+// minutes are an approximation, not a routed driving time.
+const CENTRO = [20.9143, -100.7436]; // Jardín Principal / Parroquia
+function kmFromCentro(lat, lng) {
+  const R = 6371, toRad = (x) => (x * Math.PI) / 180;
+  const dLat = toRad(lat - CENTRO[0]), dLng = toRad(lng - CENTRO[1]);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(CENTRO[0])) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+function areaLabel(it, lang) {
+  const area = (it.area || "").trim();
+  if (/centro/i.test(area)) return "Centro";
+  if (it.lat != null && it.lng != null) {
+    const km = kmFromCentro(it.lat, it.lng);
+    if (km < 0.75) return "Centro";
+    const min = Math.max(2, Math.round(km * 4.8)); // ~in-town driving pace
+    return lang === "es" ? `${min} min del Centro` : `${min} min from Centro`;
+  }
+  return area || "San Miguel de Allende";
+}
+
 const catIcon = (color) =>
   L.divIcon({
     className: "qp-pin",
@@ -733,7 +755,7 @@ export default function App() {
                         )}
                       </span>
                       <h3 style={{ fontFamily: "Georgia, serif", fontSize: 25, margin: "10px 0 3px", textShadow: "0 2px 16px rgba(0,0,0,.45)" }}>{f.name}</h3>
-                      <p style={{ margin: 0, fontSize: 13.5, opacity: .9 }}>{f.area}</p>
+                      <p style={{ margin: 0, fontSize: 13.5, opacity: .9 }}>{areaLabel(f, lang)}</p>
                     </div>
                   </div>
                   <div style={{ padding: "22px", display: "flex", flexDirection: "column", justifyContent: "center", background: P.card }}>
@@ -1355,7 +1377,7 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
         <h3 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, fontWeight: 700, margin: "3px 0 5px", lineHeight: 1.15, letterSpacing: "-.01em" }}>{it.name}</h3>
         {it[lang] && <p style={{ fontSize: 13, color: P.inkSoft, margin: "0 0 10px", lineHeight: 1.45 }}>{it[lang]}</p>}
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: P.inkSoft }}>
-          <MapPin size={12} /> {it.area}
+          <MapPin size={12} /> {areaLabel(it, lang)}
           {it.diet && it.diet.length > 0 && <span style={{ color: P.agave || "#2F7A63", fontWeight: 700, marginLeft: 6 }}>· {it.diet.includes("vegan") ? "Vegan" : "Veg"}</span>}
         </div>
       </div>
@@ -1431,7 +1453,7 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
                 {ty[lang]}{priceStr && <span style={{ color: P.inkSoft, marginLeft: 8 }}>{priceStr}</span>}
               </span>
               <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, margin: "3px 0 4px", lineHeight: 1.12 }}>{it.name}</h2>
-              <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, display: "flex", alignItems: "center", gap: 5 }}><MapPin size={13} /> {it.area}</p>
+              <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, display: "flex", alignItems: "center", gap: 5 }}><MapPin size={13} /> {areaLabel(it, lang)}</p>
             </div>
             <button onClick={onSave} aria-pressed={saved}
               style={{ flexShrink: 0, border: `1px solid ${saved ? P.coral : P.line}`, cursor: "pointer", background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.ink, fontWeight: 700, fontSize: 13.5, padding: "9px 14px", borderRadius: 11, display: "flex", alignItems: "center", gap: 6 }}>
