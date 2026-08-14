@@ -5,7 +5,7 @@ import {
   Music, Clapperboard, Footprints, Users, MessagesSquare, ShoppingBasket, Waves,
   Map as MapIcon, List as ListIcon, CalendarPlus, Share2, ExternalLink,
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
-  Utensils, Wine, Palette,
+  Utensils, Wine, Palette, Trees, Drama, ShoppingBag,
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
@@ -64,12 +64,18 @@ const DIET = {
 /* Cuisine facet (CUISINES) is imported from ../components/cuisines and shared with the admin. */
 
 /* Top-level Local Picks type facets, in display order (Restaurants first). */
-const TYPE_ORDER = ["rest", "bar", "live"];
+const TYPE_ORDER = ["rest", "bar", "live", "wellness", "parks", "culture", "shopping"];
 const TYPE_LABEL_PLURAL = {
   rest: { en: "Restaurants & Cafés", es: "Restaurantes y cafés" },
   bar:  { en: "Bars",               es: "Bares" },
   live: { en: "Venues",             es: "Lugares" },
+  wellness: { en: "Wellness & Spas", es: "Bienestar y spas" },
+  parks:    { en: "Parks & Outdoors", es: "Parques y aire libre" },
+  culture:  { en: "Arts & Culture",  es: "Arte y cultura" },
+  shopping: { en: "Shopping",        es: "Compras" },
 };
+// Types that have "good for" facets (family/playground/views) but no cuisine sub-filter.
+const EXPERIENTIAL_TYPES = ["wellness", "parks", "culture", "shopping"];
 
 /* Seed / offline fallback — the app loads live data from Supabase and only
  * uses these if the fetch is unavailable or empty.
@@ -1423,45 +1429,46 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
       </div>
 
       {favType === "rest" && (
-        <>
-          <div>
-            <Label>{lang === "es" ? "Cocina" : "Cuisine"}</Label>
-            <div className="catrow">
-              {cuisines.map((k) => {
-                const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
-                return (
-                  <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
-                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
-                    <Ic size={13} /> {CUISINES[k][lang]}
-                  </button>
-                );
-              })}
-            </div>
+        <div>
+          <Label>{lang === "es" ? "Cocina" : "Cuisine"}</Label>
+          <div className="catrow">
+            {cuisines.map((k) => {
+              const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
+              return (
+                <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
+                  style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? P.coral : P.line}`, background: on ? P.coral : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                  <Ic size={13} /> {CUISINES[k][lang]}
+                </button>
+              );
+            })}
           </div>
-          <div>
-            <Label>{lang === "es" ? "Ideal para" : "Good for"}</Label>
-            <div className="catrow">
-              {GOODFOR.map((k) => {
-                const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
-                return (
-                  <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
-                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
-                    <Ic size={13} /> {CUISINES[k][lang]}
-                  </button>
-                );
-              })}
-              {Object.entries(DIET).map(([k, dt]) => {
-                const on = favDiet.has(k); const Ic = dt.Icon;
-                return (
-                  <button key={k} onClick={() => flip(setFavDiet, favDiet, k)}
-                    style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
-                    <Ic size={13} /> {dt[lang]}
-                  </button>
-                );
-              })}
-            </div>
+        </div>
+      )}
+
+      {(favType === "rest" || EXPERIENTIAL_TYPES.includes(favType)) && (
+        <div>
+          <Label>{lang === "es" ? "Ideal para" : "Good for"}</Label>
+          <div className="catrow">
+            {(favType === "rest" ? GOODFOR : ["family", "playground", "groups", "views"]).map((k) => {
+              const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
+              return (
+                <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}
+                  style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
+                  <Ic size={13} /> {CUISINES[k][lang]}
+                </button>
+              );
+            })}
+            {favType === "rest" && Object.entries(DIET).map(([k, dt]) => {
+              const on = favDiet.has(k); const Ic = dt.Icon;
+              return (
+                <button key={k} onClick={() => flip(setFavDiet, favDiet, k)}
+                  style={{ ...base, padding: "5px 12px", fontSize: 13, fontWeight: 600, border: `1px solid ${on ? GREEN : "#CFE3D6"}`, background: on ? GREEN : "#EEF5F0", color: on ? "#fff" : GREEN }}>
+                  <Ic size={13} /> {dt[lang]}
+                </button>
+              );
+            })}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -1473,6 +1480,10 @@ const PLACE_TYPE = {
   bar: { en: "Bar", es: "Bar", Icon: Wine },
   live: { en: "Venue", es: "Lugar", Icon: Palette },
   market: { en: "Market", es: "Mercado", Icon: ShoppingBasket },
+  wellness: { en: "Wellness", es: "Bienestar", Icon: Waves },
+  parks: { en: "Park", es: "Parque", Icon: Trees },
+  culture: { en: "Arts & Culture", es: "Arte y cultura", Icon: Drama },
+  shopping: { en: "Shopping", es: "Compras", Icon: ShoppingBag },
 };
 
 function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {

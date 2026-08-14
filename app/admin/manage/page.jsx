@@ -7,7 +7,8 @@ import { Salad, Sprout } from "lucide-react";
 
 const P = { navy: "#0D1B36", coral: "#E06A63", cream: "#F7F3EC", card: "#fff", ink: "#241C14", inkSoft: "#6E604F", line: "#E7DDCB", green: "#2F7A63" };
 const CATS = [["musica", "Music"], ["cine", "Film"], ["tours", "Tours"], ["comunidad", "Community"], ["charlas", "Talks"], ["mercados", "Markets"], ["bienestar", "Wellness"]];
-const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"]];
+const LISTS = [["rest", "Restaurant / Café"], ["bar", "Bar / Cantina"], ["live", "Live music / Venue"],
+  ["wellness", "Wellness / Spa"], ["parks", "Park / Outdoors"], ["culture", "Arts & Culture"], ["shopping", "Shopping"]];
 const LIST_LABEL = Object.fromEntries(LISTS);
 const AUD = [["family", "Family"], ["teens", "Teens"]];
 const DIET = [["vegetarian", "Vegetarian", Salad], ["vegan", "Vegan", Sprout]];
