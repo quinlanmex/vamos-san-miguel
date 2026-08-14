@@ -38,15 +38,21 @@ async function fetchText(url) {
 }
 
 async function extract(anthropic, text, source, todayStr) {
-  const prompt = `Today is ${todayStr}. Below is the visible text of a San Miguel de Allende (Mexico) events page. Extract only REAL upcoming events that have a clear future date on this page (from today through the next ~16 weeks). Never include events dated before ${todayStr}. Do NOT invent anything. Return ONLY a JSON array (no prose). Each item:
-{"title_en": string, "title_es": string|null, "blurb_en": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null}
-If there are no datable events, return []. Source: ${source}
+  const prompt = `Today is ${todayStr}. Below is the visible text of a San Miguel de Allende (Mexico) events page (an aggregator). Extract only REAL upcoming events that have a clear future date on this page (from today through the next ~16 weeks). Never include events dated before ${todayStr}. Do NOT invent anything.
+
+IMPORTANT:
+- Write the "blurb_en" in your OWN words as a short original description. Do NOT copy sentences from the page.
+- For "source_name" and "source_url", identify the event's ORIGINAL source — the organizer, venue, presenter, or ticket/organizer link listed for the event. Do NOT use the aggregator itself (never "Mexico News Daily", "AllEvents", etc.) as the source. If no original source is shown, use null.
+
+Return ONLY a JSON array (no prose). Each item:
+{"title_en": string, "title_es": string|null, "blurb_en": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null, "source_name": string|null, "source_url": string|null}
+If there are no datable events, return [].
 
 PAGE TEXT:
 ${text}`;
   const msg = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 3000,
+    max_tokens: 3500,
     messages: [{ role: "user", content: prompt }],
   });
   const raw = (msg.content || []).map((b) => (b.type === "text" ? b.text : "")).join("");
@@ -91,7 +97,12 @@ export async function run() {
         category: e.category, audience: [],
         start_date: e.start_date || null, end_date: e.end_date || e.start_date || null, start_time: e.start_time || null,
         recurring: !!e.recurring, venue: e.venue || null, area: e.area || null,
-        origin_name: "Auto-discovered", origin_url: source, discovered_via: "auto-discover", photo_url: null, lat: null, lng: null,
+        // Attribute to the event's ORIGINAL organizer/venue (never the aggregator we scraped).
+        // The aggregator host is kept only internally in discovered_via, not shown publicly.
+        origin_name: e.source_name || e.venue || null,
+        origin_url: (e.source_url && /^https?:\/\//.test(e.source_url)) ? e.source_url : null,
+        discovered_via: (() => { try { return "auto:" + new URL(source).hostname; } catch { return "auto-discover"; } })(),
+        photo_url: null, lat: null, lng: null,
       });
     }
   }
