@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Comunidad Pickleball",
+    "query": "Comunidad Pickleball San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "add": ["groups", "family"],
+    "desc_en": "Community pickleball courts — open play, lessons, and a friendly local scene.",
+    "desc_es": "Canchas comunitarias de pickleball: juego abierto, clases y un ambiente local amistoso."
+  },
+  {
+    "name": "El Bosque Deportivo",
+    "query": "El Bosque parque deportivo San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "add": ["playground", "family", "groups"],
+    "desc_en": "A sprawling sports park with courts, fields, and a playground. A little run-down, but honestly a great place for recreation.",
+    "desc_es": "Un amplio parque deportivo con canchas, campos y juegos infantiles. Un poco descuidado, pero honestamente un gran lugar para la recreación."
+  },
+  {
+    "name": "Unidad Deportiva (Carretera a Celaya)",
+    "query": "unidad deportiva carretera a Celaya San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "add": ["playground", "family", "groups"],
+    "desc_en": "A big sports complex out toward Celaya — fields, courts, and a playground. Also a bit worn, but plenty of room to play.",
+    "desc_es": "Un gran complejo deportivo rumbo a Celaya: campos, canchas y juegos infantiles. También algo desgastado, pero con mucho espacio para jugar."
+  },
+  {
+    "name": "El Charco del Ingenio",
+    "query": "El Charco del Ingenio jardín botánico San Miguel de Allende",
+    "list_key": "parks", "category": "tours", "add": ["family", "views"],
+    "desc_en": "San Miguel's botanical garden and nature reserve — cactus collections, trails, a reservoir, and big country views above town.",
+    "desc_es": "El jardín botánico y reserva natural de San Miguel: colecciones de cactáceas, senderos, una presa y amplias vistas del campo sobre el pueblo."
+  }
+]
