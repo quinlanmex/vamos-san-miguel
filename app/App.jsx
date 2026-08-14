@@ -1449,7 +1449,7 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
         <div>
           <Label>{lang === "es" ? "Ideal para" : "Good for"}</Label>
           <div className="catrow">
-            {(favType === "rest" ? GOODFOR : ["family", "playground", "groups", "views"]).map((k) => {
+            {(favType === "rest" ? GOODFOR : ["family", "playground", "groups", "livemusic", "views"]).map((k) => {
               const on = favCuisine.has(k); const Ic = CUISINES[k].Icon;
               return (
                 <button key={k} onClick={() => flip(setFavCuisine, favCuisine, k)}

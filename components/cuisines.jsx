@@ -1,8 +1,8 @@
-import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus, Globe, Mountain, Grape, Flame, Baby } from "lucide-react";
+import { Pizza, Coffee, Croissant, IceCreamCone, Sandwich, Beef, Fish, EggFried, Soup, Laptop, Heart, Users, Citrus, Globe, Mountain, Grape, Flame, Baby, Music } from "lucide-react";
 
 // "Good for" amenity/feature facets (stored in the cuisine array, but shown as their own
 // group, since they coexist with a cuisine rather than replacing it).
-export const GOODFOR = ["coworking", "datenight", "groups", "family", "playground", "views", "vineyard"];
+export const GOODFOR = ["coworking", "datenight", "groups", "livemusic", "family", "playground", "views", "vineyard"];
 
 // Lucide has no playground icon — a simple slide + ladder.
 export function Playground({ size = 24, color = "currentColor", ...props }) {
@@ -43,6 +43,7 @@ export const CUISINES = {
   coworking:   { en: "Coworking",            es: "Coworking",                 Icon: Laptop },
   datenight:   { en: "Date night",           es: "Cita romántica",            Icon: Heart },
   groups:      { en: "Groups",               es: "Grupos",                    Icon: Users },
+  livemusic:   { en: "Live music",           es: "Música en vivo",            Icon: Music },
   family:      { en: "Family",               es: "Familia",                   Icon: Baby },
   playground:  { en: "Playground",           es: "Juegos infantiles",         Icon: Playground },
   views:       { en: "Views",                es: "Vistas",                    Icon: Mountain },
