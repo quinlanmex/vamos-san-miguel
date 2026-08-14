@@ -11,6 +11,7 @@ const SOURCES = [
   "https://discoversma.com/events/",
   "https://discoversma.com/events/list/",
   "https://discoversma.com/events/month/",
+  "https://labibliotecapublica.org/taquilla/",
 ];
 const CATS = ["musica", "cine", "tours", "comunidad", "charlas", "mercados", "bienestar"];
 
