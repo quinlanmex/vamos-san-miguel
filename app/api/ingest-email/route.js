@@ -43,7 +43,8 @@ async function readBody(req) {
 
 async function extract(anthropic, text, subject, todayStr) {
   const prompt = `Today is ${todayStr}. Below is the text of an email newsletter about events in San Miguel de Allende (Mexico), subject "${subject || ""}". Extract only REAL events with a clear future date (today through ~16 weeks out). Never include events dated before ${todayStr}. Do NOT invent anything. Return ONLY a JSON array (no prose). Each item:
-{"title_en": string, "title_es": string|null, "blurb_en": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null}
+Provide BOTH English and natural Mexican-Spanish for the title and blurb.
+{"title_en": string, "title_es": string, "blurb_en": string, "blurb_es": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null, "price_es": string|null}
 If there are no datable future events, return [].
 
 EMAIL TEXT:
@@ -97,8 +98,8 @@ async function handle(req) {
     rows.push({
       status: "published",
       title_en: e.title_en, title_es: e.title_es || null,
-      blurb_en: e.blurb_en || null, blurb_es: null,
-      price_en: e.price_en || null, price_es: null,
+      blurb_en: e.blurb_en || null, blurb_es: e.blurb_es || null,
+      price_en: e.price_en || null, price_es: e.price_es || null,
       category: e.category, audience: [],
       start_date: e.start_date || null, end_date: e.end_date || e.start_date || null, start_time: e.start_time || null,
       recurring: !!e.recurring, venue: e.venue || null, area: e.area || null,

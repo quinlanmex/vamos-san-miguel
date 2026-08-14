@@ -548,14 +548,18 @@ export default function Manage() {
                   <div><label style={label}>Price</label><select style={field} value={editing.price_level || ""} onChange={(e) => upd("price_level", e.target.value ? Number(e.target.value) : null)}>
                     <option value="">—</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option><option value="4">$$$$</option>
                   </select></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Good to know <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(reservations, cash only, rooftop…)</span></label><input style={field} value={editing.tip || ""} onChange={(e) => upd("tip", e.target.value)} /></div>
+                  <div><label style={label}>Good to know (EN)</label><input style={field} value={editing.tip || ""} onChange={(e) => upd("tip", e.target.value)} placeholder="reservations, cash only, rooftop…" /></div>
+                  <div><label style={label}>Bueno saber (ES)</label><input style={field} value={editing.tip_es || ""} onChange={(e) => upd("tip_es", e.target.value)} placeholder="reservaciones, solo efectivo…" /></div>
                   <div style={{ gridColumn: "1 / -1", borderTop: `1px dashed ${P.line}`, paddingTop: 10, marginTop: 2 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: P.coral }}>Editorial — your hand-picked voice</span>
-                    <span style={{ fontSize: 11.5, color: P.inkSoft, marginLeft: 8 }}>(shown on the listing; never auto-changed)</span>
+                    <span style={{ fontSize: 11.5, color: P.inkSoft, marginLeft: 8 }}>(shown on the listing; AI drafts both languages, your edits win)</span>
                   </div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Why we love it</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.why_love || ""} onChange={(e) => upd("why_love", e.target.value)} placeholder="What makes this one special / why you send friends here" /></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>What to order / don't miss</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.what_to_order || ""} onChange={(e) => upd("what_to_order", e.target.value)} placeholder="Signature dishes, the thing to get" /></div>
-                  <div><label style={label}>Best time to go</label><input style={field} value={editing.best_time || ""} onChange={(e) => upd("best_time", e.target.value)} placeholder="e.g. sunset for the rooftop; weekday mornings" /></div>
+                  <div><label style={label}>Why we love it (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.why_love || ""} onChange={(e) => upd("why_love", e.target.value)} placeholder="What makes this one special" /></div>
+                  <div><label style={label}>Por qué nos encanta (ES)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.why_love_es || ""} onChange={(e) => upd("why_love_es", e.target.value)} placeholder="Por qué es especial" /></div>
+                  <div><label style={label}>What to order (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.what_to_order || ""} onChange={(e) => upd("what_to_order", e.target.value)} placeholder="Signature dishes" /></div>
+                  <div><label style={label}>Qué pedir (ES)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.what_to_order_es || ""} onChange={(e) => upd("what_to_order_es", e.target.value)} placeholder="Platillos estrella" /></div>
+                  <div><label style={label}>Best time to go (EN)</label><input style={field} value={editing.best_time || ""} onChange={(e) => upd("best_time", e.target.value)} placeholder="e.g. sunset for the rooftop" /></div>
+                  <div><label style={label}>Mejor momento (ES)</label><input style={field} value={editing.best_time_es || ""} onChange={(e) => upd("best_time_es", e.target.value)} placeholder="p. ej. al atardecer" /></div>
                 </>
               ) : (
                 <>

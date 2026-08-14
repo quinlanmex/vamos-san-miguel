@@ -39,7 +39,8 @@ async function draft(anthropic, ctx) {
 
 Using ONLY the information below, draft short editorial notes for this place. Do not invent facts, dishes, or details that aren't supported by the info. If you can't support a field, use null.
 
-Return ONLY JSON: {"why_love": string|null, "what_to_order": string|null, "best_time": string|null}
+Provide BOTH English and natural Mexican-Spanish for each field (the Spanish is a fluent localization, not a literal translation).
+Return ONLY JSON: {"why_love": string|null, "why_love_es": string|null, "what_to_order": string|null, "what_to_order_es": string|null, "best_time": string|null, "best_time_es": string|null}
 - why_love: 1–2 sentences on what makes it special / why we send friends there.
 - what_to_order: for food/drink places, the signature things to get IF named in the info; otherwise null.
 - best_time: only if clearly inferable (e.g. rooftop → sunset; busy spot → weekday mornings); otherwise null.
@@ -65,7 +66,7 @@ export async function run() {
   const key = process.env.GOOGLE_MAPS_API_KEY;
 
   const { data: rows, error } = await sb
-    .from("places").select("id,name,list_key,cuisine,area,desc_en,origin_url,google_place_id,why_love,what_to_order,best_time")
+    .from("places").select("id,name,list_key,cuisine,area,desc_en,origin_url,google_place_id,why_love,why_love_es,what_to_order,what_to_order_es,best_time,best_time_es")
     .is("why_love", null).eq("status", "published").limit(MAX_PER_RUN);
   if (error) return { ok: false, error: error.message, status: 500 };
   if (!rows || !rows.length) return { ok: true, drafted: 0, note: "All picks have editorial notes." };
@@ -81,9 +82,10 @@ export async function run() {
     if (!d || !d.why_love) { fails.push(p.name); continue; }
     // Fill only the fields that are still empty (never overwrite a manual value).
     const patch = {};
-    if (p.why_love == null && d.why_love) patch.why_love = String(d.why_love).trim();
-    if (p.what_to_order == null && d.what_to_order) patch.what_to_order = String(d.what_to_order).trim();
-    if (p.best_time == null && d.best_time) patch.best_time = String(d.best_time).trim();
+    const fill = (col, val) => { if (p[col] == null && val) patch[col] = String(val).trim(); };
+    fill("why_love", d.why_love); fill("why_love_es", d.why_love_es);
+    fill("what_to_order", d.what_to_order); fill("what_to_order_es", d.what_to_order_es);
+    fill("best_time", d.best_time); fill("best_time_es", d.best_time_es);
     if (!Object.keys(patch).length) continue;
     const { error: uErr } = await sb.from("places").update(patch).eq("id", p.id);
     if (!uErr) drafted++;

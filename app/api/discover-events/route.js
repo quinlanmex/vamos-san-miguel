@@ -44,8 +44,9 @@ IMPORTANT:
 - Write the "blurb_en" in your OWN words as a short original description. Do NOT copy sentences from the page.
 - For "source_name" and "source_url", identify the event's ORIGINAL source — the organizer, venue, presenter, or ticket/organizer link listed for the event. Do NOT use the aggregator itself (never "Mexico News Daily", "AllEvents", etc.) as the source. If no original source is shown, use null.
 
+Provide BOTH English and natural Mexican-Spanish for the title and blurb.
 Return ONLY a JSON array (no prose). Each item:
-{"title_en": string, "title_es": string|null, "blurb_en": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null, "source_name": string|null, "source_url": string|null}
+{"title_en": string, "title_es": string, "blurb_en": string, "blurb_es": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null, "price_es": string|null, "source_name": string|null, "source_url": string|null}
 If there are no datable events, return [].
 
 PAGE TEXT:
@@ -92,8 +93,8 @@ export async function run() {
       rows.push({
         status: "published",
         title_en: e.title_en, title_es: e.title_es || null,
-        blurb_en: e.blurb_en || null, blurb_es: null,
-        price_en: e.price_en || null, price_es: null,
+        blurb_en: e.blurb_en || null, blurb_es: e.blurb_es || null,
+        price_en: e.price_en || null, price_es: e.price_es || null,
         category: e.category, audience: [],
         start_date: e.start_date || null, end_date: e.end_date || e.start_date || null, start_time: e.start_time || null,
         recurring: !!e.recurring, venue: e.venue || null, area: e.area || null,
