@@ -458,9 +458,10 @@ export default function App() {
   useEffect(() => { try { const s = JSON.parse(localStorage.getItem("qp_stay") || "null"); if (Array.isArray(s) && s.length === 2) setStay(s); } catch {} }, []);
   useEffect(() => { try { stay ? localStorage.setItem("qp_stay", JSON.stringify(stay)) : localStorage.removeItem("qp_stay"); } catch {} }, [stay]);
 
-  // Load live data from Supabase; keep the seed as offline fallback.
+  // Load live data from Supabase. Seed is ONLY an offline fallback (fetch failed → null);
+  // once the live fetch succeeds we use it even if empty, so stale demo events never show.
   useEffect(() => {
-    fetchEvents().then((d) => { if (d && d.length) setEvents(d); });
+    fetchEvents().then((d) => { if (d) setEvents(d); });
     fetchPlaces().then((d) => { if (d && d.length) setFavLists(d); });
   }, []);
 
@@ -473,6 +474,12 @@ export default function App() {
   const filtered = useMemo(() => {
     return events.filter((e) => {
       const s = d(e.start), en = d(e.end);
+      // Hard future-only guard (belt and suspenders on top of the server filter):
+      // one-time events must not have already ended. Recurring events always show.
+      if (!e.recurring) {
+        const last = d(e.end || e.start);
+        if (last && !isNaN(last) && last < TODAY) return false;
+      }
       if (cats.size && !cats.has(e.cat)) return false;
       if (aud.size && !e.audience.some((a) => aud.has(a))) return false;
       if (dateF === "today" && !overlaps(s, en, TODAY, TODAY)) return false;

@@ -4,15 +4,24 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-// Public San Miguel event sources to scan. Add more over time.
+// Public San Miguel event sources to scan (static-HTML listings). Add more over time.
+// Note: many local sources (Biblioteca taquilla, Facebook, Eventbrite) are JS-rendered
+// and can't be scraped this way — those still come in via the admin paste-to-publish flow.
 const SOURCES = [
-  "https://discoversma.com/events/events/",
+  "https://discoversma.com/events/",
+  "https://discoversma.com/events/list/",
+  "https://discoversma.com/events/month/",
 ];
 const CATS = ["musica", "cine", "tours", "comunidad", "charlas", "mercados", "bienestar"];
 
 async function fetchText(url) {
   try {
-    const r = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (compatible; VamosBot/1.0)" } });
+    // Browser-like headers — many event sites' firewalls 406/block a plain bot UA.
+    const r = await fetch(url, { headers: {
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "accept-language": "en-US,en;q=0.9,es;q=0.8",
+    } });
     if (!r.ok) return null;
     const html = await r.text();
     return html
@@ -22,12 +31,12 @@ async function fetchText(url) {
       .replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 24000);
+      .slice(0, 30000);
   } catch { return null; }
 }
 
 async function extract(anthropic, text, source, todayStr) {
-  const prompt = `Today is ${todayStr}. Below is the visible text of a San Miguel de Allende (Mexico) events page. Extract only REAL upcoming events that have a clear date on this page (within the next ~8 weeks). Do NOT invent anything. Return ONLY a JSON array (no prose). Each item:
+  const prompt = `Today is ${todayStr}. Below is the visible text of a San Miguel de Allende (Mexico) events page. Extract only REAL upcoming events that have a clear future date on this page (from today through the next ~16 weeks). Never include events dated before ${todayStr}. Do NOT invent anything. Return ONLY a JSON array (no prose). Each item:
 {"title_en": string, "title_es": string|null, "blurb_en": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "venue": string|null, "area": string|null, "price_en": string|null}
 If there are no datable events, return []. Source: ${source}
 
@@ -63,6 +72,11 @@ async function run() {
     for (const e of Array.isArray(events) ? events : []) {
       if (!e || !e.title_en || !CATS.includes(e.category)) continue;
       if (!e.recurring && !/^\d{4}-\d{2}-\d{2}$/.test(e.start_date || "")) continue;
+      // Never store an event that has already ended.
+      if (!e.recurring) {
+        const last = (e.end_date && /^\d{4}-\d{2}-\d{2}$/.test(e.end_date)) ? e.end_date : e.start_date;
+        if (last < todayStr) continue;
+      }
       found++;
       const key = `${e.title_en.toLowerCase()}|${e.start_date || ""}`;
       if (have.has(key)) continue;
