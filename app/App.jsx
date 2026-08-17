@@ -467,14 +467,16 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
 
   const PARTIES = [["couple", es ? "Pareja" : "Couple"], ["family with kids", es ? "Familia" : "Family"], ["friends", es ? "Amigos" : "Friends"], ["solo", es ? "Solo" : "Solo"]];
   const PACES = [["relaxed", es ? "Relajado" : "Relaxed"], ["balanced", es ? "Balanceado" : "Balanced"], ["packed", es ? "Intenso" : "Packed"]];
-  const INTERESTS = [["food", es ? "Comida" : "Food"], ["cafes", es ? "Cafés" : "Cafés"], ["art", es ? "Arte" : "Art"], ["culture", es ? "Cultura" : "Culture"], ["outdoors", es ? "Aire libre" : "Outdoors"], ["nightlife", es ? "Vida nocturna" : "Nightlife"], ["wellness", es ? "Bienestar" : "Wellness"], ["shopping", es ? "Compras" : "Shopping"], ["family", es ? "Familia" : "Family"]];
+  const INTERESTS = [["food", es ? "Comida" : "Food"], ["cafes", es ? "Cafés" : "Cafés"], ["art", es ? "Arte" : "Art"], ["culture", es ? "Cultura" : "Culture"], ["outdoors", es ? "Aire libre" : "Outdoors"], ["nightlife", es ? "Vida nocturna" : "Nightlife"], ["wellness", es ? "Bienestar" : "Wellness"], ["shopping", es ? "Compras" : "Shopping"]];
   const toggleI = (k) => setInterests((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
 
   async function generate() {
     setLoading(true); setError(""); setResult(null);
     try {
+      // Family is implied by "who's coming", so fold it in automatically rather than as a chip.
+      const sendInterests = party === "family with kids" ? [...new Set([...interests, "family"])] : [...interests];
       const r = await fetch("/api/plan-trip", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ days, party, pace, interests: [...interests], stay: stay || null, mustInclude: savedNames || [], lang }) });
+        body: JSON.stringify({ days, party, pace, interests: sendInterests, stay: stay || null, mustInclude: savedNames || [], lang }) });
       const j = await r.json();
       if (j.ok && j.days?.length) setResult(j);
       else setError(j.error || (es ? "No pudimos armar un plan. Intenta de nuevo." : "Couldn't build a plan. Try again."));

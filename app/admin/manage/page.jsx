@@ -317,6 +317,7 @@ export default function Manage() {
   rows = [...rows].sort((a, b) =>
     sortBy === "newest" ? new Date(b.updated_at || 0) - new Date(a.updated_at || 0)
       : sortBy === "attention" ? (attnScore(b) - attnScore(a)) || nameOf(a).localeCompare(nameOf(b))
+      : sortBy === "priority" ? ((a.priority ?? 9) - (b.priority ?? 9)) || nameOf(a).localeCompare(nameOf(b))
       : need === "featured" ? ((a.featured_rank ?? 9999) - (b.featured_rank ?? 9999))
       : nameOf(a).localeCompare(nameOf(b)));
   const liveCount = allRows.filter((r) => r.status === "published").length;
@@ -399,6 +400,7 @@ export default function Manage() {
                 <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} title="Sort"
                   style={{ ...field, width: "auto", padding: "6px 8px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", marginLeft: "auto" }}>
                   <option value="name">Sort: Name</option>
+                  <option value="priority">Sort: Priority, then name</option>
                   <option value="newest">Sort: Recently edited</option>
                   <option value="attention">Sort: Needs data first</option>
                 </select>
@@ -457,7 +459,15 @@ export default function Manage() {
                       <span title={STATUS_LABEL[r.status] || r.status} style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, background: STATUS_COLOR[r.status] || P.inkSoft }} />
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</span>
+                        {isPlace && r.priority && (
+                          <span title="Trip-planner priority" style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", padding: "2px 8px", borderRadius: 999,
+                            background: r.priority === 1 ? "#E06A63" : r.priority === 2 ? "#B4791F" : "#9A8F7E", color: "#fff" }}>
+                            {r.priority === 1 ? "★ Essential" : r.priority === 2 ? "Recommended" : "Optional"}
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 12, color: P.inkSoft }}>
                         {isPlace ? (LIST_LABEL[r.list_key] || r.list_key || "Pick") : `${r.category}${r.start_date ? ` · ${r.start_date}` : ""}`} · <span style={{ color: STATUS_COLOR[r.status] || P.inkSoft, fontWeight: 700 }}>{STATUS_LABEL[r.status] || r.status}</span>
                         {closed && <span style={{ color: P.coral, fontWeight: 700 }}> · Permanently closed{closedOn ? ` (found ${closedOn})` : ""}</span>}

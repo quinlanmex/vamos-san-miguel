@@ -43,7 +43,7 @@ export async function POST(req) {
 
     const { data: placeRows, error: placeErr } = await sb
       .from("places")
-      .select("name, list_key, cuisine, area, desc_en, ai_notes, business_status, priority, lat, lng")
+      .select("*") // "*" so it never breaks if optional columns (priority, ai_notes) aren't migrated yet
       .eq("status", "published")
       .eq("editorial", true);
     if (placeErr) throw new Error("places: " + placeErr.message);
