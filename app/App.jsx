@@ -451,6 +451,19 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
     : ["Scouting the neighborhoods…", "Pairing your saved spots…", "Clustering by area to save you steps…", "Timing your meals…", "Adding local touches…"];
   const [loadMsg, setLoadMsg] = useState(0);
   useEffect(() => { if (!loading) return; const id = setInterval(() => setLoadMsg((m) => (m + 1) % LOAD_MSGS.length), 1500); return () => clearInterval(id); }, [loading]);
+  const [email, setEmail] = useState("");
+  const [emailMsg, setEmailMsg] = useState("");
+  const [emailing, setEmailing] = useState(false);
+  async function emailIt() {
+    if (!email.trim()) return;
+    setEmailing(true); setEmailMsg("");
+    try {
+      const r = await fetch("/api/email-itinerary", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: email.trim(), itinerary: result, lang }) });
+      const j = await r.json();
+      setEmailMsg(j.ok ? (es ? "¡Enviado! Revisa tu correo." : "Sent! Check your inbox.") : (es ? "No se pudo enviar." : "Couldn't send it."));
+    } catch { setEmailMsg(es ? "Error de red." : "Network error."); }
+    setEmailing(false);
+  }
 
   const PARTIES = [["couple", es ? "Pareja" : "Couple"], ["family with kids", es ? "Familia" : "Family"], ["friends", es ? "Amigos" : "Friends"], ["solo", es ? "Solo" : "Solo"]];
   const PACES = [["relaxed", es ? "Relajado" : "Relaxed"], ["balanced", es ? "Balanceado" : "Balanced"], ["packed", es ? "Intenso" : "Packed"]];
@@ -552,6 +565,21 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
               <button onClick={() => { setResult(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
                 {es ? "Ajustar" : "Tweak it"}
               </button>
+            </div>
+            {/* Email the itinerary to yourself to keep it */}
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px dashed ${P.line}` }}>
+              <p style={{ ...label2(P), margin: "0 0 6px" }}>{es ? "Envíatelo por correo" : "Email it to yourself"}</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email"
+                  onKeyDown={(e) => { if (e.key === "Enter") emailIt(); }}
+                  placeholder={es ? "tu@correo.com" : "you@email.com"}
+                  style={{ flex: 1, minWidth: 180, padding: "9px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.card, color: P.ink }} />
+                <button onClick={emailIt} disabled={emailing || !email.trim()}
+                  style={{ border: "none", background: emailing || !email.trim() ? P.inkSoft : P.cobalt, color: "#fff", cursor: emailing ? "default" : "pointer", fontWeight: 700, fontSize: 14, padding: "9px 16px", borderRadius: 10 }}>
+                  {emailing ? (es ? "Enviando…" : "Sending…") : (es ? "Enviar" : "Email me")}
+                </button>
+              </div>
+              {emailMsg && <p style={{ fontSize: 12.5, color: emailMsg.includes("!") ? P.green : P.coral, margin: "6px 0 0" }}>{emailMsg}</p>}
             </div>
           </div>
         )}
