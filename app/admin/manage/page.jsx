@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { CUISINES, GOODFOR } from "../../../components/cuisines";
 import { NEIGHBORHOODS, nearestNeighborhood, kmFromCentro, IN_TOWN_KM } from "../../../lib/neighborhoods";
@@ -59,6 +59,14 @@ export default function Manage() {
   const [uploading, setUploading] = useState(false);
   const [coordPaste, setCoordPaste] = useState(""); // paste-a-Maps-link box in the editor
 
+  // ---- Quick add: type a name, pick a Google suggestion, auto-populate the listing ----
+  const [quickQ, setQuickQ] = useState("");
+  const [quickType, setQuickType] = useState("rest");
+  const [quickPreds, setQuickPreds] = useState([]);
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const quickTimer = useRef(null);
+
   const api = useCallback(async (body) => {
     const r = await fetch("/api/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, ...body }) });
     const j = await r.json();
@@ -76,6 +84,35 @@ export default function Manage() {
     if (s) { setPw(s); setAuthed(true); }
   }, []);
   useEffect(() => { if (authed) load(); }, [authed, load]);
+
+  // Debounced Google autocomplete for quick add.
+  useEffect(() => {
+    if (!authed) return;
+    if (quickTimer.current) clearTimeout(quickTimer.current);
+    const s = quickQ.trim();
+    if (s.length < 2) { setQuickPreds([]); return; }
+    quickTimer.current = setTimeout(async () => {
+      try {
+        const r = await fetch("/api/place-autocomplete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, q: s }) });
+        const j = await r.json();
+        if (j.ok) { setQuickPreds(j.predictions || []); setQuickOpen(true); }
+      } catch { /* ignore transient */ }
+    }, 260);
+    return () => quickTimer.current && clearTimeout(quickTimer.current);
+  }, [quickQ, authed, pw]);
+
+  async function addPlace(pred) {
+    setAdding(true); setMsg(null); setQuickOpen(false);
+    try {
+      const r = await fetch("/api/add-place", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, place_id: pred.place_id, list_key: quickType }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || "Failed to add");
+      await load();
+      setQuickQ(""); setQuickPreds([]);
+      setMsg({ type: "ok", text: `Added "${j.place?.name || pred.main}". ${j.hadPhoto ? "Photo, " : ""}${j.hadDesc ? "description, " : ""}hours and coordinates pulled from Google. Neighborhood and editorial notes fill in automatically.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setAdding(false);
+  }
 
   const upd = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
   const toggle = (k, val) => setEditing((e) => { const s = new Set(e[k] || []); s.has(val) ? s.delete(val) : s.add(val); return { ...e, [k]: [...s] }; });
@@ -354,6 +391,38 @@ export default function Manage() {
 
         {!editing && (
           <>
+            {isPlace && (
+              <div style={{ marginBottom: 14, background: P.card, border: `1px solid ${P.coral}55`, borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 9, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 14.5, fontWeight: 800, color: P.ink }}>✨ Quick add from Google</span>
+                  <span style={{ fontSize: 12.5, color: P.inkSoft }}>Start typing a place, click it, and photos, description, hours, phone, and location fill in automatically.</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <select value={quickType} onChange={(e) => setQuickType(e.target.value)} style={{ ...field, width: "auto", flexShrink: 0 }} title="What kind of place is this?">
+                    {LISTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                  </select>
+                  <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
+                    <input value={quickQ} onChange={(e) => setQuickQ(e.target.value)}
+                      onFocus={() => quickPreds.length && setQuickOpen(true)}
+                      onBlur={() => setTimeout(() => setQuickOpen(false), 160)}
+                      placeholder="e.g. Jacques restaurant"
+                      style={{ ...field, width: "100%" }} />
+                    {adding && <span style={{ position: "absolute", right: 10, top: 9, fontSize: 12.5, fontWeight: 700, color: P.coral }}>Adding…</span>}
+                    {quickOpen && quickPreds.length > 0 && (
+                      <div style={{ position: "absolute", zIndex: 40, top: "calc(100% + 4px)", left: 0, right: 0, background: P.card, border: `1px solid ${P.line}`, borderRadius: 10, boxShadow: "0 12px 34px rgba(0,0,0,.18)", overflow: "hidden" }}>
+                        {quickPreds.map((pr) => (
+                          <button key={pr.place_id} onMouseDown={(e) => e.preventDefault()} onClick={() => addPlace(pr)} disabled={adding}
+                            style={{ display: "block", width: "100%", textAlign: "left", border: "none", borderBottom: `1px solid ${P.line}`, background: "transparent", cursor: adding ? "default" : "pointer", padding: "9px 12px" }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: P.ink }}>{pr.main}</div>
+                            {pr.secondary && <div style={{ fontSize: 12, color: P.inkSoft }}>{pr.secondary}</div>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
               <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], cuisine: [], photos: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
                 style={btn(P.coral)}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
