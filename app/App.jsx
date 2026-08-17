@@ -446,6 +446,11 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const LOAD_MSGS = es
+    ? ["Explorando barrios…", "Emparejando tus lugares guardados…", "Agrupando por zona…", "Cronometrando las comidas…", "Añadiendo toques locales…"]
+    : ["Scouting the neighborhoods…", "Pairing your saved spots…", "Clustering by area to save you steps…", "Timing your meals…", "Adding local touches…"];
+  const [loadMsg, setLoadMsg] = useState(0);
+  useEffect(() => { if (!loading) return; const id = setInterval(() => setLoadMsg((m) => (m + 1) % LOAD_MSGS.length), 1500); return () => clearInterval(id); }, [loading]);
 
   const PARTIES = [["couple", es ? "Pareja" : "Couple"], ["family with kids", es ? "Familia" : "Family"], ["friends", es ? "Amigos" : "Friends"], ["solo", es ? "Solo" : "Solo"]];
   const PACES = [["relaxed", es ? "Relajado" : "Relaxed"], ["balanced", es ? "Balanceado" : "Balanced"], ["packed", es ? "Intenso" : "Packed"]];
@@ -473,8 +478,18 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
           <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 23, margin: 0, color: P.ink }}>✨ {es ? "Arma mi viaje" : "Plan my trip"}</h2>
           <button onClick={onClose} style={{ border: "none", background: P.chipBg, cursor: "pointer", width: 34, height: 34, borderRadius: "50%", fontSize: 18, color: P.inkSoft }}>×</button>
         </div>
+        <style>{`@keyframes qp-spin{to{transform:rotate(360deg)}}@keyframes qp-pulse{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.05)}}`}</style>
 
-        {!result && (
+        {loading && (
+          <div style={{ padding: "40px 16px", textAlign: "center" }}>
+            <div style={{ fontSize: 44, animation: "qp-pulse 1.4s ease-in-out infinite" }}>✨</div>
+            <div style={{ margin: "18px auto 0", width: 34, height: 34, borderRadius: "50%", border: `3px solid ${P.line}`, borderTopColor: P.coral, animation: "qp-spin .8s linear infinite" }} />
+            <p style={{ marginTop: 18, fontSize: 15, fontWeight: 700, color: P.ink }}>{LOAD_MSGS[loadMsg]}</p>
+            <p style={{ marginTop: 4, fontSize: 12.5, color: P.inkSoft }}>{es ? "Suele tardar unos segundos." : "This usually takes a few seconds."}</p>
+          </div>
+        )}
+
+        {!result && !loading && (
           <div style={{ display: "grid", gap: 16 }}>
             <div>
               <p style={label2(P)}>{es ? "Días" : "Days"}</p>
@@ -545,6 +560,28 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
   );
 }
 const label2 = (P) => ({ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 7px" });
+
+// Desktop nav "Guides" dropdown — combines Plan / Move Here / The Book to de-crowd the bar.
+function GuidesDropdown({ lang, P, tabStyle }) {
+  const [open, setOpen] = useState(false);
+  const items = [
+    ["/plan", lang === "es" ? "Planea tu viaje" : "Plan your trip"],
+    ["/move", lang === "es" ? "Mudarse aquí" : "Move Here"],
+    ["/ebook", lang === "es" ? "El libro" : "The Book"],
+  ];
+  return (
+    <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} style={{ position: "relative" }}>
+      <button style={{ ...tabStyle, color: P.ink }}>{lang === "es" ? "Guías" : "Guides"} ▾</button>
+      {open && (
+        <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", background: "#fff", border: `1px solid ${P.line}`, borderRadius: 12, boxShadow: "0 10px 28px rgba(0,0,0,.14)", padding: 6, minWidth: 190, zIndex: 100 }}>
+          {items.map(([href, label]) => (
+            <a key={href} href={href} style={{ display: "block", padding: "9px 12px", color: P.ink, textDecoration: "none", fontSize: 14.5, fontWeight: 600, borderRadius: 8, whiteSpace: "nowrap" }}>{label}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Badge marking a saved item that arrived via a friend's shared link.
 function SharedBadge({ lang, P }) {
@@ -798,10 +835,11 @@ export default function App() {
             </span>
           </button>
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
-            {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["move", lang === "es" ? "Mudarse" : "Move Here"], ["saved", t.savedTab], ["planner", lang === "es" ? "Armar viaje" : "Plan Trip"]].map(([k, label]) => {
+            {[["faves", t.faves], ["events", t.events], ["guides", "Guides"], ["saved", t.savedTab], ["planner", lang === "es" ? "Armar viaje" : "Plan Trip"]].map(([k, label]) => {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
                 color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                 display: "flex", alignItems: "center", gap: 6, textDecoration: "none" };
+              if (k === "guides") return <GuidesDropdown key={k} lang={lang} P={P} tabStyle={tabStyle} />;
               if (k === "planner") return (
                 <button key={k} onClick={() => setShowPlanner(true)}
                   style={{ border: "none", cursor: "pointer", background: P.coral, color: "#fff", fontSize: 15, fontWeight: 800, padding: "8px 16px", borderRadius: 999, display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>

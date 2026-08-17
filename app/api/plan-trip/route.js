@@ -114,6 +114,8 @@ RULES:
 - Include EVENTs only if their date plausibly falls within a ${days}-day trip starting around ${todayStr} AND they match the traveler's interests. Recurring events are fine.
 - Prioritize any "must include" names.
 - Match the party (kid-friendly choices for families) and the pace.
+- Keep each "why" to ONE short sentence (about 12 to 18 words) so plans render fast and read cleanly.
+- Never use em-dashes or en-dashes. Use commas, periods, or "and" instead.
 - ${langLine}
 
 CATALOG:
