@@ -43,7 +43,7 @@ export async function POST(req) {
 
     const { data: placeRows, error: placeErr } = await sb
       .from("places")
-      .select("name, list_key, cuisine, area, desc_en, ai_notes, business_status, lat, lng")
+      .select("name, list_key, cuisine, area, desc_en, ai_notes, business_status, priority, lat, lng")
       .eq("status", "published")
       .eq("editorial", true);
     if (placeErr) throw new Error("places: " + placeErr.message);
@@ -65,12 +65,21 @@ export async function POST(req) {
     return Response.json({ ok: false, error: err.message || "catalog load failed" }, { status: 500 });
   }
 
-  // Prioritize any mustInclude names so they survive the cap.
+  // Out-of-town flag (straight-line km from the Jardin). Used to gate far spots to longer trips.
+  const CENTRO = [20.9143, -100.7436];
+  const farOf = (p) => {
+    if (p.lat == null || p.lng == null) return false;
+    const R = 6371, tr = (x) => (x * Math.PI) / 180;
+    const dLat = tr(p.lat - CENTRO[0]), dLng = tr(p.lng - CENTRO[1]);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(tr(CENTRO[0])) * Math.cos(tr(p.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s)) > 5; // >5 km = out of town
+  };
+
+  // Rank for the cap: must-include first, then by priority (1 essential ... 3 filler).
   const mustLower = new Set(mustInclude.map((s) => s.toLowerCase()));
-  if (mustLower.size) {
-    picks.sort((a, b) => (mustLower.has((b.name || "").toLowerCase()) ? 1 : 0) - (mustLower.has((a.name || "").toLowerCase()) ? 1 : 0));
-    events.sort((a, b) => (mustLower.has((b.title_en || "").toLowerCase()) ? 1 : 0) - (mustLower.has((a.title_en || "").toLowerCase()) ? 1 : 0));
-  }
+  const rank = (p, nameKey) => (mustLower.has((p[nameKey] || "").toLowerCase()) ? -10 : 0) + (p.priority || 3);
+  picks.sort((a, b) => rank(a, "name") - rank(b, "name"));
+  events.sort((a, b) => (mustLower.has((b.title_en || "").toLowerCase()) ? 1 : 0) - (mustLower.has((a.title_en || "").toLowerCase()) ? 1 : 0));
 
   const capPicks = picks.slice(0, MAX_PICKS);
   const capEvents = events.slice(0, MAX_EVENTS);
@@ -79,7 +88,7 @@ export async function POST(req) {
   const pickLines = capPicks.map((p) => {
     const tags = Array.isArray(p.cuisine) ? p.cuisine.filter(Boolean).join(",") : "";
     const note = (p.ai_notes || p.desc_en || "").replace(/\s+/g, " ").slice(0, 200);
-    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
+    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
   });
   const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.start_date || "recurring"} | ${e.category || ""} | venue:${e.venue || ""}`);
   const catalog = pickLines.concat(eventLines).join("\n");
@@ -108,6 +117,8 @@ TRAVELER:
 RULES:
 - Use ONLY items from the CATALOG below. Reference each by its EXACT name/title as written.
 - Do NOT invent places or events. If unsure, leave it out.
+- RANKING (important): each PICK has "pri:" = importance (1 = essential/iconic, 2 = highly recommended, 3 = optional). ALWAYS include every pri:1 essential that fits the party, ideally early in the trip. Include pri:2 when it fits the days and interests. Use pri:3 to fill remaining gaps.
+- "FAR" marks an out-of-town spot. Only include FAR picks for trips of 3 or more days, and only when they match the party and interests (e.g. a FAR family spot for a family on a longer trip). For 1 to 2 day trips, keep everything in and around town.
 - Cluster each day by neighborhood/area to minimize travel.
 - If lodging coordinates are given, start and end each day near there.
 - Spread meals sensibly across each day: a breakfast/cafe, a lunch, and a dinner.
@@ -128,7 +139,7 @@ Return STRICT JSON ONLY (no prose, no markdown fences), exactly this shape:
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-sonnet-5", // user-facing planner uses the stronger model for better itineraries
       max_tokens: 4000,
       messages: [{ role: "user", content: prompt }],
     });

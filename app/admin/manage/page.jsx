@@ -538,6 +538,14 @@ export default function Manage() {
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Description (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_en || ""} onChange={(e) => upd("desc_en", e.target.value)} /></div>
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Descripción (ES)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_es || ""} onChange={(e) => upd("desc_es", e.target.value)} /></div>
                   <div><label style={label}>List</label><select style={field} value={editing.list_key || ""} onChange={(e) => upd("list_key", e.target.value)}>{LISTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+                  <div><label style={label}>Priority <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(trip planner)</span></label>
+                    <select style={field} value={editing.priority ?? ""} onChange={(e) => upd("priority", e.target.value ? Number(e.target.value) : null)}>
+                      <option value="">— (optional)</option>
+                      <option value="1">1 · Essential (always include)</option>
+                      <option value="2">2 · Highly recommended</option>
+                      <option value="3">3 · Optional / filler</option>
+                    </select>
+                  </div>
                   <div><label style={label}>Category</label><select style={field} value={editing.category || ""} onChange={(e) => upd("category", e.target.value)}>{CATS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
                   <div><label style={label}>Audience</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{AUD.map(([k, l]) => <button key={k} onClick={() => toggle("audience", k)} style={chip((editing.audience || []).includes(k), P.navy)}>{l}</button>)}</div></div>
                   <div><label style={label}>Dietary</label><div style={{ display: "flex", gap: 8, paddingTop: 4 }}>{DIET.map(([k, l]) => <button key={k} onClick={() => toggle("diet", k)} style={chip((editing.diet || []).includes(k), P.green)}>{l}</button>)}</div></div>
