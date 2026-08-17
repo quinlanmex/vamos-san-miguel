@@ -525,6 +525,15 @@ export default function Manage() {
                       {!nbGeneric && (
                         <button onClick={() => patchRow(r.id, { area: null })} style={{ border: "none", background: "transparent", color: P.coral, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>reset to auto</button>
                       )}
+                      <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "0 2px" }} />
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>Priority</span>
+                      <select value={r.priority ?? ""} onChange={(e) => patchRow(r.id, { priority: e.target.value ? Number(e.target.value) : null })}
+                        title="Trip-planner importance" style={{ ...field, width: "auto", padding: "5px 8px", fontSize: 12.5, cursor: "pointer" }}>
+                        <option value="">—</option>
+                        <option value="1">★ Essential</option>
+                        <option value="2">Recommended</option>
+                        <option value="3">Optional</option>
+                      </select>
                     </div>
                   )}
                 </div>
