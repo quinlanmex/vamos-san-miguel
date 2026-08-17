@@ -33,6 +33,10 @@ export async function POST(req) {
   const mustInclude = Array.isArray(body.mustInclude) ? body.mustInclude.filter((s) => typeof s === "string" && s.trim()).map((s) => s.trim()) : [];
   const lang = body.lang === "es" ? "es" : "en";
   const startDate = typeof body.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.startDate) ? body.startDate : null;
+  // Optional walking route to build a day around: { name, points:[{lat,lng,label}] }.
+  const walk = body.walk && typeof body.walk === "object" && Array.isArray(body.walk.points) && body.walk.points.length
+    ? { name: typeof body.walk.name === "string" ? body.walk.name.slice(0, 120) : "the walk", points: body.walk.points.filter((p) => p && typeof p.lat === "number" && typeof p.lng === "number").slice(0, 40) }
+    : null;
 
   const todayStr = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local time
 
@@ -134,7 +138,7 @@ TRAVELER:
 - Lodging coordinates: ${stay ? `[${stay[0]}, ${stay[1]}]` : "not provided"}
 - Must include (prioritize these exact names): ${mustInclude.length ? mustInclude.join(", ") : "none"}
 - Today's date: ${todayStr}
-${dateLines ? `\nTRIP DATES (use these to place dated events and weekday-specific spots on the correct day):\n${dateLines}\n` : ""}
+${dateLines ? `\nTRIP DATES (use these to place dated events and weekday-specific spots on the correct day):\n${dateLines}\n` : ""}${walk ? `\nWALKING ROUTE the traveler chose (build one day around it): "${walk.name}"\nStops: ${walk.points.map((p, i) => `${i + 1}. ${p.label || `[${p.lat.toFixed(4)},${p.lng.toFixed(4)}]`}`).join("; ")}\nOn that day, follow this route in order and weave in CATALOG picks (cafes, meals, galleries) that sit near these stops so the day flows along the walk.\n` : ""}
 RULES:
 - Use ONLY items from the CATALOG below. Reference each by its EXACT name/title as written.
 - Do NOT invent places or events. If unsure, leave it out.

@@ -9,7 +9,7 @@ import {
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, Polygon, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { nearestNeighborhood, neighborhoodRegions, kmFromCentro, kmBetween, IN_TOWN_KM } from "../lib/neighborhoods";
 import L from "leaflet";
@@ -437,7 +437,167 @@ const SLOT_LABEL = {
   lunch: { en: "Lunch", es: "Comida" }, afternoon: { en: "Afternoon", es: "Tarde" },
   dinner: { en: "Dinner", es: "Cena" }, evening: { en: "Evening", es: "Noche" },
 };
-function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpenEvent, onSaveAll, existingItinerary, onRefine }) {
+/* ---- Walking paths: numbered map circuit you build, save, share, and plan around --- */
+const walkPinIcon = (n) => L.divIcon({
+  className: "",
+  html: `<div style="background:#E06A63;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 13px system-ui;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45)">${n}</div>`,
+  iconSize: [26, 26], iconAnchor: [13, 13],
+});
+function WalkClickCatcher({ onAdd }) { useMapEvents({ click(e) { onAdd(e.latlng.lat, e.latlng.lng); } }); return null; }
+
+// Read-only (or click-to-add) map of a path: numbered markers joined by a circuit line.
+function WalkMap({ points, height = 260, onAdd }) {
+  const center = points.length ? [points[0].lat, points[0].lng] : [20.9145, -100.7436];
+  const line = points.map((p) => [p.lat, p.lng]);
+  return (
+    <div style={{ height, borderRadius: 12, overflow: "hidden", border: "1px solid #E7DDCB" }}>
+      <MapContainer center={center} zoom={15} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {onAdd && <WalkClickCatcher onAdd={onAdd} />}
+        {line.length > 1 && <Polyline positions={line} pathOptions={{ color: "#E06A63", weight: 4, opacity: 0.85 }} />}
+        {points.map((p, i) => (
+          <Marker key={i} position={[p.lat, p.lng]} icon={walkPinIcon(i + 1)}>
+            {(p.label || p.note) && <Tooltip>{p.label || `#${i + 1}`}{p.note ? ` — ${p.note}` : ""}</Tooltip>}
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}
+
+// Builder modal: click the map to drop stops, label/reorder them, name and save the walk.
+function WalkBuilder({ onClose, onSaved, lang, P }) {
+  const es = lang === "es";
+  const [points, setPoints] = useState([]);
+  const [name, setName] = useState("");
+  const [author, setAuthor] = useState("");
+  const [summary, setSummary] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const addPoint = (lat, lng) => setPoints((p) => [...p, { lat, lng, label: "", note: "" }]);
+  const setLabel = (i, v) => setPoints((p) => p.map((x, j) => (j === i ? { ...x, label: v } : x)));
+  const move = (i, d) => setPoints((p) => { const n = [...p]; const j = i + d; if (j < 0 || j >= n.length) return n; [n[i], n[j]] = [n[j], n[i]]; return n; });
+  const remove = (i) => setPoints((p) => p.filter((_, j) => j !== i));
+  async function save() {
+    setErr("");
+    if (!name.trim()) return setErr(es ? "Ponle nombre a tu caminata." : "Name your walk.");
+    if (points.length < 2) return setErr(es ? "Agrega al menos dos paradas." : "Add at least two stops on the map.");
+    setBusy(true);
+    try {
+      const r = await fetch("/api/walking-paths", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim(), author: author.trim(), summary: summary.trim(), points }) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "Failed to save");
+      onSaved(j.path);
+    } catch (e) { setErr(String(e.message || e)); }
+    setBusy(false);
+  }
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(13,20,40,.55)", display: "flex", justifyContent: "center", alignItems: "flex-start", overflowY: "auto", padding: "24px 14px" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: P.plaster, borderRadius: 20, maxWidth: 680, width: "100%", padding: "20px", boxShadow: "0 20px 60px rgba(0,0,0,.35)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 22, margin: 0, color: P.ink }}>🚶 {es ? "Arma una caminata" : "Build a walk"}</h2>
+          <button onClick={onClose} style={{ border: "none", background: P.chipBg, cursor: "pointer", width: 34, height: 34, borderRadius: "50%", fontSize: 18, color: P.inkSoft }}>×</button>
+        </div>
+        <p style={{ fontSize: 13.5, color: P.inkSoft, margin: "0 0 10px" }}>{es ? "Toca el mapa para agregar paradas en orden. Etiqueta cada una." : "Tap the map to drop stops in order, then label each one."}</p>
+        <WalkMap points={points} height={280} onAdd={addPoint} />
+        {points.length > 0 && (
+          <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
+            {points.map((p, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: P.coral, color: "#fff", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+                <input value={p.label} onChange={(e) => setLabel(i, e.target.value)} placeholder={es ? `Parada ${i + 1} (ej. Parroquia)` : `Stop ${i + 1} (e.g. Parroquia)`}
+                  style={{ flex: 1, padding: "7px 10px", borderRadius: 9, border: `1px solid ${P.line}`, fontSize: 13.5, background: P.card, color: P.ink }} />
+                <button onClick={() => move(i, -1)} disabled={i === 0} title="Up" style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, fontSize: 13 }}>▲</button>
+                <button onClick={() => move(i, 1)} disabled={i === points.length - 1} title="Down" style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, fontSize: 13 }}>▼</button>
+                <button onClick={() => remove(i)} title="Remove" style={{ border: "none", background: "transparent", cursor: "pointer", color: P.coral, fontSize: 15 }}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={es ? "Nombre de la caminata" : "Walk name (e.g. Centro art loop)"}
+            style={{ padding: "10px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 14, fontWeight: 700, background: P.card, color: P.ink }} />
+          <input value={summary} onChange={(e) => setSummary(e.target.value)} placeholder={es ? "Breve descripción (opcional)" : "Short description (optional)"}
+            style={{ padding: "9px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 13.5, background: P.card, color: P.ink }} />
+          <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder={es ? "Tu nombre (opcional)" : "Your name (optional)"}
+            style={{ padding: "9px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 13.5, background: P.card, color: P.ink }} />
+        </div>
+        {err && <p style={{ color: P.coral, fontSize: 13, margin: "8px 0 0" }}>{err}</p>}
+        <button onClick={save} disabled={busy} style={{ marginTop: 12, width: "100%", border: "none", background: busy ? P.inkSoft : P.coral, color: "#fff", cursor: busy ? "default" : "pointer", fontWeight: 800, fontSize: 15, padding: "12px", borderRadius: 12 }}>
+          {busy ? (es ? "Guardando…" : "Saving…") : (es ? "Guardar y compartir" : "Save walk")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// A card for a walk in the library or Saved page: preview map + save/share.
+function WalkCard({ path, lang, P, saved, onToggleSave, onShare, onPlan, shareMsg }) {
+  const es = lang === "es";
+  const n = (path.points || []).length;
+  return (
+    <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, overflow: "hidden" }}>
+      <WalkMap points={path.points || []} height={200} />
+      <div style={{ padding: "12px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+          <h3 style={{ fontFamily: "Georgia, serif", fontSize: 17, margin: 0, color: P.ink }}>{path.name}</h3>
+          <span style={{ fontSize: 12, color: P.inkSoft, whiteSpace: "nowrap" }}>{n} {es ? "paradas" : "stops"}</span>
+        </div>
+        {path.summary && <p style={{ fontSize: 13.5, color: P.inkSoft, lineHeight: 1.45, margin: "5px 0 0" }}>{path.summary}</p>}
+        {path.author && <p style={{ fontSize: 12, color: P.inkSoft, margin: "5px 0 0", fontStyle: "italic" }}>{es ? "Por" : "By"} {path.author}</p>}
+        <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+          <button onClick={onToggleSave} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${saved ? P.coral : P.line}`, background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.inkSoft, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: "7px 13px", borderRadius: 999 }}>
+            <Heart size={13} /> {saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
+          </button>
+          <button onClick={onShare} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${P.cobalt}`, background: P.chipBg, color: P.cobalt, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: "7px 13px", borderRadius: 999 }}>
+            <Share2 size={13} /> {shareMsg || (es ? "Compartir" : "Share")}
+          </button>
+          <a href={(() => {
+            const origin = typeof window !== "undefined" ? window.location.origin : "";
+            const stops = (path.points || []).map((p, i) => `${i + 1}. ${p.label || "Stop " + (i + 1)}`).join("%0D%0A");
+            const subject = encodeURIComponent(`${path.name} — a San Miguel walk`);
+            const body = `${encodeURIComponent(path.summary || "")}%0D%0A%0D%0A${stops}%0D%0A%0D%0A${encodeURIComponent(origin + "/?walk=" + path.id)}`;
+            return `mailto:?subject=${subject}&body=${body}`;
+          })()} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${P.line}`, background: P.chipBg, color: P.inkSoft, textDecoration: "none", fontWeight: 700, fontSize: 13, padding: "7px 13px", borderRadius: 999 }}>
+            ✉ {es ? "Correo" : "Email"}
+          </a>
+          {onPlan && (
+            <button onClick={onPlan} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13, padding: "7px 13px", borderRadius: 999 }}>
+              ✨ {es ? "Planear alrededor" : "Plan around it"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Library view: browse community walks, create one, save/share/plan around them.
+function WalksView({ lang, P, savedWalks, onToggleSave, onShare, shareMsg, onCreate, sharedWalk, onPlan }) {
+  const es = lang === "es";
+  const [lib, setLib] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { (async () => { try { const r = await fetch("/api/walking-paths"); const j = await r.json(); if (j.ok) setLib(j.paths || []); } catch {} setLoading(false); })(); }, []);
+  const savedIds = new Set(savedWalks.map((w) => w.id));
+  const list = sharedWalk ? [sharedWalk, ...lib.filter((p) => p.id !== sharedWalk.id)] : lib;
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        <h2 className="disp" style={{ fontSize: 22, fontFamily: "Georgia, serif", margin: 0, color: P.ink }}>{es ? "Caminatas" : "Walking paths"}</h2>
+        <button onClick={onCreate} style={{ border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 14, padding: "10px 16px", borderRadius: 11 }}>🚶 {es ? "Arma una caminata" : "Build a walk"}</button>
+      </div>
+      <p style={{ fontSize: 14, color: P.inkSoft, margin: "0 0 16px", maxWidth: "60ch", lineHeight: 1.5 }}>{es ? "Rutas a pie hechas por la comunidad. Guarda las que te gusten, compártelas o arma tu viaje alrededor de una." : "Community walking routes. Save the ones you like, share them, or plan a day around one."}</p>
+      {sharedWalk && <p style={{ fontSize: 13, color: P.cobalt, fontWeight: 700, margin: "0 0 12px" }}>{es ? "Alguien te compartió esta caminata:" : "Someone shared this walk with you:"}</p>}
+      {loading ? <p style={{ color: P.inkSoft }}>{es ? "Cargando…" : "Loading…"}</p>
+        : list.length === 0 ? <p style={{ color: P.inkSoft }}>{es ? "Aún no hay caminatas. ¡Crea la primera!" : "No walks yet. Build the first one!"}</p>
+        : <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+            {list.map((p) => <WalkCard key={p.id} path={p} lang={lang} P={P} saved={savedIds.has(p.id)} onToggleSave={() => onToggleSave(p)} onShare={() => onShare(p)} onPlan={() => onPlan(p)} shareMsg={shareMsg[p.id]} />)}
+          </div>}
+    </div>
+  );
+}
+
+function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpenEvent, onSaveAll, existingItinerary, onRefine, walk }) {
   const es = lang === "es";
   const [choosing, setChoosing] = useState(!!existingItinerary); // ask start-over vs refine when a plan exists
   const [days, setDays] = useState(3);
@@ -503,7 +663,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
       // Family is implied by "who's coming", so fold it in automatically rather than as a chip.
       const sendInterests = party === "family with kids" ? [...new Set([...interests, "family"])] : [...interests];
       const r = await fetch("/api/plan-trip", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ days, party, pace, interests: sendInterests, stay: stay || null, mustInclude: savedNames || [], startDate: startDate || null, lang }) });
+        body: JSON.stringify({ days, party, pace, interests: sendInterests, stay: stay || null, mustInclude: savedNames || [], startDate: startDate || null, walk: walk ? { name: walk.name, points: walk.points } : null, lang }) });
       const j = await r.json();
       if (j.ok && j.days?.length) setResult(j);
       else setError(j.error || (es ? "No pudimos armar un plan. Intenta de nuevo." : "Couldn't build a plan. Try again."));
@@ -551,6 +711,11 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
 
         {!result && !loading && !choosing && (
           <div style={{ display: "grid", gap: 16 }}>
+            {walk && (
+              <div style={{ background: P.chipBg, border: `1px solid ${P.cobalt}55`, borderRadius: 12, padding: "10px 13px", fontSize: 13.5, color: P.ink }}>
+                🚶 {es ? "Planeando alrededor de la caminata" : "Planning around the walk"} <strong>{walk.name}</strong>. {es ? "Sumaremos recomendaciones cerca de la ruta." : "We'll weave in picks near the route."}
+              </div>
+            )}
             <div>
               <p style={label2(P)}>{es ? "Días" : "Days"}</p>
               <div style={{ display: "flex", gap: 7 }}>{[1, 2, 3, 4, 5].map((d) => <button key={d} onClick={() => setDays(d)} style={pill(days === d, P.cobalt)}>{d}</button>)}</div>
@@ -800,21 +965,23 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
 }
 
 // Desktop nav "Guides" dropdown — combines Plan / Move Here / The Book to de-crowd the bar.
-function GuidesDropdown({ lang, P, tabStyle }) {
+function GuidesDropdown({ lang, P, tabStyle, onWalks }) {
   const [open, setOpen] = useState(false);
   const items = [
     ["/plan", lang === "es" ? "Planea tu viaje" : "Plan your trip"],
     ["/move", lang === "es" ? "Mudarse aquí" : "Move Here"],
     ["/ebook", lang === "es" ? "El libro" : "The Book"],
   ];
+  const linkStyle = { display: "block", width: "100%", textAlign: "left", padding: "9px 12px", color: P.ink, textDecoration: "none", fontSize: 14.5, fontWeight: 600, borderRadius: 8, whiteSpace: "nowrap", background: "transparent", border: "none", cursor: "pointer" };
   return (
     <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} style={{ position: "relative" }}>
       <button style={{ ...tabStyle, color: P.ink }}>{lang === "es" ? "Guías" : "Guides"} ▾</button>
       {open && (
         <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", background: "#fff", border: `1px solid ${P.line}`, borderRadius: 12, boxShadow: "0 10px 28px rgba(0,0,0,.14)", padding: 6, minWidth: 190, zIndex: 100 }}>
           {items.map(([href, label]) => (
-            <a key={href} href={href} style={{ display: "block", padding: "9px 12px", color: P.ink, textDecoration: "none", fontSize: 14.5, fontWeight: 600, borderRadius: 8, whiteSpace: "nowrap" }}>{label}</a>
+            <a key={href} href={href} style={linkStyle}>{label}</a>
           ))}
+          <button onClick={() => { setOpen(false); onWalks && onWalks(); }} style={linkStyle}>🚶 {lang === "es" ? "Caminatas" : "Walking paths"}</button>
         </div>
       )}
     </div>
@@ -891,8 +1058,24 @@ export default function App() {
   const [filterSheet, setFilterSheet] = useState(false); // mobile filter sheet
   const [events, setEvents] = useState(SEED_EVENTS);
   const [favLists, setFavLists] = useState(SEED_FAV_LISTS);
+  // Walking paths: device-saved list, builder modal, a link-shared walk, and share status.
+  const [savedWalks, setSavedWalks] = useState(() => { try { return JSON.parse(localStorage.getItem("qp_saved_walks") || "[]"); } catch { return []; } });
+  const [showWalkBuilder, setShowWalkBuilder] = useState(false);
+  const [sharedWalk, setSharedWalk] = useState(null);
+  const [walkShareMsg, setWalkShareMsg] = useState({});
+  const [plannerWalk, setPlannerWalk] = useState(null); // a walk to plan a day around
   const t = T[lang];
   const P = PALETTES[theme];
+
+  useEffect(() => { try { localStorage.setItem("qp_saved_walks", JSON.stringify(savedWalks)); } catch {} }, [savedWalks]);
+  const toggleSaveWalk = (path) => setSavedWalks((w) => w.some((x) => x.id === path.id) ? w.filter((x) => x.id !== path.id) : [...w, path]);
+  async function shareWalk(path) {
+    const url = `${window.location.origin}/?walk=${path.id}`;
+    try { if (navigator.share) { await navigator.share({ title: path.name, url }); return; } } catch {}
+    try { await navigator.clipboard.writeText(url); setWalkShareMsg((m) => ({ ...m, [path.id]: lang === "es" ? "¡Copiado!" : "Copied!" })); setTimeout(() => setWalkShareMsg((m) => ({ ...m, [path.id]: "" })), 2500); }
+    catch { setWalkShareMsg((m) => ({ ...m, [path.id]: url })); }
+  }
+  function planAroundWalk(path) { setPlannerWalk(path); setShowWalkBuilder(false); setShowPlanner(true); }
 
   useEffect(() => { localStorage.setItem("qp_saved_events", JSON.stringify([...saved])); }, [saved]);
   useEffect(() => { localStorage.setItem("qp_saved_places", JSON.stringify([...savedPlaces])); }, [savedPlaces]);
@@ -1027,6 +1210,12 @@ export default function App() {
       const v = params.get("view");
       if (v === "events" || v === "saved") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
       if (params.get("planner")) { setShowPlanner(true); window.history.replaceState({}, "", window.location.pathname); }
+      const walkId = params.get("walk");
+      if (walkId) {
+        setView("walks");
+        (async () => { try { const r = await fetch(`/api/walking-paths?id=${encodeURIComponent(walkId)}`); const j = await r.json(); if (j.ok) setSharedWalk(j.path); } catch {} })();
+        window.history.replaceState({}, "", window.location.pathname);
+      }
       const p = params.get("trip");
       if (!p) return;
       const t = b64u.dec(p);
@@ -1119,7 +1308,7 @@ export default function App() {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
                 color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                 display: "flex", alignItems: "center", gap: 6, textDecoration: "none" };
-              if (k === "guides") return <GuidesDropdown key={k} lang={lang} P={P} tabStyle={tabStyle} />;
+              if (k === "guides") return <GuidesDropdown key={k} lang={lang} P={P} tabStyle={tabStyle} onWalks={() => setView("walks")} />;
               if (k === "planner") return (
                 <button key={k} onClick={() => setShowPlanner(true)}
                   style={{ border: "none", cursor: "pointer", background: P.coral, color: "#fff", fontSize: 15, fontWeight: 800, padding: "8px 16px", borderRadius: 999, display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
@@ -1496,6 +1685,9 @@ export default function App() {
               ))}
             </div>
           </div>
+        ) : view === "walks" ? (
+          <WalksView lang={lang} P={P} savedWalks={savedWalks} onToggleSave={toggleSaveWalk} onShare={shareWalk} shareMsg={walkShareMsg}
+            onCreate={() => setShowWalkBuilder(true)} sharedWalk={sharedWalk} onPlan={planAroundWalk} />
         ) : (
           /* ---- Saved (device-based personal collection) ---- */
           <>
@@ -1525,7 +1717,15 @@ export default function App() {
               </button>
             </div>
           ) : null}
-          {savedEvents.length === 0 && savedPlaceItems.length === 0 ? (savedItinerary ? null : (
+          {savedWalks.length > 0 && (
+            <section style={{ marginBottom: 24 }}>
+              <h2 className="disp" style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>{lang === "es" ? "Caminatas guardadas" : "Saved walks"}</h2>
+              <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+                {savedWalks.map((p) => <WalkCard key={p.id} path={p} lang={lang} P={P} saved onToggleSave={() => toggleSaveWalk(p)} onShare={() => shareWalk(p)} onPlan={() => planAroundWalk(p)} shareMsg={walkShareMsg[p.id]} />)}
+              </div>
+            </section>
+          )}
+          {savedEvents.length === 0 && savedPlaceItems.length === 0 && savedWalks.length === 0 ? (savedItinerary ? null : (
             <div style={{ textAlign: "center", padding: "48px 24px", color: P.inkSoft }}>
               <Heart size={30} color={P.rosa} style={{ opacity: .6 }} />
               <p className="disp" style={{ fontSize: 17, fontWeight: 700, color: P.ink, margin: "12px 0 6px" }}>{t.savedEmpty}</p>
@@ -1693,10 +1893,15 @@ export default function App() {
           onSave={() => toggleSavePlace(placeDetail.name)} onClose={() => setPlaceDetail(null)} />
       )}
 
+      {showWalkBuilder && (
+        <WalkBuilder lang={lang} P={P} onClose={() => setShowWalkBuilder(false)}
+          onSaved={(path) => { setSavedWalks((w) => [path, ...w]); setShowWalkBuilder(false); setSharedWalk(path); setView("walks"); }} />
+      )}
       {showPlanner && (
         <TripPlanner
-          onClose={() => setShowPlanner(false)}
+          onClose={() => { setShowPlanner(false); setPlannerWalk(null); }}
           existingItinerary={savedItinerary}
+          walk={plannerWalk}
           onRefine={() => { setShowPlanner(false); setView("saved"); }}
           stay={stay} savedNames={[...savedPlaces]} lang={lang} t={t} P={P}
           onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
