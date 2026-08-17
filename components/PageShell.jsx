@@ -6,12 +6,14 @@ import Link from "next/link";
 
 export default function PageShell({ children, active }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#F7F3EC", color: "#241C14", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
-      <div style={{ height: 8, background: "repeating-linear-gradient(90deg, #0D1B36 0 26px, #E11D74 26px 39px, #F2B134 39px 52px)" }} />
+    <div style={{ minHeight: "100vh", background: "#F7F3EC", color: "#241C14", fontFamily: "'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+      <style>{`.pageshell-logo{height:58px}@media(min-width:680px){.pageshell-logo{height:84px}}`}</style>
+      {/* Same woven top stripe as the home app */}
+      <div style={{ height: 8, background: "repeating-linear-gradient(135deg, #15539A 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, #E11D74 0 8px, #F2A100 8px 16px)", backgroundBlendMode: "multiply" }} />
       <header style={{ background: "#FFFFFF", borderBottom: "1px solid #E7DDCB", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1060, margin: "0 auto", padding: "9px 20px", display: "flex", alignItems: "center", gap: 22 }}>
           <Link href="/" style={{ display: "block", flexShrink: 0 }}>
-            <img src="/logo-light.svg" alt="Vamos San Miguel" style={{ height: 58, width: "auto", display: "block" }} />
+            <img src="/logo-light.svg" alt="Vamos San Miguel" className="pageshell-logo" style={{ width: "auto", display: "block" }} />
           </Link>
           {/* Same tabs as the home app, so navigation is consistent site-wide */}
           <nav style={{ marginLeft: "auto", display: "flex", gap: 30, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
