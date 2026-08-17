@@ -559,8 +559,8 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
               </div>
             ))}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-              <button onClick={() => onSaveAll(result)} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
-                {es ? "Guardar todo en Mi viaje" : "Save all to My Trip"}
+              <button onClick={() => onSaveAll(result, { days, party, pace, interests: [...interests], stay: stay || null, mustInclude: savedNames || [] })} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
+                {es ? "Guardar itinerario" : "Save this itinerary"}
               </button>
               <button onClick={() => { setResult(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
                 {es ? "Ajustar" : "Tweak it"}
@@ -588,6 +588,93 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
   );
 }
 const label2 = (P) => ({ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 7px" });
+
+// Saved itinerary shown as a day planner, with a chat to ask questions / tweak it in place.
+function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent }) {
+  const es = lang === "es";
+  const [messages, setMessages] = useState([]); // {role, content}
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailMsg, setEmailMsg] = useState("");
+
+  async function send() {
+    const msg = input.trim(); if (!msg || busy) return;
+    setInput(""); setBusy(true);
+    const history = messages.slice(-8);
+    setMessages((m) => [...m, { role: "user", content: msg }]);
+    try {
+      const r = await fetch("/api/plan-chat", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itinerary: itin, userMessage: msg, history, context: itin._ctx || {}, lang }) });
+      const j = await r.json();
+      if (j.ok) {
+        setMessages((m) => [...m, { role: "assistant", content: j.reply || (es ? "Listo." : "Done.") }]);
+        if (j.changed && j.itinerary?.days?.length) setItin({ ...j.itinerary, _ctx: itin._ctx });
+      } else setMessages((m) => [...m, { role: "assistant", content: es ? "Perdón, no pude con eso." : "Sorry, I couldn't do that." }]);
+    } catch { setMessages((m) => [...m, { role: "assistant", content: es ? "Error de red." : "Network error." }]); }
+    setBusy(false);
+  }
+  async function emailIt() {
+    if (!email.trim()) return; setEmailMsg("");
+    try {
+      const r = await fetch("/api/email-itinerary", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: email.trim(), itinerary: itin, lang }) });
+      const j = await r.json(); setEmailMsg(j.ok ? (es ? "¡Enviado!" : "Sent!") : (es ? "No se pudo." : "Couldn't send."));
+    } catch { setEmailMsg(es ? "Error." : "Error."); }
+  }
+
+  return (
+    <section style={{ marginBottom: 26, background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, padding: "18px 18px 14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 20, margin: 0, color: P.ink }}>✨ {es ? "Tu itinerario" : "Your itinerary"}</h2>
+        <button onClick={() => { setItin(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "5px 12px", borderRadius: 999 }}>{es ? "Borrar" : "Clear"}</button>
+      </div>
+      {itin.summary && <p style={{ fontSize: 14, lineHeight: 1.55, color: P.inkSoft, margin: "0 0 14px" }}>{itin.summary}</p>}
+      {itin.days.map((d) => (
+        <div key={d.day} style={{ marginBottom: 16 }}>
+          <h3 className="disp" style={{ fontSize: 15.5, fontWeight: 800, color: P.ink, margin: "0 0 8px" }}>{es ? `Día ${d.day}` : `Day ${d.day}`}{d.title ? ` · ${d.title}` : ""}</h3>
+          <div style={{ display: "grid", gap: 7 }}>
+            {d.items.map((it, i) => (
+              <button key={i} onClick={() => it.kind === "event" ? onOpenEvent(it.name) : onOpenPick(it.name)}
+                style={{ textAlign: "left", border: `1px solid ${P.line}`, background: P.plaster, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 7px", borderRadius: 999, marginTop: 1 }}>
+                  {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
+                </span>
+                <span><span style={{ fontWeight: 700, color: P.ink, fontSize: 14 }}>{it.name}</span>
+                  {it.why && <span style={{ display: "block", fontSize: 12.5, color: P.inkSoft, lineHeight: 1.4, marginTop: 1 }}>{it.why}</span>}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Chat to ask / tweak */}
+      <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1px dashed ${P.line}` }}>
+        <p style={{ ...label2(P), margin: "0 0 8px" }}>{es ? "Pregunta o ajusta" : "Ask or tweak"}</p>
+        {messages.length > 0 && (
+          <div style={{ display: "grid", gap: 7, marginBottom: 10, maxHeight: 240, overflowY: "auto" }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{ justifySelf: m.role === "user" ? "end" : "start", maxWidth: "85%", fontSize: 13.5, lineHeight: 1.45, padding: "8px 12px", borderRadius: 12,
+                background: m.role === "user" ? P.cobalt : P.chipBg, color: m.role === "user" ? "#fff" : P.ink, border: m.role === "user" ? "none" : `1px solid ${P.line}` }}>{m.content}</div>
+            ))}
+            {busy && <div style={{ justifySelf: "start", fontSize: 13, color: P.inkSoft, padding: "8px 12px" }}>{es ? "Pensando…" : "Thinking…"}</div>}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }}
+            placeholder={es ? "p. ej. haz el día 2 más relajado" : "e.g. make day 2 more relaxed"}
+            style={{ flex: 1, padding: "10px 13px", borderRadius: 11, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
+          <button onClick={send} disabled={busy || !input.trim()} style={{ border: "none", background: busy || !input.trim() ? P.inkSoft : P.coral, color: "#fff", cursor: busy ? "default" : "pointer", fontWeight: 700, fontSize: 14, padding: "10px 16px", borderRadius: 11 }}>{es ? "Enviar" : "Send"}</button>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder={es ? "Envíatelo: tu@correo.com" : "Email it: you@email.com"} onKeyDown={(e) => { if (e.key === "Enter") emailIt(); }}
+            style={{ flex: 1, minWidth: 170, padding: "8px 11px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 13.5, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
+          <button onClick={emailIt} disabled={!email.trim()} style={{ border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "8px 14px", borderRadius: 10 }}>{es ? "Enviar por correo" : "Email me"}</button>
+          {emailMsg && <span style={{ fontSize: 12.5, color: emailMsg.includes("!") ? P.green : P.coral }}>{emailMsg}</span>}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // Desktop nav "Guides" dropdown — combines Plan / Move Here / The Book to de-crowd the bar.
 function GuidesDropdown({ lang, P, tabStyle }) {
@@ -663,6 +750,8 @@ export default function App() {
   const [savedLayout, setSavedLayout] = useState("list"); // list | map (Saved trip)
   const [expandedLists, setExpandedLists] = useState(() => new Set()); // per-list "show all" on the Picks home
   const [showPlanner, setShowPlanner] = useState(false); // AI trip planner modal
+  const [savedItinerary, setSavedItinerary] = useState(() => { try { return JSON.parse(localStorage.getItem("qp_itinerary") || "null"); } catch { return null; } });
+  useEffect(() => { try { savedItinerary ? localStorage.setItem("qp_itinerary", JSON.stringify(savedItinerary)) : localStorage.removeItem("qp_itinerary"); } catch {} }, [savedItinerary]);
   const [stay, setStay] = useState(null); // [lat, lng] — where the visitor is staying (device-stored)
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
@@ -1246,7 +1335,13 @@ export default function App() {
           </div>
         ) : (
           /* ---- Saved (device-based personal collection) ---- */
-          savedEvents.length === 0 && savedPlaceItems.length === 0 ? (
+          <>
+          {savedItinerary && (
+            <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P}
+              onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
+              onOpenEvent={(name) => { const e = events.find((x) => x.title?.en === name || x.title?.[lang] === name); if (e) setDetail(e); }} />
+          )}
+          {savedEvents.length === 0 && savedPlaceItems.length === 0 ? (savedItinerary ? null : (
             <div style={{ textAlign: "center", padding: "48px 24px", color: P.inkSoft }}>
               <Heart size={30} color={P.rosa} style={{ opacity: .6 }} />
               <p className="disp" style={{ fontSize: 17, fontWeight: 700, color: P.ink, margin: "12px 0 6px" }}>{t.savedEmpty}</p>
@@ -1256,7 +1351,7 @@ export default function App() {
                 ✨ {lang === "es" ? "Deja que la IA arme tu viaje" : "Let AI plan your trip"}
               </button>
             </div>
-          ) : (
+          )) : (
             <>
               {/* Toolbar: title + Share + List/Map toggle (map = "My Trip" planner) */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, gap: 10, flexWrap: "wrap" }}>
@@ -1329,7 +1424,8 @@ export default function App() {
               </>
               )}
             </>
-          )
+          )}
+          </>
         )}
 
         <p style={{ textAlign: "center", fontSize: 12, color: P.inkSoft, marginTop: 34, lineHeight: 1.6 }}>{t.footer}</p>
@@ -1419,12 +1515,13 @@ export default function App() {
           stay={stay} savedNames={[...savedPlaces]} lang={lang} t={t} P={P}
           onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
           onOpenEvent={(name) => { const e = events.find((x) => (x.title?.en === name) || (x.title?.[lang] === name)); if (e) setDetail(e); }}
-          onSaveAll={(res) => {
+          onSaveAll={(res, ctx) => {
             const names = res.days.flatMap((d) => d.items.filter((i) => i.kind !== "event").map((i) => i.name));
             const ids = res.days.flatMap((d) => d.items.filter((i) => i.kind === "event")
               .map((i) => (events.find((x) => x.title?.en === i.name || x.title?.[lang] === i.name) || {}).id).filter(Boolean));
             if (names.length) setSavedPlaces((s) => new Set([...s, ...names]));
             if (ids.length) setSaved((s) => new Set([...s, ...ids]));
+            setSavedItinerary({ ...res, _ctx: ctx || null }); // keep the schedule + inputs for chat tweaks
             setShowPlanner(false); setView("saved");
           }} />
       )}
