@@ -4,20 +4,26 @@ import Link from "next/link";
 // Branded server-rendered wrapper for the static guide pages (/move/*).
 // Keeps them on-brand without pulling in the client app.
 
-export default function PageShell({ children }) {
+export default function PageShell({ children, active }) {
   return (
     <div style={{ minHeight: "100vh", background: "#F7F3EC", color: "#241C14", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
       <div style={{ height: 8, background: "repeating-linear-gradient(90deg, #0D1B36 0 26px, #E11D74 26px 39px, #F2B134 39px 52px)" }} />
-      <header style={{ background: "#FFFFFF", borderBottom: "1px solid #E7DDCB" }}>
-        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "12px 20px", display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/" style={{ display: "block" }}>
-            <img src="/logo-light.svg" alt="Vamos San Miguel" style={{ height: 56, width: "auto", display: "block" }} />
+      <header style={{ background: "#FFFFFF", borderBottom: "1px solid #E7DDCB", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "9px 20px", display: "flex", alignItems: "center", gap: 22 }}>
+          <Link href="/" style={{ display: "block", flexShrink: 0 }}>
+            <img src="/logo-light.svg" alt="Vamos San Miguel" style={{ height: 58, width: "auto", display: "block" }} />
           </Link>
-          <nav style={{ marginLeft: "auto", display: "flex", gap: 18, fontSize: 15, fontWeight: 600 }}>
-            <Link href="/" style={{ color: "#6E604F", textDecoration: "none" }}>Local Picks</Link>
-            <Link href="/plan" style={{ color: "#6E604F", textDecoration: "none" }}>Plan</Link>
-            <Link href="/move" style={{ color: "#6E604F", textDecoration: "none" }}>Move Here</Link>
-            <Link href="/ebook" style={{ color: "#6E604F", textDecoration: "none" }}>The Book</Link>
+          {/* Same tabs as the home app, so navigation is consistent site-wide */}
+          <nav style={{ marginLeft: "auto", display: "flex", gap: 30, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
+            {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"], ["/plan", "Plan", "plan"], ["/move", "Move Here", "move"], ["/?view=saved", "Saved", "saved"]].map(([href, label, key]) => {
+              const on = key === active;
+              return (
+                <Link key={label} href={href}
+                  style={{ color: on ? "#E06A63" : "#241C14", textDecoration: "none", whiteSpace: "nowrap", borderBottom: on ? "3px solid #E06A63" : "3px solid transparent", paddingBottom: 3 }}>
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </header>

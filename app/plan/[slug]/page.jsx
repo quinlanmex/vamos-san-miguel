@@ -60,7 +60,7 @@ export default async function PlanGuide({ params }) {
   } : null;
 
   return (
-    <PageShell>
+    <PageShell active="plan">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
 

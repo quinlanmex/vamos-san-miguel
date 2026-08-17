@@ -589,7 +589,11 @@ export default function App() {
   };
   useEffect(() => {
     try {
-      const p = new URLSearchParams(window.location.search).get("trip");
+      const params = new URLSearchParams(window.location.search);
+      // Open a specific tab when linked from a content page (e.g. /?view=events).
+      const v = params.get("view");
+      if (v === "events" || v === "saved") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
+      const p = params.get("trip");
       if (!p) return;
       const t = b64u.dec(p);
       if (t && (t.p?.length || t.e?.length || t.s)) {

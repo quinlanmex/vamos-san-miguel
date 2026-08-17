@@ -28,7 +28,7 @@ export default async function PlanHub() {
   };
 
   return (
-    <PageShell>
+    <PageShell active="plan">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: "#B4791F", margin: "0 0 8px" }}>
         San Miguel de Allende · Plan your trip

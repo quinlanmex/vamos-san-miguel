@@ -66,7 +66,7 @@ export default function MoveGuide({ params }) {
   } : null;
 
   return (
-    <PageShell>
+    <PageShell active="move">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
 
