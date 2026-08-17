@@ -437,8 +437,9 @@ const SLOT_LABEL = {
   lunch: { en: "Lunch", es: "Comida" }, afternoon: { en: "Afternoon", es: "Tarde" },
   dinner: { en: "Dinner", es: "Cena" }, evening: { en: "Evening", es: "Noche" },
 };
-function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpenEvent, onSaveAll }) {
+function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpenEvent, onSaveAll, existingItinerary, onRefine }) {
   const es = lang === "es";
+  const [choosing, setChoosing] = useState(!!existingItinerary); // ask start-over vs refine when a plan exists
   const [days, setDays] = useState(3);
   const [party, setParty] = useState("couple");
   const [pace, setPace] = useState("balanced");
@@ -495,6 +496,24 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
         </div>
         <style>{`@keyframes qp-spin{to{transform:rotate(360deg)}}@keyframes qp-pulse{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.05)}}`}</style>
 
+        {choosing && !result && !loading && (
+          <div style={{ display: "grid", gap: 12 }}>
+            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: P.ink, margin: 0 }}>
+              {es ? "Ya tienes un viaje guardado. ¿Qué prefieres?" : "You already have a saved trip. What would you like to do?"}
+            </p>
+            <button onClick={() => onRefine && onRefine()}
+              style={{ border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 15, padding: "13px", borderRadius: 12, textAlign: "left" }}>
+              💬 {es ? "Ajustar mi viaje actual (conversando)" : "Refine my current trip (by chat)"}
+              <span style={{ display: "block", fontWeight: 500, fontSize: 12.5, opacity: .9, marginTop: 2 }}>{es ? "Mantén tu horario y solo dime qué cambiar." : "Keep your schedule and just tell me what to change."}</span>
+            </button>
+            <button onClick={() => setChoosing(false)}
+              style={{ border: `1px solid ${P.line}`, background: P.chipBg, color: P.ink, cursor: "pointer", fontWeight: 700, fontSize: 14.5, padding: "12px", borderRadius: 12, textAlign: "left" }}>
+              ✨ {es ? "Empezar un plan nuevo" : "Start a new plan"}
+              <span style={{ display: "block", fontWeight: 500, fontSize: 12.5, color: P.inkSoft, marginTop: 2 }}>{es ? "Reemplaza el itinerario guardado." : "Replaces your saved itinerary."}</span>
+            </button>
+          </div>
+        )}
+
         {loading && (
           <div style={{ padding: "40px 16px", textAlign: "center" }}>
             <div style={{ fontSize: 44, animation: "qp-pulse 1.4s ease-in-out infinite" }}>✨</div>
@@ -504,7 +523,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
           </div>
         )}
 
-        {!result && !loading && (
+        {!result && !loading && !choosing && (
           <div style={{ display: "grid", gap: 16 }}>
             <div>
               <p style={label2(P)}>{es ? "Días" : "Days"}</p>
@@ -592,7 +611,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
 const label2 = (P) => ({ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 7px" });
 
 // Saved itinerary shown as a day planner, with a chat to ask questions / tweak it in place.
-function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent }) {
+function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, savedNames }) {
   const es = lang === "es";
   const [messages, setMessages] = useState([]); // {role, content}
   const [input, setInput] = useState("");
@@ -607,7 +626,7 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent }) 
     setMessages((m) => [...m, { role: "user", content: msg }]);
     try {
       const r = await fetch("/api/plan-chat", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itinerary: itin, userMessage: msg, history, context: itin._ctx || {}, lang }) });
+        body: JSON.stringify({ itinerary: itin, userMessage: msg, history, context: { ...(itin._ctx || {}), mustInclude: savedNames && savedNames.length ? savedNames : (itin._ctx?.mustInclude || []) }, lang }) });
       const j = await r.json();
       if (j.ok) {
         setMessages((m) => [...m, { role: "assistant", content: j.reply || (es ? "Listo." : "Done.") }]);
@@ -1339,7 +1358,7 @@ export default function App() {
           /* ---- Saved (device-based personal collection) ---- */
           <>
           {savedItinerary && (
-            <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P}
+            <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P} savedNames={[...savedPlaces]}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
               onOpenEvent={(name) => { const e = events.find((x) => x.title?.en === name || x.title?.[lang] === name); if (e) setDetail(e); }} />
           )}
@@ -1514,6 +1533,8 @@ export default function App() {
       {showPlanner && (
         <TripPlanner
           onClose={() => setShowPlanner(false)}
+          existingItinerary={savedItinerary}
+          onRefine={() => { setShowPlanner(false); setView("saved"); }}
           stay={stay} savedNames={[...savedPlaces]} lang={lang} t={t} P={P}
           onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
           onOpenEvent={(name) => { const e = events.find((x) => (x.title?.en === name) || (x.title?.[lang] === name)); if (e) setDetail(e); }}
