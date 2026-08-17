@@ -2,12 +2,12 @@ import Link from "next/link";
 import PageShell from "../../components/PageShell";
 
 export const metadata = {
-  title: "The Geography of a Richer Life — the book | Vamos San Miguel",
-  description: "The book behind the Move Here guides: how choosing where you live changes your money, your time, and who you get to be. A practical, honest playbook for geographic arbitrage and moving abroad.",
+  title: "The Geography of Wealth — the book | Vamos San Miguel",
+  description: "The book behind the Move Here guides: how moving to Mexico changes your money, your time, and who you get to be. A practical, honest playbook for geographic arbitrage and moving abroad.",
   alternates: { canonical: "/ebook" },
   openGraph: {
-    title: "The Geography of a Richer Life",
-    description: "How choosing where you live changes your money, your time, and who you get to be.",
+    title: "The Geography of Wealth",
+    description: "How moving to Mexico changes your money, your time, and who you get to be.",
     type: "book",
   },
 };
@@ -26,8 +26,8 @@ export default function Ebook() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Book",
-    name: "The Geography of a Richer Life",
-    alternativeHeadline: "How Choosing Where You Live Changes Your Money, Your Time, and Who You Get to Be",
+    name: "The Geography of Wealth",
+    alternativeHeadline: "How Moving to Mexico Changes Your Money, Your Time, and Who You Get to Be",
     author: { "@type": "Organization", name: "Vamos San Miguel" },
     inLanguage: "en",
     about: ["Geographic arbitrage", "Moving to Mexico", "San Miguel de Allende", "Expat relocation"],
@@ -41,10 +41,10 @@ export default function Ebook() {
         The book
       </p>
       <h1 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(28px, 4.6vw, 42px)", lineHeight: 1.05, margin: "0 0 10px", letterSpacing: "-.01em" }}>
-        The Geography of a Richer Life
+        The Geography of Wealth
       </h1>
       <p style={{ fontSize: 18, lineHeight: 1.4, color: "#0D1B36", fontStyle: "italic", margin: "0 0 22px", maxWidth: "40ch" }}>
-        How choosing where you live changes your money, your time, and who you get to be.
+        How moving to Mexico changes your money, your time, and who you get to be.
       </p>
 
       <p style={{ fontSize: 16.5, lineHeight: 1.65, color: "#3A3125", margin: "0 0 15px", maxWidth: "60ch" }}>

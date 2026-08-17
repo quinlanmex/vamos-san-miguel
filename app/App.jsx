@@ -975,8 +975,20 @@ export default function App() {
   // Cuisines are OR'd (show any selected cuisine); good-for + diet are AND'd (must-have).
   const selCuisines = [...favCuisine].filter((c) => !GOODFOR.includes(c));
   const selGoodfor = [...favCuisine].filter((c) => GOODFOR.includes(c));
-  const favFiltered = favLists
-    .filter((l) => !favType || l.key === favType)
+  // Wellness is both a type and an amenity: under "Wellness & Spas" also surface any pick
+  // (a restaurant, cafe, etc.) tagged with the wellness facet, deduped by name.
+  let visibleLists;
+  if (favType === "wellness") {
+    const wl = favLists.find((l) => l.key === "wellness") || { key: "wellness", label: { en: "Wellness & Spas", es: "Bienestar y spas" }, items: [] };
+    const seen = new Set(); const items = [];
+    favLists.flatMap((l) => l.items).forEach((it) => {
+      if ((it.list_key === "wellness" || (it.cuisine || []).includes("wellness")) && !seen.has(it.name)) { seen.add(it.name); items.push(it); }
+    });
+    visibleLists = [{ ...wl, items }];
+  } else {
+    visibleLists = favLists.filter((l) => !favType || l.key === favType);
+  }
+  const favFiltered = visibleLists
     .map((l) => ({ ...l, items: l.items.filter((it) => {
       const cz = it.cuisine || [];
       const cuisineOK = !selCuisines.length || selCuisines.some((c) => cz.includes(c));

@@ -5,9 +5,11 @@ export const runtime = "nodejs";
 // Translate one or more short English fields to natural Mexican Spanish. Used by the admin
 // editor so Spanish copy tracks the English. Returns a map keyed the same as the input.
 export async function POST(req) {
-  const { password, texts } = await req.json().catch(() => ({}));
+  const { password, texts, to } = await req.json().catch(() => ({}));
   if (password !== process.env.ADMIN_PASSWORD) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 500 });
+  const target = to === "en" ? "en" : "es";
+  const targetLang = target === "en" ? "English (US)" : "natural, warm Mexican Spanish as used in San Miguel de Allende";
 
   // Accept { texts: { key: english } } and only translate non-empty strings.
   const entries = Object.entries(texts && typeof texts === "object" ? texts : {})
@@ -19,12 +21,12 @@ export async function POST(req) {
   for (const [k] of entries) props[k] = { type: "string" };
   const tool = {
     name: "emit_translations",
-    description: "Return the Mexican Spanish translation of each field, keyed the same.",
+    description: "Return the translation of each field, keyed the same.",
     input_schema: { type: "object", properties: props, required: entries.map(([k]) => k) },
   };
 
   const payload = entries.map(([k, v]) => `[${k}]\n${v}`).join("\n\n");
-  const prompt = `Translate each field below into natural, warm Mexican Spanish as used in San Miguel de Allende. Keep proper nouns, place names, and brand names unchanged. Match the tone and length of the original. Never use em-dashes or en-dashes; use commas, periods, or "y". Do not add anything that is not in the source.
+  const prompt = `Translate each field below into ${targetLang}. Keep proper nouns, place names, and brand names unchanged. Match the tone and length of the original. Never use em-dashes or en-dashes; use commas, periods, or "and"/"y". Do not add anything that is not in the source.
 
 FIELDS:
 ${payload}

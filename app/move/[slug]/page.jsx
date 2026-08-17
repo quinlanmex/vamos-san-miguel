@@ -101,7 +101,7 @@ export default function MoveGuide({ params }) {
       <div style={{ marginTop: 34, padding: "20px 22px", background: "#0D1B36", color: "#F7F3EC", borderRadius: 16 }}>
         <p style={{ margin: "0 0 6px", fontFamily: "Georgia, serif", fontSize: 19, color: "#fff" }}>Adapted from the book</p>
         <p style={{ margin: "0 0 14px", fontSize: 14.5, lineHeight: 1.55, opacity: .92 }}>
-          This guide is drawn from <em>The Geography of a Richer Life</em>, our full playbook on the money, the moves, and the life on the other side.
+          This guide is drawn from <em>The Geography of Wealth</em>, our full playbook on the money, the moves, and the life on the other side.
         </p>
         <Link href="/ebook" style={{ display: "inline-block", background: "#E06A63", color: "#fff", fontWeight: 700, fontSize: 14.5, padding: "10px 18px", borderRadius: 11, textDecoration: "none" }}>
           About the book →

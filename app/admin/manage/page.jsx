@@ -136,30 +136,24 @@ export default function Manage() {
   const upd = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
   const toggle = (k, val) => setEditing((e) => { const s = new Set(e[k] || []); s.has(val) ? s.delete(val) : s.add(val); return { ...e, [k]: [...s] }; });
 
-  // English -> Spanish field pairs for the current record type. Editing English and
-  // translating keeps the Spanish copy in step.
-  const esPairs = () => (kind === "event"
-    ? [["title_en", "title_es"], ["blurb_en", "blurb_es"], ["price_en", "price_es"]]
-    : [["desc_en", "desc_es"], ["tip", "tip_es"], ["why_love", "why_love_es"], ["what_to_order", "what_to_order_es"], ["best_time", "best_time_es"]]);
-
-  // Translate the given [en, es] pairs from the editing record and write the Spanish back.
-  async function translatePairs(pairs, { onlyEmpty = false } = {}) {
-    const texts = {};
-    for (const [enK, esK] of pairs) {
-      const v = (editing?.[enK] || "").trim();
-      if (v && (!onlyEmpty || !(editing?.[esK] || "").trim())) texts[enK] = v;
-    }
-    if (!Object.keys(texts).length) return;
+  // Bidirectional auto-translate: editing one language fills the other on blur. A ref of
+  // the last value we translated (per field) prevents redundant calls and any ping-pong.
+  const trRef = useRef({});
+  async function autoTranslate(fromKey, toKey, toLang) {
+    const val = (editing?.[fromKey] || "").trim();
+    if (!val || trRef.current[fromKey] === val) return; // empty or unchanged since last time
+    trRef.current[fromKey] = val;
     setTranslating(true);
     try {
-      const r = await fetch("/api/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, texts }) });
+      const r = await fetch("/api/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, to: toLang, texts: { t: val } }) });
       const j = await r.json();
-      if (j.ok) setEditing((e) => { const n = { ...e }; for (const [enK, esK] of pairs) if (j.texts[enK]) n[esK] = j.texts[enK]; return n; });
-      else setMsg({ type: "err", text: j.error || "Translation failed" });
-    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+      if (j.ok && j.texts && j.texts.t) {
+        trRef.current[toKey] = j.texts.t; // so the reverse blur sees it as "already translated"
+        setEditing((e) => ({ ...e, [toKey]: j.texts.t }));
+      }
+    } catch { /* leave fields as-is on failure */ }
     setTranslating(false);
   }
-  const translateAll = () => translatePairs(esPairs());
 
   async function save() {
     setBusy(true); setMsg(null);
@@ -701,8 +695,7 @@ export default function Manage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 10 }}>
               <h2 style={{ fontSize: 17, margin: 0 }}>{editing.id ? "Edit" : "New"} {isPlace ? "Local Pick" : "event"}</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <button onClick={translateAll} disabled={translating} title="Translate every English field to Spanish (fills the Spanish fields)"
-                  style={{ ...btn(P.cobalt, !translating), padding: "7px 12px" }}>{translating ? "Translating…" : "↺ Translate to Spanish"}</button>
+                {translating && <span style={{ fontSize: 12.5, color: P.cobalt, fontWeight: 700 }}>Translating…</span>}
                 <button onClick={() => setEditing(null)} style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Cancel</button>
               </div>
             </div>
@@ -710,9 +703,10 @@ export default function Manage() {
               {isPlace ? (
                 <>
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Name</label><input style={field} value={editing.name || ""} onChange={(e) => upd("name", e.target.value)} /></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Description (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_en || ""} onChange={(e) => upd("desc_en", e.target.value)}
-                    onBlur={() => translatePairs([["desc_en", "desc_es"]], { onlyEmpty: true })} /></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Descripción (ES) <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: P.inkSoft }}>{translating ? "· translating…" : "· auto-fills from English"}</span></label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_es || ""} onChange={(e) => upd("desc_es", e.target.value)} /></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Description (EN) <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: P.inkSoft }}>· auto-syncs with Spanish</span></label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_en || ""} onChange={(e) => upd("desc_en", e.target.value)}
+                    onBlur={() => autoTranslate("desc_en", "desc_es", "es")} /></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Descripción (ES) <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: P.inkSoft }}>· auto-syncs with English</span></label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_es || ""} onChange={(e) => upd("desc_es", e.target.value)}
+                    onBlur={() => autoTranslate("desc_es", "desc_en", "en")} /></div>
                   <div><label style={label}>List</label><select style={field} value={editing.list_key || ""} onChange={(e) => upd("list_key", e.target.value)}>{LISTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
                   <div><label style={label}>Priority <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(trip planner)</span></label>
                     <select style={field} value={editing.priority ?? ""} onChange={(e) => upd("priority", e.target.value ? Number(e.target.value) : null)}>
