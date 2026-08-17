@@ -32,8 +32,28 @@ export async function POST(req) {
   const stay = Array.isArray(body.stay) && body.stay.length === 2 && body.stay.every((n) => typeof n === "number") ? body.stay : null;
   const mustInclude = Array.isArray(body.mustInclude) ? body.mustInclude.filter((s) => typeof s === "string" && s.trim()).map((s) => s.trim()) : [];
   const lang = body.lang === "es" ? "es" : "en";
+  const startDate = typeof body.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.startDate) ? body.startDate : null;
 
   const todayStr = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local time
+
+  // If the traveler picked a start date, spell out each day's real date + weekday so the
+  // model can drop dated events on the right day and place weekday-specific spots
+  // (e.g. a Saturday-only market) correctly.
+  let dateLines = "";
+  let lastDateStr = null;
+  if (startDate) {
+    const [yy, mm, dd] = startDate.split("-").map(Number);
+    const base = new Date(yy, mm - 1, dd);
+    const parts = [];
+    for (let i = 0; i < days; i++) {
+      const dt = new Date(base); dt.setDate(base.getDate() + i);
+      const wd = dt.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", { weekday: "long" });
+      const ds = dt.toLocaleDateString("en-CA");
+      parts.push(`Day ${i + 1}: ${ds} (${wd})`);
+      lastDateStr = ds;
+    }
+    dateLines = parts.join("\n");
+  }
 
   // 2. Load the catalog from Supabase (service role).
   let picks = [];
@@ -113,7 +133,7 @@ TRAVELER:
 - Lodging coordinates: ${stay ? `[${stay[0]}, ${stay[1]}]` : "not provided"}
 - Must include (prioritize these exact names): ${mustInclude.length ? mustInclude.join(", ") : "none"}
 - Today's date: ${todayStr}
-
+${dateLines ? `\nTRIP DATES (use these to place dated events and weekday-specific spots on the correct day):\n${dateLines}\n` : ""}
 RULES:
 - Use ONLY items from the CATALOG below. Reference each by its EXACT name/title as written.
 - Do NOT invent places or events. If unsure, leave it out.
@@ -122,7 +142,8 @@ RULES:
 - Cluster each day by neighborhood/area to minimize travel.
 - If lodging coordinates are given, start and end each day near there.
 - Spread meals sensibly across each day: a breakfast/cafe, a lunch, and a dinner.
-- Include EVENTs only if their date plausibly falls within a ${days}-day trip starting around ${todayStr} AND they match the traveler's interests. Recurring events are fine.
+- Include EVENTs only if their date falls on one of the TRIP DATES above (or, for recurring events, on a matching weekday) AND they match the traveler's interests. Put each event on the day its date matches. If no trip dates are given, include an event only if its date plausibly falls within a ${days}-day trip starting around ${todayStr}.
+- Some picks are weekday-specific (their note may say "Saturdays only" or similar). Place these only on the day whose weekday matches.
 - Prioritize any "must include" names.
 - Match the party (kid-friendly choices for families) and the pace.
 - Keep each "why" to ONE short sentence (about 12 to 18 words) so plans render fast and read cleanly.
@@ -215,6 +236,7 @@ Call the emit_itinerary tool with the finished plan. Produce exactly ${days} day
           area: pick.area || null,
           lat: pick.lat ?? null,
           lng: pick.lng ?? null,
+          photo_url: pick.photo_url || (Array.isArray(pick.photos) && pick.photos[0]) || null,
         });
       } else if (event) {
         items.push({

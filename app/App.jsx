@@ -441,6 +441,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
   const es = lang === "es";
   const [choosing, setChoosing] = useState(!!existingItinerary); // ask start-over vs refine when a plan exists
   const [days, setDays] = useState(3);
+  const [startDate, setStartDate] = useState(""); // optional trip start (YYYY-MM-DD), cross-references events
   const [party, setParty] = useState("couple");
   const [pace, setPace] = useState("balanced");
   const [interests, setInterests] = useState(() => new Set(["food", "art", "outdoors"]));
@@ -477,7 +478,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
       // Family is implied by "who's coming", so fold it in automatically rather than as a chip.
       const sendInterests = party === "family with kids" ? [...new Set([...interests, "family"])] : [...interests];
       const r = await fetch("/api/plan-trip", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ days, party, pace, interests: sendInterests, stay: stay || null, mustInclude: savedNames || [], lang }) });
+        body: JSON.stringify({ days, party, pace, interests: sendInterests, stay: stay || null, mustInclude: savedNames || [], startDate: startDate || null, lang }) });
       const j = await r.json();
       if (j.ok && j.days?.length) setResult(j);
       else setError(j.error || (es ? "No pudimos armar un plan. Intenta de nuevo." : "Couldn't build a plan. Try again."));
@@ -530,6 +531,14 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
               <div style={{ display: "flex", gap: 7 }}>{[1, 2, 3, 4, 5].map((d) => <button key={d} onClick={() => setDays(d)} style={pill(days === d, P.cobalt)}>{d}</button>)}</div>
             </div>
             <div>
+              <p style={label2(P)}>{es ? "¿Cuándo? (opcional)" : "When? (optional)"}</p>
+              <input type="date" value={startDate} min={new Date().toLocaleDateString("en-CA")} onChange={(e) => setStartDate(e.target.value)}
+                style={{ padding: "9px 12px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.card, color: P.ink }} />
+              <p style={{ fontSize: 12, color: P.inkSoft, margin: "6px 0 0" }}>
+                {es ? "Elige una fecha y cruzaremos los eventos y mercados de esos días." : "Pick a date and we'll line up events and weekday markets happening then."}
+              </p>
+            </div>
+            <div>
               <p style={label2(P)}>{es ? "¿Quién viaja?" : "Who's coming?"}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{PARTIES.map(([k, l]) => <button key={k} onClick={() => setParty(k)} style={pill(party === k, P.cobalt)}>{l}</button>)}</div>
             </div>
@@ -567,11 +576,12 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
                   {d.items.map((it, i) => (
                     <button key={i} onClick={() => it.kind === "event" ? onOpenEvent(it.name) : onOpenPick(it.name)}
                       style={{ textAlign: "left", border: `1px solid ${P.line}`, background: P.card, borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "flex-start" }}>
-                      <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 8px", borderRadius: 999, marginTop: 1 }}>
-                        {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
-                      </span>
-                      <span>
-                        <span style={{ fontWeight: 700, color: P.ink, fontSize: 14.5 }}>{it.name}</span>
+                      {it.photo_url && <img src={it.photo_url} alt="" loading="lazy" style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 9, objectFit: "cover" }} />}
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: "inline-block", fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 8px", borderRadius: 999, marginBottom: 4 }}>
+                          {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
+                        </span>
+                        <span style={{ display: "block", fontWeight: 700, color: P.ink, fontSize: 14.5 }}>{it.name}</span>
                         {it.why && <span style={{ display: "block", fontSize: 13, color: P.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{it.why}</span>}
                       </span>
                     </button>
@@ -580,7 +590,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
               </div>
             ))}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-              <button onClick={() => onSaveAll(result, { days, party, pace, interests: [...interests], stay: stay || null, mustInclude: savedNames || [] })} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
+              <button onClick={() => onSaveAll(result, { days, party, pace, interests: [...interests], stay: stay || null, mustInclude: savedNames || [], startDate: startDate || null })} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
                 {es ? "Guardar itinerario" : "Save this itinerary"}
               </button>
               <button onClick={() => { setResult(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
@@ -618,6 +628,11 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
   const [emailMsg, setEmailMsg] = useState("");
+  const THINK_MSGS = es
+    ? ["Pensando…", "Revisando tu itinerario…", "Buscando mejores opciones…", "Ajustando los tiempos…"]
+    : ["Thinking…", "Reviewing your itinerary…", "Weighing better options…", "Adjusting the timing…"];
+  const [thinkIdx, setThinkIdx] = useState(0);
+  useEffect(() => { if (!busy) return; const id = setInterval(() => setThinkIdx((i) => (i + 1) % THINK_MSGS.length), 1400); return () => clearInterval(id); }, [busy]);
 
   async function send() {
     const msg = input.trim(); if (!msg || busy) return;
@@ -645,11 +660,38 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
 
   return (
     <section style={{ marginBottom: 26, background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, padding: "18px 18px 14px" }}>
+      <style>{`@keyframes qp-spin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 6 }}>
         <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 20, margin: 0, color: P.ink }}>✨ {es ? "Tu itinerario" : "Your itinerary"}</h2>
         <button onClick={() => { setItin(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 12.5, padding: "5px 12px", borderRadius: 999 }}>{es ? "Borrar" : "Clear"}</button>
       </div>
       {itin.summary && <p style={{ fontSize: 14, lineHeight: 1.55, color: P.inkSoft, margin: "0 0 14px" }}>{itin.summary}</p>}
+
+      {/* Ask or tweak — prominent, at the top so it's the first thing you can do. */}
+      <div style={{ marginBottom: 18, padding: "13px 14px", background: P.plaster, border: `1px solid ${P.line}`, borderRadius: 12 }}>
+        <p style={{ ...label2(P), margin: "0 0 8px" }}>💬 {es ? "Pregunta o ajusta tu plan" : "Ask or tweak your plan"}</p>
+        {messages.length > 0 && (
+          <div style={{ display: "grid", gap: 7, marginBottom: 10, maxHeight: 240, overflowY: "auto" }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{ justifySelf: m.role === "user" ? "end" : "start", maxWidth: "85%", fontSize: 13.5, lineHeight: 1.45, padding: "8px 12px", borderRadius: 12,
+                background: m.role === "user" ? P.cobalt : P.card, color: m.role === "user" ? "#fff" : P.ink, border: m.role === "user" ? "none" : `1px solid ${P.line}` }}>{m.content}</div>
+            ))}
+            {busy && (
+              <div style={{ justifySelf: "start", display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, fontWeight: 600, color: P.coral, padding: "8px 12px" }}>
+                <span style={{ width: 15, height: 15, borderRadius: "50%", border: `2px solid ${P.line}`, borderTopColor: P.coral, display: "inline-block", animation: "qp-spin .8s linear infinite" }} />
+                {THINK_MSGS[thinkIdx]}
+              </div>
+            )}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }}
+            placeholder={es ? "p. ej. haz el día 2 más relajado" : "e.g. make day 2 more relaxed and meandering"}
+            style={{ flex: 1, padding: "11px 13px", borderRadius: 11, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.card, color: P.ink }} />
+          <button onClick={send} disabled={busy || !input.trim()} style={{ border: "none", background: busy || !input.trim() ? P.inkSoft : P.coral, color: "#fff", cursor: busy ? "default" : "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>{es ? "Enviar" : "Send"}</button>
+        </div>
+      </div>
+
       {itin.days.map((d) => (
         <div key={d.day} style={{ marginBottom: 16 }}>
           <h3 className="disp" style={{ fontSize: 15.5, fontWeight: 800, color: P.ink, margin: "0 0 8px" }}>{es ? `Día ${d.day}` : `Day ${d.day}`}{d.title ? ` · ${d.title}` : ""}</h3>
@@ -657,41 +699,26 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
             {d.items.map((it, i) => (
               <button key={i} onClick={() => it.kind === "event" ? onOpenEvent(it.name) : onOpenPick(it.name)}
                 style={{ textAlign: "left", border: `1px solid ${P.line}`, background: P.plaster, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 7px", borderRadius: 999, marginTop: 1 }}>
-                  {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
+                {it.photo_url && <img src={it.photo_url} alt="" loading="lazy" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 8, objectFit: "cover" }} />}
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: "inline-block", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 7px", borderRadius: 999, marginBottom: 3 }}>
+                    {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
+                  </span>
+                  <span style={{ display: "block", fontWeight: 700, color: P.ink, fontSize: 14 }}>{it.name}</span>
+                  {it.why && <span style={{ display: "block", fontSize: 12.5, color: P.inkSoft, lineHeight: 1.4, marginTop: 1 }}>{it.why}</span>}
                 </span>
-                <span><span style={{ fontWeight: 700, color: P.ink, fontSize: 14 }}>{it.name}</span>
-                  {it.why && <span style={{ display: "block", fontSize: 12.5, color: P.inkSoft, lineHeight: 1.4, marginTop: 1 }}>{it.why}</span>}</span>
               </button>
             ))}
           </div>
         </div>
       ))}
 
-      {/* Chat to ask / tweak */}
-      <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1px dashed ${P.line}` }}>
-        <p style={{ ...label2(P), margin: "0 0 8px" }}>{es ? "Pregunta o ajusta" : "Ask or tweak"}</p>
-        {messages.length > 0 && (
-          <div style={{ display: "grid", gap: 7, marginBottom: 10, maxHeight: 240, overflowY: "auto" }}>
-            {messages.map((m, i) => (
-              <div key={i} style={{ justifySelf: m.role === "user" ? "end" : "start", maxWidth: "85%", fontSize: 13.5, lineHeight: 1.45, padding: "8px 12px", borderRadius: 12,
-                background: m.role === "user" ? P.cobalt : P.chipBg, color: m.role === "user" ? "#fff" : P.ink, border: m.role === "user" ? "none" : `1px solid ${P.line}` }}>{m.content}</div>
-            ))}
-            {busy && <div style={{ justifySelf: "start", fontSize: 13, color: P.inkSoft, padding: "8px 12px" }}>{es ? "Pensando…" : "Thinking…"}</div>}
-          </div>
-        )}
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }}
-            placeholder={es ? "p. ej. haz el día 2 más relajado" : "e.g. make day 2 more relaxed"}
-            style={{ flex: 1, padding: "10px 13px", borderRadius: 11, border: `1px solid ${P.line}`, fontSize: 14, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
-          <button onClick={send} disabled={busy || !input.trim()} style={{ border: "none", background: busy || !input.trim() ? P.inkSoft : P.coral, color: "#fff", cursor: busy ? "default" : "pointer", fontWeight: 700, fontSize: 14, padding: "10px 16px", borderRadius: 11 }}>{es ? "Enviar" : "Send"}</button>
-        </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder={es ? "Envíatelo: tu@correo.com" : "Email it: you@email.com"} onKeyDown={(e) => { if (e.key === "Enter") emailIt(); }}
-            style={{ flex: 1, minWidth: 170, padding: "8px 11px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 13.5, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
-          <button onClick={emailIt} disabled={!email.trim()} style={{ border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "8px 14px", borderRadius: 10 }}>{es ? "Enviar por correo" : "Email me"}</button>
-          {emailMsg && <span style={{ fontSize: 12.5, color: emailMsg.includes("!") ? P.green : P.coral }}>{emailMsg}</span>}
-        </div>
+      {/* Email the plan to yourself */}
+      <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1px dashed ${P.line}`, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder={es ? "Envíatelo: tu@correo.com" : "Email it: you@email.com"} onKeyDown={(e) => { if (e.key === "Enter") emailIt(); }}
+          style={{ flex: 1, minWidth: 170, padding: "8px 11px", borderRadius: 10, border: `1px solid ${P.line}`, fontSize: 13.5, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
+        <button onClick={emailIt} disabled={!email.trim()} style={{ border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "8px 14px", borderRadius: 10 }}>{es ? "Enviar por correo" : "Email me"}</button>
+        {emailMsg && <span style={{ fontSize: 12.5, color: emailMsg.includes("!") ? P.green : P.coral }}>{emailMsg}</span>}
       </div>
     </section>
   );

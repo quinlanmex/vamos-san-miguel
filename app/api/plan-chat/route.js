@@ -45,8 +45,23 @@ export async function POST(req) {
   const interests = Array.isArray(ctx.interests) ? ctx.interests.filter((i) => INTERESTS.includes(i)) : [];
   const stay = Array.isArray(ctx.stay) && ctx.stay.length === 2 && ctx.stay.every((n) => typeof n === "number") ? ctx.stay : null;
   const mustInclude = Array.isArray(ctx.mustInclude) ? ctx.mustInclude.filter((s) => typeof s === "string" && s.trim()).map((s) => s.trim()) : [];
+  const startDate = typeof ctx.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(ctx.startDate) ? ctx.startDate : null;
 
   const todayStr = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local time
+
+  // Per-day real dates + weekdays (so revisions keep dated events / weekday spots correct).
+  let dateLines = "";
+  if (startDate) {
+    const [yy, mm, dd] = startDate.split("-").map(Number);
+    const base = new Date(yy, mm - 1, dd);
+    const parts = [];
+    for (let i = 0; i < days; i++) {
+      const dt = new Date(base); dt.setDate(base.getDate() + i);
+      const wd = dt.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", { weekday: "long" });
+      parts.push(`Day ${i + 1}: ${dt.toLocaleDateString("en-CA")} (${wd})`);
+    }
+    dateLines = parts.join("\n");
+  }
 
   // 2. Load the catalog from Supabase (service role).
   let picks = [];
@@ -139,6 +154,7 @@ export async function POST(req) {
             area: pick.area || null,
             lat: pick.lat ?? null,
             lng: pick.lng ?? null,
+            photo_url: pick.photo_url || (Array.isArray(pick.photos) && pick.photos[0]) || null,
           });
         } else if (event) {
           items.push({
@@ -192,6 +208,7 @@ TRIP CONTEXT:
 - Must include (prioritize these exact names): ${mustInclude.length ? mustInclude.join(", ") : "none"}
 - Trip length: ${days} day(s)
 - Today's date: ${todayStr}
+${dateLines ? `\nTRIP DATES (place dated events + weekday-specific spots on the correct day):\n${dateLines}\n` : ""}
 
 CURRENT ITINERARY (JSON):
 ${JSON.stringify({ summary: currentClean.summary, days: currentClean.days.map((d) => ({ day: d.day, title: d.title, items: d.items.map((it) => ({ slot: it.slot, kind: it.kind, name: it.name, why: it.why })) })) })}
