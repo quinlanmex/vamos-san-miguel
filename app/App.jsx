@@ -431,6 +431,121 @@ function ZoomWatch({ onZoom }) {
 }
 const ICON_ZOOM = 16; // at/above this zoom, pins show cuisine icons
 
+/* ---- AI trip planner ---------------------------------------------- */
+const SLOT_LABEL = {
+  morning: { en: "Morning", es: "Mañana" }, cafe: { en: "Coffee", es: "Café" },
+  lunch: { en: "Lunch", es: "Comida" }, afternoon: { en: "Afternoon", es: "Tarde" },
+  dinner: { en: "Dinner", es: "Cena" }, evening: { en: "Evening", es: "Noche" },
+};
+function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpenEvent, onSaveAll }) {
+  const es = lang === "es";
+  const [days, setDays] = useState(3);
+  const [party, setParty] = useState("couple");
+  const [pace, setPace] = useState("balanced");
+  const [interests, setInterests] = useState(() => new Set(["food", "art", "outdoors"]));
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+
+  const PARTIES = [["couple", es ? "Pareja" : "Couple"], ["family with kids", es ? "Familia" : "Family"], ["friends", es ? "Amigos" : "Friends"], ["solo", es ? "Solo" : "Solo"]];
+  const PACES = [["relaxed", es ? "Relajado" : "Relaxed"], ["balanced", es ? "Balanceado" : "Balanced"], ["packed", es ? "Intenso" : "Packed"]];
+  const INTERESTS = [["food", es ? "Comida" : "Food"], ["cafes", es ? "Cafés" : "Cafés"], ["art", es ? "Arte" : "Art"], ["culture", es ? "Cultura" : "Culture"], ["outdoors", es ? "Aire libre" : "Outdoors"], ["nightlife", es ? "Vida nocturna" : "Nightlife"], ["wellness", es ? "Bienestar" : "Wellness"], ["shopping", es ? "Compras" : "Shopping"], ["family", es ? "Familia" : "Family"]];
+  const toggleI = (k) => setInterests((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+
+  async function generate() {
+    setLoading(true); setError(""); setResult(null);
+    try {
+      const r = await fetch("/api/plan-trip", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ days, party, pace, interests: [...interests], stay: stay || null, mustInclude: savedNames || [], lang }) });
+      const j = await r.json();
+      if (j.ok && j.days?.length) setResult(j);
+      else setError(j.error || (es ? "No pudimos armar un plan. Intenta de nuevo." : "Couldn't build a plan. Try again."));
+    } catch { setError(es ? "Error de red." : "Network error."); }
+    setLoading(false);
+  }
+
+  const pill = (on, c) => ({ cursor: "pointer", border: `1px solid ${on ? c : P.line}`, background: on ? c : P.chipBg, color: on ? "#fff" : P.inkSoft, fontWeight: 600, fontSize: 13, padding: "6px 13px", borderRadius: 999 });
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(13,20,40,.55)", display: "flex", justifyContent: "center", alignItems: "flex-start", overflowY: "auto", padding: "24px 14px" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: P.plaster, borderRadius: 20, maxWidth: 640, width: "100%", padding: "22px 20px 28px", boxShadow: "0 20px 60px rgba(0,0,0,.35)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 23, margin: 0, color: P.ink }}>✨ {es ? "Arma mi viaje" : "Plan my trip"}</h2>
+          <button onClick={onClose} style={{ border: "none", background: P.chipBg, cursor: "pointer", width: 34, height: 34, borderRadius: "50%", fontSize: 18, color: P.inkSoft }}>×</button>
+        </div>
+
+        {!result && (
+          <div style={{ display: "grid", gap: 16 }}>
+            <div>
+              <p style={label2(P)}>{es ? "Días" : "Days"}</p>
+              <div style={{ display: "flex", gap: 7 }}>{[1, 2, 3, 4, 5].map((d) => <button key={d} onClick={() => setDays(d)} style={pill(days === d, P.cobalt)}>{d}</button>)}</div>
+            </div>
+            <div>
+              <p style={label2(P)}>{es ? "¿Quién viaja?" : "Who's coming?"}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{PARTIES.map(([k, l]) => <button key={k} onClick={() => setParty(k)} style={pill(party === k, P.cobalt)}>{l}</button>)}</div>
+            </div>
+            <div>
+              <p style={label2(P)}>{es ? "Ritmo" : "Pace"}</p>
+              <div style={{ display: "flex", gap: 7 }}>{PACES.map(([k, l]) => <button key={k} onClick={() => setPace(k)} style={pill(pace === k, P.cobalt)}>{l}</button>)}</div>
+            </div>
+            <div>
+              <p style={label2(P)}>{es ? "Intereses" : "Interests"}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>{INTERESTS.map(([k, l]) => <button key={k} onClick={() => toggleI(k)} style={pill(interests.has(k), P.coral)}>{l}</button>)}</div>
+            </div>
+            {(savedNames?.length > 0 || stay) && (
+              <p style={{ fontSize: 12.5, color: P.inkSoft, margin: 0 }}>
+                {savedNames?.length > 0 && (es ? `Priorizaremos tus ${savedNames.length} guardados. ` : `We'll prioritize your ${savedNames.length} saved spots. `)}
+                {stay && (es ? "Y lo armaremos alrededor de tu alojamiento." : "And build it around your stay.")}
+              </p>
+            )}
+            {error && <p style={{ color: P.coral, fontSize: 13.5, margin: 0 }}>{error}</p>}
+            <button onClick={generate} disabled={loading}
+              style={{ border: "none", background: loading ? P.inkSoft : P.coral, color: "#fff", cursor: loading ? "default" : "pointer", fontWeight: 800, fontSize: 15.5, padding: "13px", borderRadius: 12 }}>
+              {loading ? (es ? "Armando tu viaje…" : "Building your trip…") : (es ? "Generar itinerario" : "Generate itinerary")}
+            </button>
+          </div>
+        )}
+
+        {result && (
+          <div>
+            {result.summary && <p style={{ fontSize: 14.5, lineHeight: 1.55, color: P.ink, margin: "0 0 16px" }}>{result.summary}</p>}
+            {result.days.map((d) => (
+              <div key={d.day} style={{ marginBottom: 18 }}>
+                <h3 className="disp" style={{ fontSize: 16, fontWeight: 800, color: P.ink, margin: "0 0 8px" }}>
+                  {es ? `Día ${d.day}` : `Day ${d.day}`}{d.title ? ` · ${d.title}` : ""}
+                </h3>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {d.items.map((it, i) => (
+                    <button key={i} onClick={() => it.kind === "event" ? onOpenEvent(it.name) : onOpenPick(it.name)}
+                      style={{ textAlign: "left", border: `1px solid ${P.line}`, background: P.card, borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "flex-start" }}>
+                      <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 8px", borderRadius: 999, marginTop: 1 }}>
+                        {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
+                      </span>
+                      <span>
+                        <span style={{ fontWeight: 700, color: P.ink, fontSize: 14.5 }}>{it.name}</span>
+                        {it.why && <span style={{ display: "block", fontSize: 13, color: P.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{it.why}</span>}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
+              <button onClick={() => onSaveAll(result)} style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
+                {es ? "Guardar todo en Mi viaje" : "Save all to My Trip"}
+              </button>
+              <button onClick={() => { setResult(null); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 700, fontSize: 14, padding: "11px 18px", borderRadius: 11 }}>
+                {es ? "Ajustar" : "Tweak it"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+const label2 = (P) => ({ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 7px" });
+
 // Badge marking a saved item that arrived via a friend's shared link.
 function SharedBadge({ lang, P }) {
   return (
@@ -482,6 +597,7 @@ export default function App() {
   const [picksLayout, setPicksLayout] = useState("list"); // list | map (Local Picks)
   const [savedLayout, setSavedLayout] = useState("list"); // list | map (Saved trip)
   const [expandedLists, setExpandedLists] = useState(() => new Set()); // per-list "show all" on the Picks home
+  const [showPlanner, setShowPlanner] = useState(false); // AI trip planner modal
   const [stay, setStay] = useState(null); // [lat, lng] — where the visitor is staying (device-stored)
   const [query, setQuery] = useState("");
   const [cats, setCats] = useState(new Set());
@@ -1058,10 +1174,14 @@ export default function App() {
         ) : (
           /* ---- Saved (device-based personal collection) ---- */
           savedEvents.length === 0 && savedPlaceItems.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "56px 24px", color: P.inkSoft }}>
+            <div style={{ textAlign: "center", padding: "48px 24px", color: P.inkSoft }}>
               <Heart size={30} color={P.rosa} style={{ opacity: .6 }} />
               <p className="disp" style={{ fontSize: 17, fontWeight: 700, color: P.ink, margin: "12px 0 6px" }}>{t.savedEmpty}</p>
-              <p style={{ margin: 0, fontSize: 14, maxWidth: 300, marginInline: "auto", lineHeight: 1.5 }}>{t.savedHint}</p>
+              <p style={{ margin: "0 0 18px", fontSize: 14, maxWidth: 320, marginInline: "auto", lineHeight: 1.5 }}>{t.savedHint}</p>
+              <button onClick={() => setShowPlanner(true)}
+                style={{ border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 15, padding: "12px 22px", borderRadius: 12, boxShadow: "0 4px 14px rgba(224,106,99,.28)" }}>
+                ✨ {lang === "es" ? "Deja que la IA arme tu viaje" : "Let AI plan your trip"}
+              </button>
             </div>
           ) : (
             <>
@@ -1070,7 +1190,11 @@ export default function App() {
                 <h2 className="disp" style={{ fontSize: 15, fontWeight: 800, margin: 0, color: P.ink }}>
                   {lang === "es" ? "Mi viaje" : "My Trip"}
                 </h2>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <button onClick={() => setShowPlanner(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "none", background: P.coral, cursor: "pointer", color: "#fff", fontWeight: 700, fontSize: 13, padding: "7px 14px", borderRadius: 999 }}>
+                  ✨ {lang === "es" ? "Armar viaje" : "Plan with AI"}
+                </button>
                 <button onClick={shareTrip}
                   style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "6px 13px", borderRadius: 999 }}>
                   <Share2 size={14} /> {shareMsg || (lang === "es" ? "Compartir viaje" : "Share trip")}
@@ -1209,6 +1333,22 @@ export default function App() {
       {placeDetail && (
         <PlaceDetail it={placeDetail} lang={lang} t={t} P={P} saved={savedPlaces.has(placeDetail.name)}
           onSave={() => toggleSavePlace(placeDetail.name)} onClose={() => setPlaceDetail(null)} />
+      )}
+
+      {showPlanner && (
+        <TripPlanner
+          onClose={() => setShowPlanner(false)}
+          stay={stay} savedNames={[...savedPlaces]} lang={lang} t={t} P={P}
+          onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
+          onOpenEvent={(name) => { const e = events.find((x) => (x.title?.en === name) || (x.title?.[lang] === name)); if (e) setDetail(e); }}
+          onSaveAll={(res) => {
+            const names = res.days.flatMap((d) => d.items.filter((i) => i.kind !== "event").map((i) => i.name));
+            const ids = res.days.flatMap((d) => d.items.filter((i) => i.kind === "event")
+              .map((i) => (events.find((x) => x.title?.en === i.name || x.title?.[lang] === i.name) || {}).id).filter(Boolean));
+            if (names.length) setSavedPlaces((s) => new Set([...s, ...names]));
+            if (ids.length) setSaved((s) => new Set([...s, ...ids]));
+            setShowPlanner(false); setView("saved");
+          }} />
       )}
     </div>
   );
