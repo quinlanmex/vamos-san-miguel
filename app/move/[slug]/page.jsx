@@ -41,6 +41,11 @@ export default function MoveGuide({ params }) {
   const page = getMovePage(params.slug);
   if (!page) notFound();
 
+  // Weaving: spokes declare a `parent` pillar slug. A pillar surfaces its children;
+  // a spoke links back up to its pillar.
+  const related = getMovePages().filter((p) => p.parent === page.slug && p.slug !== page.slug);
+  const parent = page.parent ? getMovePage(page.parent) : null;
+
   // Body already starts with an H1; render it all through the markdown component.
   const faqs = faqFrom(page.body);
 
@@ -67,11 +72,31 @@ export default function MoveGuide({ params }) {
 
       <p style={{ fontSize: 13.5, margin: "0 0 18px", color: "#6E604F" }}>
         <Link href="/move" style={{ color: "#0D1B36", textDecoration: "none", fontWeight: 600 }}>← Move Here</Link>
+        {parent && <> · <Link href={`/move/${parent.slug}`} style={{ color: "#0D1B36", textDecoration: "none", fontWeight: 600 }}>{parent.title}</Link></>}
       </p>
 
       <article>
         <Markdown body={page.body} />
       </article>
+
+      {/* Related deep-dive guides (pillar -> spokes) */}
+      {related.length > 0 && (
+        <div style={{ marginTop: 30 }}>
+          <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#B4791F", margin: "0 0 10px" }}>
+            Go deeper
+          </p>
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+            {related.map((r) => (
+              <Link key={r.slug} href={`/move/${r.slug}`}
+                style={{ display: "block", textDecoration: "none", color: "inherit", background: "#FFFFFF", border: "1px solid #E7DDCB", borderRadius: 14, padding: "15px 16px" }}>
+                <h3 style={{ fontFamily: "Georgia, serif", fontSize: 17, margin: "0 0 5px", lineHeight: 1.2, color: "#0D1B36" }}>{r.title}</h3>
+                {r.description && <p style={{ fontSize: 13, lineHeight: 1.5, color: "#6E604F", margin: 0 }}>{r.description}</p>}
+                <span style={{ display: "inline-block", marginTop: 9, fontSize: 13, fontWeight: 700, color: "#E06A63" }}>Read →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ marginTop: 34, padding: "20px 22px", background: "#0D1B36", color: "#F7F3EC", borderRadius: 16 }}>
         <p style={{ margin: "0 0 6px", fontFamily: "Georgia, serif", fontSize: 19, color: "#fff" }}>Adapted from the book</p>
