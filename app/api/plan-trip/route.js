@@ -43,12 +43,12 @@ export async function POST(req) {
 
     const { data: placeRows, error: placeErr } = await sb
       .from("places")
-      .select("name, list_key, cuisine, area, desc_en, ai_notes, lat, lng")
+      .select("name, list_key, cuisine, area, desc_en, ai_notes, business_status, lat, lng")
       .eq("status", "published")
-      .eq("editorial", true)
-      .not("business_status", "is", "CLOSED_PERMANENTLY");
+      .eq("editorial", true);
     if (placeErr) throw new Error("places: " + placeErr.message);
-    picks = (placeRows || []).filter((r) => r && r.name);
+    // Drop permanently-closed spots in JS (avoids an invalid PostgREST filter).
+    picks = (placeRows || []).filter((r) => r && r.name && r.business_status !== "CLOSED_PERMANENTLY");
 
     const { data: eventRows, error: eventErr } = await sb
       .from("events")

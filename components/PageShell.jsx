@@ -24,6 +24,7 @@ export default function PageShell({ children, active }) {
                 </Link>
               );
             })}
+            <Link href="/?planner=1" style={{ background: "#E06A63", color: "#fff", textDecoration: "none", whiteSpace: "nowrap", fontWeight: 800, padding: "8px 16px", borderRadius: 999 }}>✨ Plan Trip</Link>
           </nav>
         </div>
       </header>

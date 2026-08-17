@@ -5,7 +5,7 @@ import {
   Music, Clapperboard, Footprints, Users, MessagesSquare, ShoppingBasket, Waves,
   Map as MapIcon, List as ListIcon, CalendarPlus, Share2, ExternalLink,
   Moon, Sun, Check, Baby, Backpack, Sprout, Salad,
-  Utensils, Wine, Palette, Trees, Drama, ShoppingBag, Home,
+  Utensils, Wine, Palette, Trees, Drama, ShoppingBag, Home, Sparkles,
   Images as ImageIcon, Phone, Clock3, DollarSign, Info, ChevronLeft, ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
@@ -709,6 +709,7 @@ export default function App() {
       // Open a specific tab when linked from a content page (e.g. /?view=events).
       const v = params.get("view");
       if (v === "events" || v === "saved") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
+      if (params.get("planner")) { setShowPlanner(true); window.history.replaceState({}, "", window.location.pathname); }
       const p = params.get("trip");
       if (!p) return;
       const t = b64u.dec(p);
@@ -797,10 +798,16 @@ export default function App() {
             </span>
           </button>
           <nav className="viewnav-top" style={{ flex: 1, justifyContent: "center", gap: 34, alignItems: "center" }}>
-            {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["move", lang === "es" ? "Mudarse" : "Move Here"], ["saved", t.savedTab]].map(([k, label]) => {
+            {[["faves", t.faves], ["events", t.events], ["plan", lang === "es" ? "Planea" : "Plan"], ["move", lang === "es" ? "Mudarse" : "Move Here"], ["saved", t.savedTab], ["planner", lang === "es" ? "Armar viaje" : "Plan Trip"]].map(([k, label]) => {
               const tabStyle = { border: "none", cursor: "pointer", background: "transparent", fontSize: 16.5, fontWeight: 700, padding: "6px 2px", whiteSpace: "nowrap", letterSpacing: ".01em",
                 color: view === k ? P.coral : P.ink, borderBottom: view === k ? `3px solid ${P.coral}` : "3px solid transparent",
                 display: "flex", alignItems: "center", gap: 6, textDecoration: "none" };
+              if (k === "planner") return (
+                <button key={k} onClick={() => setShowPlanner(true)}
+                  style={{ border: "none", cursor: "pointer", background: P.coral, color: "#fff", fontSize: 15, fontWeight: 800, padding: "8px 16px", borderRadius: 999, display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                  ✨ {label}
+                </button>
+              );
               if (k === "plan") return <a key={k} href="/plan" style={{ ...tabStyle, color: P.ink }}>{label}</a>;
               if (k === "move") return <a key={k} href="/move" style={{ ...tabStyle, color: P.ink }}>{label}</a>;
               return (
@@ -1266,9 +1273,14 @@ export default function App() {
       <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
         background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
         justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
-        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["plan", lang === "es" ? "Planea" : "Plan", MapIcon], ["move", lang === "es" ? "Mudarse" : "Move Here", Home], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
+        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["planner", lang === "es" ? "Viaje" : "Plan Trip", Sparkles], ["plan", lang === "es" ? "Planea" : "Plan", MapIcon], ["move", lang === "es" ? "Mudarse" : "Move Here", Home], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
           const tabStyle = { border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-            color: view === k ? P.coral : P.inkSoft, fontSize: 10.5, fontWeight: 700, position: "relative", minWidth: 50, textDecoration: "none" };
+            color: view === k ? P.coral : P.inkSoft, fontSize: 10, fontWeight: 700, position: "relative", minWidth: 46, textDecoration: "none" };
+          if (k === "planner") return (
+            <button key={k} onClick={() => setShowPlanner(true)} style={{ ...tabStyle, color: P.coral }}>
+              <Ic size={21} /> {label}
+            </button>
+          );
           if (k === "plan" || k === "move") return (
             <a key={k} href={k === "plan" ? "/plan" : "/move"} style={{ ...tabStyle, color: P.inkSoft }}>
               <Ic size={21} /> {label}
