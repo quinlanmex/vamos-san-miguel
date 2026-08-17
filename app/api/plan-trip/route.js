@@ -132,21 +132,60 @@ RULES:
 CATALOG:
 ${catalog}
 
-Return STRICT JSON ONLY (no prose, no markdown fences), exactly this shape:
-{"summary": string, "days":[{"day":1,"title":string,"items":[{"slot":"morning"|"cafe"|"lunch"|"afternoon"|"dinner"|"evening","name":string,"kind":"pick"|"event","why":string}]}]}`;
+Call the emit_itinerary tool with the finished plan. Produce exactly ${days} day object(s). Every "slot" must be one of: ${SLOTS.join(", ")}. Every "kind" must be "pick" or "event".`;
+
+  // Structured tool output: the model returns the itinerary as a tool call, so the
+  // SDK hands us guaranteed-valid JSON. This avoids the "malformed JSON" parse
+  // failures that plain text output occasionally caused.
+  const ITINERARY_TOOL = {
+    name: "emit_itinerary",
+    description: "Return the finished San Miguel de Allende itinerary.",
+    input_schema: {
+      type: "object",
+      properties: {
+        summary: { type: "string", description: "A short overview of the whole trip." },
+        days: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              day: { type: "integer" },
+              title: { type: "string" },
+              items: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    slot: { type: "string", enum: SLOTS },
+                    name: { type: "string", description: "Exact name/title from the catalog." },
+                    kind: { type: "string", enum: KINDS },
+                    why: { type: "string", description: "One short sentence." },
+                  },
+                  required: ["slot", "name", "kind", "why"],
+                },
+              },
+            },
+            required: ["day", "title", "items"],
+          },
+        },
+      },
+      required: ["summary", "days"],
+    },
+  };
 
   let parsed;
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
       model: "claude-sonnet-5", // user-facing planner uses the stronger model for better itineraries
-      max_tokens: 4000,
+      max_tokens: 6000,
+      tools: [ITINERARY_TOOL],
+      tool_choice: { type: "tool", name: "emit_itinerary" },
       messages: [{ role: "user", content: prompt }],
     });
-    const raw = (msg.content || []).map((b) => (b.type === "text" ? b.text : "")).join("");
-    const m = raw.match(/\{[\s\S]*\}/); // outermost {...}
-    if (!m) throw new Error("no JSON object in model reply");
-    parsed = JSON.parse(m[0]);
+    const block = (msg.content || []).find((b) => b.type === "tool_use" && b.name === "emit_itinerary");
+    if (!block || !block.input) throw new Error("no itinerary returned");
+    parsed = block.input;
   } catch (err) {
     return Response.json({ ok: false, error: err.message || "planning failed" }, { status: 500 });
   }

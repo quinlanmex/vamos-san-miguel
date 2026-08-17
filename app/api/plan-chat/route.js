@@ -221,26 +221,71 @@ RULES:
 CATALOG:
 ${catalog}
 
-Return STRICT JSON ONLY (no prose, no markdown fences), exactly this shape:
-{"reply": string, "changed": boolean, "itinerary": {"summary": string, "days":[{"day":1,"title":string,"items":[{"slot":"morning"|"cafe"|"lunch"|"afternoon"|"dinner"|"evening","name":string,"kind":"pick"|"event","why":string}]}]}}`;
+Call the emit_reply tool with your answer. Every "slot" must be one of: ${SLOTS.join(", ")}. Every "kind" must be "pick" or "event". When "changed" is false, echo the current itinerary unchanged.`;
 
   // Friendly fallback reply if the model fails or returns nothing usable.
   const fallbackReply = lang === "es"
     ? "Perdon, no pude actualizar el plan esta vez. Aqui esta tu itinerario tal como estaba, dime que te gustaria cambiar."
     : "Sorry, I could not update the plan this time. Here is your itinerary as it was, tell me what you would like to change.";
 
+  // Structured tool output: guaranteed-valid JSON, so we never hit a text-parse error.
+  const REPLY_TOOL = {
+    name: "emit_reply",
+    description: "Reply to the traveler and return the (possibly revised) itinerary.",
+    input_schema: {
+      type: "object",
+      properties: {
+        reply: { type: "string", description: "Conversational reply to the traveler." },
+        changed: { type: "boolean", description: "True only if the itinerary was revised." },
+        itinerary: {
+          type: "object",
+          properties: {
+            summary: { type: "string" },
+            days: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "integer" },
+                  title: { type: "string" },
+                  items: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        slot: { type: "string", enum: SLOTS },
+                        name: { type: "string", description: "Exact name/title from the catalog." },
+                        kind: { type: "string", enum: KINDS },
+                        why: { type: "string", description: "One short sentence." },
+                      },
+                      required: ["slot", "name", "kind", "why"],
+                    },
+                  },
+                },
+                required: ["day", "title", "items"],
+              },
+            },
+          },
+          required: ["summary", "days"],
+        },
+      },
+      required: ["reply", "changed", "itinerary"],
+    },
+  };
+
   let parsed;
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
       model: "claude-sonnet-5", // conversational refinement uses the stronger model for better edits
-      max_tokens: 4000,
+      max_tokens: 6000,
+      tools: [REPLY_TOOL],
+      tool_choice: { type: "tool", name: "emit_reply" },
       messages: [{ role: "user", content: prompt }],
     });
-    const raw = (msg.content || []).map((b) => (b.type === "text" ? b.text : "")).join("");
-    const m = raw.match(/\{[\s\S]*\}/); // outermost {...}
-    if (!m) throw new Error("no JSON object in model reply");
-    parsed = JSON.parse(m[0]);
+    const block = (msg.content || []).find((b) => b.type === "tool_use" && b.name === "emit_reply");
+    if (!block || !block.input) throw new Error("no reply returned");
+    parsed = block.input;
   } catch (err) {
     // Soft failure: keep the conversation alive, return the plan unchanged.
     return Response.json({ ok: true, reply: fallbackReply, changed: false, itinerary: currentClean });
