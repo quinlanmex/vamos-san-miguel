@@ -66,6 +66,7 @@ export default function Manage() {
   const [quickOpen, setQuickOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const quickTimer = useRef(null);
+  const [translating, setTranslating] = useState(false);
 
   const api = useCallback(async (body) => {
     const r = await fetch("/api/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, ...body }) });
@@ -119,6 +120,31 @@ export default function Manage() {
 
   const upd = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
   const toggle = (k, val) => setEditing((e) => { const s = new Set(e[k] || []); s.has(val) ? s.delete(val) : s.add(val); return { ...e, [k]: [...s] }; });
+
+  // English -> Spanish field pairs for the current record type. Editing English and
+  // translating keeps the Spanish copy in step.
+  const esPairs = () => (kind === "event"
+    ? [["title_en", "title_es"], ["blurb_en", "blurb_es"], ["price_en", "price_es"]]
+    : [["desc_en", "desc_es"], ["tip", "tip_es"], ["why_love", "why_love_es"], ["what_to_order", "what_to_order_es"], ["best_time", "best_time_es"]]);
+
+  // Translate the given [en, es] pairs from the editing record and write the Spanish back.
+  async function translatePairs(pairs, { onlyEmpty = false } = {}) {
+    const texts = {};
+    for (const [enK, esK] of pairs) {
+      const v = (editing?.[enK] || "").trim();
+      if (v && (!onlyEmpty || !(editing?.[esK] || "").trim())) texts[enK] = v;
+    }
+    if (!Object.keys(texts).length) return;
+    setTranslating(true);
+    try {
+      const r = await fetch("/api/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, texts }) });
+      const j = await r.json();
+      if (j.ok) setEditing((e) => { const n = { ...e }; for (const [enK, esK] of pairs) if (j.texts[enK]) n[esK] = j.texts[enK]; return n; });
+      else setMsg({ type: "err", text: j.error || "Translation failed" });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setTranslating(false);
+  }
+  const translateAll = () => translatePairs(esPairs());
 
   async function save() {
     setBusy(true); setMsg(null);
@@ -583,16 +609,18 @@ export default function Manage() {
                     <button onClick={() => setEditing({ ...r, audience: r.audience || [], diet: r.diet || [], cuisine: r.cuisine || [], photos: r.photos || [] })} style={{ ...btn(P.navy), padding: "7px 12px" }}>Edit</button>
                     <button onClick={() => del(r.id, nameOf(r))} style={{ ...btn("transparent"), padding: "7px 10px", color: P.coral, border: `1px solid ${P.coral}55` }}>Delete</button>
                   </div>
-                  {isPlace && r.list_key === "rest" && (
+                  {isPlace && (
                     <div style={{ marginTop: 9, paddingLeft: 53, display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
-                      {CUI_KEYS.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
+                      {/* Cuisine sub-filters + diet are restaurant/cafe only; amenity facets
+                          (Wellness, Views, Family, etc.) apply to every establishment. */}
+                      {r.list_key === "rest" && CUI_KEYS.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
                         <button key={k} onClick={() => toggleIn(r, "cuisine", k)} style={mini(on, P.coral)}><Ic size={11} /> {CUISINES[k].en}</button>
                       ); })}
-                      <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "2px 3px" }} />
+                      {r.list_key === "rest" && <span style={{ width: 1, alignSelf: "stretch", background: P.line, margin: "2px 3px" }} />}
                       {GOODFOR.map((k) => { const on = (r.cuisine || []).includes(k); const Ic = CUISINES[k].Icon; return (
                         <button key={k} onClick={() => toggleIn(r, "cuisine", k)} style={mini(on, P.green)}><Ic size={11} /> {CUISINES[k].en}</button>
                       ); })}
-                      {DIET.map(([k, l, Ic]) => { const on = (r.diet || []).includes(k); return (
+                      {r.list_key === "rest" && DIET.map(([k, l, Ic]) => { const on = (r.diet || []).includes(k); return (
                         <button key={k} onClick={() => toggleIn(r, "diet", k)} style={mini(on, P.green)}><Ic size={11} /> {l}</button>
                       ); })}
                     </div>
@@ -651,16 +679,21 @@ export default function Manage() {
 
         {editing && (
           <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 10 }}>
               <h2 style={{ fontSize: 17, margin: 0 }}>{editing.id ? "Edit" : "New"} {isPlace ? "Local Pick" : "event"}</h2>
-              <button onClick={() => setEditing(null)} style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Cancel</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={translateAll} disabled={translating} title="Translate every English field to Spanish (fills the Spanish fields)"
+                  style={{ ...btn(P.cobalt, !translating), padding: "7px 12px" }}>{translating ? "Translating…" : "↺ Translate to Spanish"}</button>
+                <button onClick={() => setEditing(null)} style={{ border: "none", background: "transparent", color: P.inkSoft, fontSize: 13, cursor: "pointer" }}>Cancel</button>
+              </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {isPlace ? (
                 <>
                   <div style={{ gridColumn: "1 / -1" }}><label style={label}>Name</label><input style={field} value={editing.name || ""} onChange={(e) => upd("name", e.target.value)} /></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Description (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_en || ""} onChange={(e) => upd("desc_en", e.target.value)} /></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Descripción (ES)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_es || ""} onChange={(e) => upd("desc_es", e.target.value)} /></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Description (EN)</label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_en || ""} onChange={(e) => upd("desc_en", e.target.value)}
+                    onBlur={() => translatePairs([["desc_en", "desc_es"]], { onlyEmpty: true })} /></div>
+                  <div style={{ gridColumn: "1 / -1" }}><label style={label}>Descripción (ES) <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: P.inkSoft }}>{translating ? "· translating…" : "· auto-fills from English"}</span></label><textarea rows={2} style={{ ...field, resize: "vertical" }} value={editing.desc_es || ""} onChange={(e) => upd("desc_es", e.target.value)} /></div>
                   <div><label style={label}>List</label><select style={field} value={editing.list_key || ""} onChange={(e) => upd("list_key", e.target.value)}>{LISTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
                   <div><label style={label}>Priority <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(trip planner)</span></label>
                     <select style={field} value={editing.priority ?? ""} onChange={(e) => upd("priority", e.target.value ? Number(e.target.value) : null)}>

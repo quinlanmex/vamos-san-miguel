@@ -621,7 +621,7 @@ function TripPlanner({ onClose, stay, savedNames, lang, t, P, onOpenPick, onOpen
 const label2 = (P) => ({ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 7px" });
 
 // Saved itinerary shown as a day planner, with a chat to ask questions / tweak it in place.
-function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, savedNames }) {
+function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, savedNames, photoFor }) {
   const es = lang === "es";
   const [messages, setMessages] = useState([]); // {role, content}
   const [input, setInput] = useState("");
@@ -696,10 +696,12 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
         <div key={d.day} style={{ marginBottom: 16 }}>
           <h3 className="disp" style={{ fontSize: 15.5, fontWeight: 800, color: P.ink, margin: "0 0 8px" }}>{es ? `Día ${d.day}` : `Day ${d.day}`}{d.title ? ` · ${d.title}` : ""}</h3>
           <div style={{ display: "grid", gap: 7 }}>
-            {d.items.map((it, i) => (
+            {d.items.map((it, i) => {
+              const photo = it.photo_url || (photoFor && it.kind !== "event" ? photoFor(it.name) : null);
+              return (
               <button key={i} onClick={() => it.kind === "event" ? onOpenEvent(it.name) : onOpenPick(it.name)}
                 style={{ textAlign: "left", border: `1px solid ${P.line}`, background: P.plaster, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                {it.photo_url && <img src={it.photo_url} alt="" loading="lazy" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 8, objectFit: "cover" }} />}
+                {photo && <img src={photo} alt="" loading="lazy" style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 8, objectFit: "cover" }} />}
                 <span style={{ flex: 1 }}>
                   <span style={{ display: "inline-block", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "#fff", background: it.kind === "event" ? P.cobalt : P.coral, padding: "3px 7px", borderRadius: 999, marginBottom: 3 }}>
                     {(SLOT_LABEL[it.slot] || { en: it.slot, es: it.slot })[lang]}
@@ -708,7 +710,8 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
                   {it.why && <span style={{ display: "block", fontSize: 12.5, color: P.inkSoft, lineHeight: 1.4, marginTop: 1 }}>{it.why}</span>}
                 </span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}
@@ -1388,6 +1391,7 @@ export default function App() {
               one exists; otherwise invite building one from the saved spots below. */}
           {savedItinerary ? (
             <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P} savedNames={[...savedPlaces]}
+              photoFor={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); return it ? (it.photo_url || (Array.isArray(it.photos) && it.photos[0]) || null) : null; }}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
               onOpenEvent={(name) => { const e = events.find((x) => x.title?.en === name || x.title?.[lang] === name); if (e) setDetail(e); }} />
           ) : (savedPlaceItems.length > 0 || savedEvents.length > 0) ? (
