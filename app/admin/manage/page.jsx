@@ -118,6 +118,21 @@ export default function Manage() {
     setAdding(false);
   }
 
+  async function addEventFromGoogle(pred) {
+    setAdding(true); setMsg(null); setQuickOpen(false);
+    try {
+      const r = await fetch("/api/add-event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw, place_id: pred.place_id }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || "Failed to add");
+      await load();
+      setQuickQ(""); setQuickPreds([]);
+      // Open the new draft event in the editor so the date/recurrence/category/priority get set.
+      setEditing({ ...j.event, audience: j.event.audience || [] });
+      setMsg({ type: "ok", text: `Added "${j.event.title_en}" as a draft event with photo and location from Google. Set its date (or mark it recurring), category, and priority below, then publish.` });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setAdding(false);
+  }
+
   const upd = (k, v) => setEditing((e) => ({ ...e, [k]: v }));
   const toggle = (k, val) => setEditing((e) => { const s = new Set(e[k] || []); s.has(val) ? s.delete(val) : s.add(val); return { ...e, [k]: [...s] }; });
 
@@ -434,38 +449,42 @@ export default function Manage() {
 
         {!editing && (
           <>
-            {isPlace && (
-              <div style={{ marginBottom: 14, background: P.card, border: `1px solid ${P.coral}55`, borderRadius: 12, padding: "14px 16px" }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 9, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 14.5, fontWeight: 800, color: P.ink }}>✨ Quick add from Google</span>
-                  <span style={{ fontSize: 12.5, color: P.inkSoft }}>Start typing a place, click it, and photos, description, hours, phone, and location fill in automatically.</span>
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ marginBottom: 14, background: P.card, border: `1px solid ${P.coral}55`, borderRadius: 12, padding: "14px 16px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 9, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 14.5, fontWeight: 800, color: P.ink }}>✨ Quick add {isPlace ? "a place" : "an event"} from Google</span>
+                <span style={{ fontSize: 12.5, color: P.inkSoft }}>
+                  {isPlace
+                    ? "Start typing a place, click it, and photos, description, hours, phone, and location fill in automatically."
+                    : "Start typing a market, venue, or happening, click it, and the name, photo, and location fill in. It opens as a draft so you can set the date, recurrence, and category."}
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                {isPlace && (
                   <select value={quickType} onChange={(e) => setQuickType(e.target.value)} style={{ ...field, width: "auto", flexShrink: 0 }} title="What kind of place is this?">
                     {LISTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
                   </select>
-                  <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
-                    <input value={quickQ} onChange={(e) => setQuickQ(e.target.value)}
-                      onFocus={() => quickPreds.length && setQuickOpen(true)}
-                      onBlur={() => setTimeout(() => setQuickOpen(false), 160)}
-                      placeholder="e.g. Jacques restaurant"
-                      style={{ ...field, width: "100%" }} />
-                    {adding && <span style={{ position: "absolute", right: 10, top: 9, fontSize: 12.5, fontWeight: 700, color: P.coral }}>Adding…</span>}
-                    {quickOpen && quickPreds.length > 0 && (
-                      <div style={{ position: "absolute", zIndex: 40, top: "calc(100% + 4px)", left: 0, right: 0, background: P.card, border: `1px solid ${P.line}`, borderRadius: 10, boxShadow: "0 12px 34px rgba(0,0,0,.18)", overflow: "hidden" }}>
-                        {quickPreds.map((pr) => (
-                          <button key={pr.place_id} onMouseDown={(e) => e.preventDefault()} onClick={() => addPlace(pr)} disabled={adding}
-                            style={{ display: "block", width: "100%", textAlign: "left", border: "none", borderBottom: `1px solid ${P.line}`, background: "transparent", cursor: adding ? "default" : "pointer", padding: "9px 12px" }}>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: P.ink }}>{pr.main}</div>
-                            {pr.secondary && <div style={{ fontSize: 12, color: P.inkSoft }}>{pr.secondary}</div>}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                )}
+                <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
+                  <input value={quickQ} onChange={(e) => setQuickQ(e.target.value)}
+                    onFocus={() => quickPreds.length && setQuickOpen(true)}
+                    onBlur={() => setTimeout(() => setQuickOpen(false), 160)}
+                    placeholder={isPlace ? "e.g. Jacques restaurant" : "e.g. Saturday organic market"}
+                    style={{ ...field, width: "100%" }} />
+                  {adding && <span style={{ position: "absolute", right: 10, top: 9, fontSize: 12.5, fontWeight: 700, color: P.coral }}>Adding…</span>}
+                  {quickOpen && quickPreds.length > 0 && (
+                    <div style={{ position: "absolute", zIndex: 40, top: "calc(100% + 4px)", left: 0, right: 0, background: P.card, border: `1px solid ${P.line}`, borderRadius: 10, boxShadow: "0 12px 34px rgba(0,0,0,.18)", overflow: "hidden" }}>
+                      {quickPreds.map((pr) => (
+                        <button key={pr.place_id} onMouseDown={(e) => e.preventDefault()} onClick={() => (isPlace ? addPlace(pr) : addEventFromGoogle(pr))} disabled={adding}
+                          style={{ display: "block", width: "100%", textAlign: "left", border: "none", borderBottom: `1px solid ${P.line}`, background: "transparent", cursor: adding ? "default" : "pointer", padding: "9px 12px" }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: P.ink }}>{pr.main}</div>
+                          {pr.secondary && <div style={{ fontSize: 12, color: P.inkSoft }}>{pr.secondary}</div>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
               <button onClick={() => setEditing(isPlace ? { list_key: "rest", category: "mercados", audience: [], diet: [], cuisine: [], photos: [], status: "published" } : { category: "musica", audience: [], status: "published", recurring: false })}
                 style={btn(P.coral)}>+ Add {isPlace ? "a Local Pick" : "an event"} manually</button>
