@@ -108,8 +108,11 @@ export default function Manage() {
       const j = await r.json();
       if (!r.ok || !j.ok) throw new Error(j.error || "Failed to add");
       await load();
+      const newName = j.place?.name || pred.main;
       setQuickQ(""); setQuickPreds([]);
-      setMsg({ type: "ok", text: `Added "${j.place?.name || pred.main}". ${j.hadPhoto ? "Photo, " : ""}${j.hadDesc ? "description, " : ""}hours and coordinates pulled from Google. Neighborhood and editorial notes fill in automatically.` });
+      // Auto-filter the inventory down to just the new listing so it's ready to review.
+      setNeed("all"); setSortBy("newest"); setQ(newName);
+      setMsg({ type: "ok", text: `Added "${newName}" and filtered to it below for review. Pulled from Google: ${j.hadPhoto ? "photo, " : ""}${j.hadDesc ? "description, " : ""}${j.cuisine ? "cuisine tags, " : ""}${j.diet ? "diet tags, " : ""}hours, and coordinates. Neighborhood fills in automatically. Adjust anything that is off.` });
     } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
     setAdding(false);
   }
