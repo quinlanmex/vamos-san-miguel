@@ -1372,8 +1372,8 @@ export default function App() {
                 </div>
                 <p style={{ margin: 0, fontSize: 14.5, color: P.ink, lineHeight: 1.5 }}>
                   {lang === "es"
-                    ? `Deja que la IA organice tus ${savedPlaceItems.length} lugares guardados en un plan día por día.`
-                    : `Let AI arrange your ${savedPlaceItems.length} saved spot${savedPlaceItems.length === 1 ? "" : "s"} into a day-by-day plan.`}
+                    ? `Deja que Vamos AI organice tus ${savedPlaceItems.length} lugares guardados en un plan día por día.`
+                    : `Let Vamos AI arrange your ${savedPlaceItems.length} saved spot${savedPlaceItems.length === 1 ? "" : "s"} into a day-by-day plan.`}
                 </p>
               </div>
               <button onClick={() => setShowPlanner(true)}
@@ -1389,7 +1389,7 @@ export default function App() {
               <p style={{ margin: "0 0 18px", fontSize: 14, maxWidth: 320, marginInline: "auto", lineHeight: 1.5 }}>{t.savedHint}</p>
               <button onClick={() => setShowPlanner(true)}
                 style={{ border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 15, padding: "12px 22px", borderRadius: 12, boxShadow: "0 4px 14px rgba(224,106,99,.28)" }}>
-                ✨ {lang === "es" ? "Deja que la IA arme tu viaje" : "Let AI plan your trip"}
+                ✨ {lang === "es" ? "Deja que Vamos AI arme tu viaje" : "Let Vamos AI plan your trip"}
               </button>
             </div>
           )) : (
@@ -1402,7 +1402,7 @@ export default function App() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <button onClick={() => setShowPlanner(true)}
                   style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "none", background: P.coral, cursor: "pointer", color: "#fff", fontWeight: 700, fontSize: 13, padding: "7px 14px", borderRadius: 999 }}>
-                  ✨ {lang === "es" ? "Armar viaje" : "Plan with AI"}
+                  ✨ {lang === "es" ? "Armar con Vamos AI" : "Plan with Vamos AI"}
                 </button>
                 <button onClick={shareTrip}
                   style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "6px 13px", borderRadius: 999 }}>
