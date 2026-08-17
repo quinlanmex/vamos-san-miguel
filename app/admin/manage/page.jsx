@@ -299,11 +299,13 @@ export default function Manage() {
   const isPlace = kind === "place";
   const allRows = kind === "event" ? data.events : data.places;
   const nameOf = (r) => (isPlace ? r.name : (r.title_en || r.title_es)) || "";
-  const ql = q.trim().toLowerCase();
+  // Accent-insensitive: typing "Fabrica" matches "Fábrica La Aurora".
+  const fold = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const ql = fold(q.trim());
   const hasRealCuisine = (r) => (r.cuisine || []).some((c) => !GOODFOR.includes(c));
   const noPhoto = (r) => !r.photo_url && !(r.photos || []).length;
   let rows = ql
-    ? allRows.filter((r) => nameOf(r).toLowerCase().includes(ql) || (r.status || "").toLowerCase().includes(ql) || (r.category || "").toLowerCase().includes(ql))
+    ? allRows.filter((r) => fold(nameOf(r)).includes(ql) || fold(r.status).includes(ql) || fold(r.category).includes(ql))
     : allRows;
   if (isPlace && need !== "all") {
     rows = rows.filter((r) =>
