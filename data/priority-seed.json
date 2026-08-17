@@ -1,0 +1,11 @@
+[
+  { "name": "El Jardín", "priority": 1 },
+  { "name": "Parroquia de San Miguel Arcángel", "priority": 1 },
+  { "name": "Fábrica La Aurora", "priority": 1 },
+  { "name": "Centro Cultural El Nigromante (Bellas Artes)", "priority": 1 },
+  { "name": "Teatro Ángela Peralta", "priority": 2 },
+  { "name": "Instituto Allende", "priority": 2 },
+  { "name": "El Charco del Ingenio", "priority": 2 },
+  { "name": "La Gruta", "priority": 2 },
+  { "name": "Parque Juárez", "priority": 2 }
+]

@@ -1357,11 +1357,31 @@ export default function App() {
         ) : (
           /* ---- Saved (device-based personal collection) ---- */
           <>
-          {savedItinerary && (
+          {/* Recommended itinerary always lives at the top of Saved. Show the plan when
+              one exists; otherwise invite building one from the saved spots below. */}
+          {savedItinerary ? (
             <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P} savedNames={[...savedPlaces]}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
               onOpenEvent={(name) => { const e = events.find((x) => x.title?.en === name || x.title?.[lang] === name); if (e) setDetail(e); }} />
-          )}
+          ) : (savedPlaceItems.length > 0 || savedEvents.length > 0) ? (
+            <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, padding: "20px 22px", marginBottom: 26,
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+              <div style={{ minWidth: 220, flex: 1 }}>
+                <div className="disp" style={{ fontSize: 13, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 6 }}>
+                  {lang === "es" ? "Itinerario recomendado" : "Recommended itinerary"}
+                </div>
+                <p style={{ margin: 0, fontSize: 14.5, color: P.ink, lineHeight: 1.5 }}>
+                  {lang === "es"
+                    ? `Deja que la IA organice tus ${savedPlaceItems.length} lugares guardados en un plan día por día.`
+                    : `Let AI arrange your ${savedPlaceItems.length} saved spot${savedPlaceItems.length === 1 ? "" : "s"} into a day-by-day plan.`}
+                </p>
+              </div>
+              <button onClick={() => setShowPlanner(true)}
+                style={{ border: "none", background: P.coral, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 15, padding: "12px 22px", borderRadius: 12, whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(224,106,99,.28)" }}>
+                ✨ {lang === "es" ? "Armar mi itinerario" : "Build my itinerary"}
+              </button>
+            </div>
+          ) : null}
           {savedEvents.length === 0 && savedPlaceItems.length === 0 ? (savedItinerary ? null : (
             <div style={{ textAlign: "center", padding: "48px 24px", color: P.inkSoft }}>
               <Heart size={30} color={P.rosa} style={{ opacity: .6 }} />
