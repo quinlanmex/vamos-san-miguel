@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 const EVENT_COLS = ["status", "title_en", "title_es", "blurb_en", "blurb_es", "price_en", "price_es",
   "category", "audience", "start_date", "end_date", "start_time", "recurring", "venue", "area",
-  "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng"];
+  "origin_name", "origin_url", "discovered_via", "photo_url", "lat", "lng", "priority"];
 const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_es", "category",
   "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
   "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status", "featured", "featured_rank",

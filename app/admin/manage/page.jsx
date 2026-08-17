@@ -235,6 +235,20 @@ export default function Manage() {
     setApplying(false);
   }
 
+  const [deduping, setDeduping] = useState(false);
+  async function dedupEvents() {
+    if (!confirm("Merge duplicate events into one listing each? Keeps the most complete row and deletes the extras. This cannot be undone.")) return;
+    setDeduping(true); setMsg(null);
+    try {
+      const r = await fetch("/api/dedup-events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || "Failed");
+      await load();
+      setMsg({ type: "ok", text: j.deleted ? `Merged ${j.merged} group${j.merged === 1 ? "" : "s"}, removed ${j.deleted} duplicate${j.deleted === 1 ? "" : "s"}.` : "No duplicates found." });
+    } catch (e) { setMsg({ type: "err", text: String(e.message || e) }); }
+    setDeduping(false);
+  }
+
   const [discovering, setDiscovering] = useState(false);
   async function discoverEvents() {
     setDiscovering(true); setMsg(null);
@@ -455,6 +469,10 @@ export default function Manage() {
                   style={btn("#B4791F", !geocoding)}>{geocoding ? "Geocoding…" : "Geocode events"}</button>
               )}
               {!isPlace && (
+                <button onClick={dedupEvents} disabled={deduping} title="Merge near-duplicate events (e.g. the same recurring event listed several times) into one"
+                  style={btn(P.coral, !deduping)}>{deduping ? "Merging…" : "Merge duplicates"}</button>
+              )}
+              {!isPlace && (
                 <button onClick={importEvents} disabled={importingEv} title="Import the initial researched batch"
                   style={btn(P.navy, !importingEv)}>{importingEv ? "Importing…" : "Import initial batch"}</button>
               )}
@@ -535,7 +553,7 @@ export default function Manage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
                         <span style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: closed ? "line-through" : "none" }}>{nameOf(r) || <em style={{ color: P.inkSoft }}>(untitled)</em>}</span>
-                        {isPlace && r.priority && (
+                        {r.priority && (
                           <span title="Trip-planner priority" style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", padding: "2px 8px", borderRadius: 999,
                             background: r.priority === 1 ? "#E06A63" : r.priority === 2 ? "#B4791F" : "#9A8F7E", color: "#fff" }}>
                             {r.priority === 1 ? "★ Essential" : r.priority === 2 ? "Recommended" : "Optional"}
@@ -608,6 +626,19 @@ export default function Manage() {
                         <option value="2">Recommended</option>
                         <option value="3">Optional</option>
                       </select>
+                    </div>
+                  )}
+                  {!isPlace && (
+                    <div style={{ marginTop: 8, paddingLeft: 27, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: P.inkSoft, textTransform: "uppercase", letterSpacing: ".04em" }}>Priority</span>
+                      <select value={r.priority ?? ""} onChange={(e) => patchRow(r.id, { priority: e.target.value ? Number(e.target.value) : null })}
+                        title="Trip-planner importance for this event" style={{ ...field, width: "auto", padding: "5px 8px", fontSize: 12.5, cursor: "pointer" }}>
+                        <option value="">—</option>
+                        <option value="1">★ Essential</option>
+                        <option value="2">Recommended</option>
+                        <option value="3">Optional</option>
+                      </select>
+                      {r.recurring && <span style={{ fontSize: 11.5, fontWeight: 700, color: P.green, background: `${P.green}18`, padding: "3px 9px", borderRadius: 999 }}>↻ Recurring</span>}
                     </div>
                   )}
                 </div>

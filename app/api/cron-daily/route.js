@@ -1,4 +1,5 @@
 import { run as discoverEvents } from "../discover-events/route";
+import { run as dedupEvents } from "../dedup-events/route";
 import { run as ingestNewsletters } from "../ingest-newsletters/route";
 import { run as geocodeEvents } from "../geocode-events/route";
 import { run as driveTimes } from "../drive-times/route";
@@ -19,6 +20,7 @@ async function runAll() {
   const jobs = [
     ["discoverEvents", discoverEvents],   // pull new future events from public sources
     ["ingestNewsletters", ingestNewsletters], // parse event newsletters from the shared inbox
+    ["dedupEvents", dedupEvents],         // merge duplicate/recurring events into one listing
     ["geocodeEvents", geocodeEvents],     // fill event map coordinates
     ["driveTimes", driveTimes],           // fill drive time from Centro for out-of-town picks
     ["enrichPicks", enrichPicks],         // pull hours + practical attributes for picks

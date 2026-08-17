@@ -68,8 +68,13 @@ export async function run() {
   const sb = supabaseAdmin();
   const todayStr = new Date().toLocaleDateString("en-CA");
 
-  const { data: existing } = await sb.from("events").select("title_en,start_date");
-  const have = new Set((existing || []).map((e) => `${(e.title_en || "").toLowerCase()}|${e.start_date || ""}`));
+  // Normalized title (fold accents + punctuation) so "Tianguis de los Martes",
+  // "Tianguis de los Martes / Tuesday Market", etc. all collapse to one key and we
+  // never insert punctuation-only duplicates. Recurring events dedupe on title alone.
+  const nt = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const dkey = (title, date, recurring) => (recurring ? `${nt(title)}|recurring` : `${nt(title)}|${date || ""}`);
+  const { data: existing } = await sb.from("events").select("title_en,start_date,recurring");
+  const have = new Set((existing || []).map((e) => dkey(e.title_en, e.start_date, e.recurring)));
 
   let found = 0;
   const rows = [];
@@ -87,7 +92,7 @@ export async function run() {
         if (last < todayStr) continue;
       }
       found++;
-      const key = `${e.title_en.toLowerCase()}|${e.start_date || ""}`;
+      const key = dkey(e.title_en, e.start_date, e.recurring);
       if (have.has(key)) continue;
       have.add(key);
       rows.push({

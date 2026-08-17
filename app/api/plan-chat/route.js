@@ -80,7 +80,7 @@ export async function POST(req) {
 
     const { data: eventRows, error: eventErr } = await sb
       .from("events")
-      .select("title_en, category, start_date, end_date, recurring, venue, area, lat, lng")
+      .select("*") // "*" so it never breaks if priority isn't migrated yet
       .eq("status", "published");
     if (eventErr) throw new Error("events: " + eventErr.message);
     events = (eventRows || []).filter((r) => {
@@ -107,7 +107,8 @@ export async function POST(req) {
   const mustLower = new Set(mustInclude.map((s) => s.toLowerCase()));
   const rank = (p, nameKey) => (mustLower.has((p[nameKey] || "").toLowerCase()) ? -10 : 0) + (p.priority || 3);
   picks.sort((a, b) => rank(a, "name") - rank(b, "name"));
-  events.sort((a, b) => (mustLower.has((b.title_en || "").toLowerCase()) ? 1 : 0) - (mustLower.has((a.title_en || "").toLowerCase()) ? 1 : 0));
+  const evRank = (e) => (mustLower.has((e.title_en || "").toLowerCase()) ? -10 : 0) + (e.priority || 3);
+  events.sort((a, b) => evRank(a) - evRank(b));
 
   const capPicks = picks.slice(0, MAX_PICKS);
   const capEvents = events.slice(0, MAX_EVENTS);
@@ -118,7 +119,7 @@ export async function POST(req) {
     const note = (p.ai_notes || p.desc_en || "").replace(/\s+/g, " ").slice(0, 200);
     return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
   });
-  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.start_date || "recurring"} | ${e.category || ""} | venue:${e.venue || ""}`);
+  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.start_date || "recurring"} | ${e.category || ""} | pri:${e.priority || 3} | venue:${e.venue || ""}`);
   const catalog = pickLines.concat(eventLines).join("\n");
 
   // Resolution maps (case-insensitive) so we can validate + attach coords later.
