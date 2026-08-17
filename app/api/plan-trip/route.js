@@ -145,7 +145,7 @@ RULES:
 - Spread meals sensibly across each day: a breakfast/cafe, a lunch, and a dinner.
 - Include EVENTs only if their date falls on one of the TRIP DATES above (or, for recurring events, on a matching weekday) AND they match the traveler's interests. Put each event on the day its date matches. If no trip dates are given, include an event only if its date plausibly falls within a ${days}-day trip starting around ${todayStr}.
 - Some picks are weekday-specific (their note may say "Saturdays only" or similar). Place these only on the day whose weekday matches.
-- Prioritize any "must include" names.
+- MUST INCLUDE: the "must include" names are places the traveler already saved and chose. Include EVERY one of them somewhere in the trip, each on a sensible day. Do not omit any saved spot.
 - Match the party (kid-friendly choices for families) and the pace.
 - Keep each "why" to ONE short sentence (about 12 to 18 words) so plans render fast and read cleanly.
 - Never use em-dashes or en-dashes. Use commas, periods, or "and" instead.
