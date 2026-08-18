@@ -1207,6 +1207,7 @@ export default function App() {
   const [picksLayout, setPicksLayout] = useState("list"); // list | map (Local Picks)
   const [savedLayout, setSavedLayout] = useState("list"); // list | map (Saved trip)
   const [expandedLists, setExpandedLists] = useState(() => new Set()); // per-list "show all" on the Picks home
+  const [seeAll, setSeeAll] = useState(false); // reveal the full browse under the AI-first home
   const [showPlanner, setShowPlanner] = useState(false); // AI trip planner modal
   const [savedItinerary, setSavedItinerary] = useState(() => { try { return JSON.parse(localStorage.getItem("qp_itinerary") || "null"); } catch { return null; } });
   useEffect(() => { try { savedItinerary ? localStorage.setItem("qp_itinerary", JSON.stringify(savedItinerary)) : localStorage.removeItem("qp_itinerary"); } catch {} }, [savedItinerary]);
@@ -1464,7 +1465,7 @@ export default function App() {
         <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
         <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
           <button type="button" aria-label={lang === "es" ? "Inicio" : "Home"}
-            onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setSeeAll(false); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
             style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "block" }}>
             <span className="brandlogo-crop">
               <img
@@ -1781,6 +1782,19 @@ export default function App() {
                   setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
               </div>
               <div className="picks-main">
+            {!(favActive || seeAll || query.trim()) ? (
+              /* AI-first home keeps the long catalog behind one tap so it isn't overwhelming.
+                 Pick a type on the left (or the Filter pill on mobile) to drill in, or reveal all. */
+              <div style={{ textAlign: "center", padding: "26px 20px", border: `1px dashed ${P.line}`, borderRadius: 16, background: P.card }}>
+                <p style={{ fontSize: 15, color: P.ink, fontWeight: 700, margin: "0 0 4px" }}>{lang === "es" ? "¿Prefieres explorar todo?" : "Rather browse everything?"}</p>
+                <p style={{ fontSize: 13.5, color: P.inkSoft, margin: "0 0 14px" }}>{lang === "es" ? "Elige un tipo a la izquierda, o abre la lista completa." : "Pick a type on the left, or open the full hand-picked list."}</p>
+                <button onClick={() => setSeeAll(true)}
+                  style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 800, fontSize: 14.5, padding: "12px 22px", borderRadius: 12 }}>
+                  {lang === "es" ? `Ver los ${favLists.reduce((n, l) => n + (l.items ? l.items.length : 0), 0)} lugares` : `See all ${favLists.reduce((n, l) => n + (l.items ? l.items.length : 0), 0)} hand-picked places`} →
+                </button>
+              </div>
+            ) : (
+            <>
             {/* Toolbar: count on the left, List/Map toggle on the right */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 12 }}>
               <span style={{ fontSize: 13, color: P.inkSoft, fontWeight: 600 }}>
@@ -1835,6 +1849,8 @@ export default function App() {
               </section>
               );
             })}
+            </>
+            )}
               </div>
             </div>
           </>
