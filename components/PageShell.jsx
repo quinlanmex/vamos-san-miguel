@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import GuidesDropdown from "./GuidesDropdown";
+import MobileTabBar from "./MobileTabBar";
 
 // Branded server-rendered wrapper for the static guide pages (/move/*).
 // Keeps them on-brand without pulling in the client app.
@@ -8,7 +9,7 @@ import GuidesDropdown from "./GuidesDropdown";
 export default function PageShell({ children, active }) {
   return (
     <div style={{ minHeight: "100vh", background: "#F7F3EC", color: "#241C14", fontFamily: "'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
-      <style>{`.pageshell-logo{height:58px}@media(min-width:680px){.pageshell-logo{height:84px}}`}</style>
+      <style>{`.pageshell-logo{height:58px}@media(min-width:680px){.pageshell-logo{height:84px}}.ps-topnav{display:none}@media(min-width:680px){.ps-topnav{display:flex}}`}</style>
       {/* Same woven top stripe as the home app */}
       <div style={{ height: 8, background: "repeating-linear-gradient(135deg, #15539A 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, #E11D74 0 8px, #F2A100 8px 16px)", backgroundBlendMode: "multiply" }} />
       <header style={{ background: "#FFFFFF", borderBottom: "1px solid #E7DDCB", position: "sticky", top: 0, zIndex: 50 }}>
@@ -17,7 +18,7 @@ export default function PageShell({ children, active }) {
             <img src="/logo-light.svg" alt="Vamos San Miguel" className="pageshell-logo" style={{ width: "auto", display: "block" }} />
           </Link>
           {/* Identical tab set + Guides dropdown as the home app, so the nav never switches. */}
-          <nav style={{ marginLeft: "auto", display: "flex", gap: 28, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
+          <nav className="ps-topnav" style={{ marginLeft: "auto", gap: 28, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
             {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"]].map(([href, label, key]) => {
               const on = key === active;
               return (
@@ -37,9 +38,11 @@ export default function PageShell({ children, active }) {
         </div>
       </header>
 
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "34px 22px 70px" }}>
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "34px 22px 96px" }}>
         {children}
       </main>
+
+      <MobileTabBar active={active} />
 
       <footer style={{ borderTop: "1px solid #E7DDCB", background: "#FFFFFF" }}>
         <div style={{ maxWidth: 1060, margin: "0 auto", padding: "22px 20px", fontSize: 13.5, color: "#6E604F", display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "space-between" }}>
