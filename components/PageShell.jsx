@@ -9,16 +9,16 @@ import MobileTabBar from "./MobileTabBar";
 export default function PageShell({ children, active }) {
   return (
     <div style={{ minHeight: "100vh", background: "#F7F3EC", color: "#241C14", fontFamily: "'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
-      <style>{`.pageshell-logo{height:58px}@media(min-width:680px){.pageshell-logo{height:84px}}.ps-topnav{display:none}@media(min-width:680px){.ps-topnav{display:flex}}`}</style>
+      <style>{`.pageshell-logo{height:58px;width:auto;max-width:66vw;display:block}@media(min-width:680px){.pageshell-logo{height:92px;max-width:440px}}.pageshell-logocrop{--logo-crop:0.28;display:block;overflow:hidden;height:calc(58px*(1 - var(--logo-crop)));line-height:0}@media(min-width:680px){.pageshell-logocrop{height:calc(92px*(1 - var(--logo-crop)))}}.ps-topnav{display:none}@media(min-width:680px){.ps-topnav{display:flex}}`}</style>
       {/* Same woven top stripe as the home app */}
       <div style={{ height: 8, background: "repeating-linear-gradient(135deg, #15539A 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, #E11D74 0 8px, #F2A100 8px 16px)", backgroundBlendMode: "multiply" }} />
       <header style={{ background: "#FFFFFF", borderBottom: "1px solid #E7DDCB", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1060, margin: "0 auto", padding: "9px 20px", display: "flex", alignItems: "center", gap: 22 }}>
           <Link href="/" style={{ display: "block", flexShrink: 0 }}>
-            <img src="/logo-light.svg" alt="Vamos San Miguel" className="pageshell-logo" style={{ width: "auto", display: "block" }} />
+            <span className="pageshell-logocrop"><img src="/logo-light.svg" alt="Vamos San Miguel" className="pageshell-logo" /></span>
           </Link>
-          {/* Identical tab set + Guides dropdown as the home app, so the nav never switches. */}
-          <nav className="ps-topnav" style={{ marginLeft: "auto", gap: 28, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
+          {/* Identical tab set + Guides dropdown as the home app, centered like home. */}
+          <nav className="ps-topnav" style={{ flex: 1, justifyContent: "center", gap: 34, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
             {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"]].map(([href, label, key]) => {
               const on = key === active;
               return (
@@ -35,6 +35,8 @@ export default function PageShell({ children, active }) {
             </Link>
             <Link href="/?planner=1" style={{ background: "#E06A63", color: "#fff", textDecoration: "none", whiteSpace: "nowrap", fontWeight: 800, padding: "8px 16px", borderRadius: 999 }}>✨ Plan Trip</Link>
           </nav>
+          {/* Balances the centered nav where the app shows its EN/ES + theme toggles. */}
+          <div className="ps-topnav" style={{ width: 116, flexShrink: 0 }} aria-hidden="true" />
         </div>
       </header>
 

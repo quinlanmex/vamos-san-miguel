@@ -1847,7 +1847,7 @@ export default function App() {
           const tabStyle = { border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
             color: view === k ? P.coral : P.inkSoft, fontSize: 10, fontWeight: 700, position: "relative", minWidth: 46, textDecoration: "none" };
           if (k === "planner") return (
-            <button key={k} onClick={() => setShowPlanner(true)} style={{ ...tabStyle, color: P.coral }}>
+            <button key={k} onClick={() => setShowPlanner(true)} style={tabStyle}>
               <Ic size={21} /> {label}
             </button>
           );

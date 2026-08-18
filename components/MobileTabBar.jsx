@@ -21,7 +21,7 @@ export default function MobileTabBar({ active }) {
         {ITEMS.map(([key, label, Ic, href]) => {
           const on = key === active;
           return (
-            <Link key={key} href={href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: on ? "#E06A63" : "#6B5D4F", fontSize: 10, fontWeight: 700, textDecoration: "none", minWidth: 46 }}>
+            <Link key={key} href={href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: on ? "#E06A63" : "#6E604F", fontSize: 10, fontWeight: 700, textDecoration: "none", minWidth: 46 }}>
               <Ic size={21} /> {label}
             </Link>
           );
