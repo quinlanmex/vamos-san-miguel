@@ -16,6 +16,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
 import { CUISINES, GOODFOR } from "../components/cuisines";
+import GuidesDropdown from "../components/GuidesDropdown";
 
 /* ------------------------------------------------------------------ *
  *  Qué Pasa · San Miguel  —  working-name prototype
@@ -1008,30 +1009,6 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
   );
 }
 
-// Desktop nav "Guides" dropdown — combines Plan / Move Here / The Book to de-crowd the bar.
-function GuidesDropdown({ lang, P, tabStyle, onWalks }) {
-  const [open, setOpen] = useState(false);
-  const items = [
-    ["/plan", lang === "es" ? "Planea tu viaje" : "Plan your trip"],
-    ["/move", lang === "es" ? "Mudarse aquí" : "Move Here"],
-    ["/ebook", lang === "es" ? "El libro" : "The Book"],
-  ];
-  const linkStyle = { display: "block", width: "100%", textAlign: "left", padding: "9px 12px", color: P.ink, textDecoration: "none", fontSize: 14.5, fontWeight: 600, borderRadius: 8, whiteSpace: "nowrap", background: "transparent", border: "none", cursor: "pointer" };
-  return (
-    <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} style={{ position: "relative" }}>
-      <button style={{ ...tabStyle, color: P.ink }}>{lang === "es" ? "Guías" : "Guides"} ▾</button>
-      {open && (
-        <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", background: "#fff", border: `1px solid ${P.line}`, borderRadius: 12, boxShadow: "0 10px 28px rgba(0,0,0,.14)", padding: 6, minWidth: 190, zIndex: 100 }}>
-          {items.map(([href, label]) => (
-            <a key={href} href={href} style={linkStyle}>{label}</a>
-          ))}
-          <button onClick={() => { setOpen(false); onWalks && onWalks(); }} style={linkStyle}>🚶 {lang === "es" ? "Caminatas" : "Walking paths"}</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // Badge marking a saved item that arrived via a friend's shared link.
 function SharedBadge({ lang, P }) {
   return (
@@ -1255,7 +1232,7 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       // Open a specific tab when linked from a content page (e.g. /?view=events).
       const v = params.get("view");
-      if (v === "events" || v === "saved") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
+      if (v === "events" || v === "saved" || v === "walks" || v === "faves") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
       if (params.get("planner")) { setShowPlanner(true); window.history.replaceState({}, "", window.location.pathname); }
       const walkId = params.get("walk");
       if (walkId) {

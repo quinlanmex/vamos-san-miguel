@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import GuidesDropdown from "./GuidesDropdown";
 
 // Branded server-rendered wrapper for the static guide pages (/move/*).
 // Keeps them on-brand without pulling in the client app.
@@ -15,9 +16,9 @@ export default function PageShell({ children, active }) {
           <Link href="/" style={{ display: "block", flexShrink: 0 }}>
             <img src="/logo-light.svg" alt="Vamos San Miguel" className="pageshell-logo" style={{ width: "auto", display: "block" }} />
           </Link>
-          {/* Same tabs as the home app, so navigation is consistent site-wide */}
-          <nav style={{ marginLeft: "auto", display: "flex", gap: 30, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
-            {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"], ["/plan", "Plan", "plan"], ["/move", "Move Here", "move"], ["/?view=saved", "Saved", "saved"]].map(([href, label, key]) => {
+          {/* Identical tab set + Guides dropdown as the home app, so the nav never switches. */}
+          <nav style={{ marginLeft: "auto", display: "flex", gap: 28, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
+            {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"]].map(([href, label, key]) => {
               const on = key === active;
               return (
                 <Link key={label} href={href}
@@ -26,6 +27,11 @@ export default function PageShell({ children, active }) {
                 </Link>
               );
             })}
+            <GuidesDropdown active={active === "plan" || active === "move" || active === "ebook" ? "guides" : undefined} />
+            <Link href="/?view=saved"
+              style={{ color: active === "saved" ? "#E06A63" : "#241C14", textDecoration: "none", whiteSpace: "nowrap", borderBottom: active === "saved" ? "3px solid #E06A63" : "3px solid transparent", paddingBottom: 3 }}>
+              Saved
+            </Link>
             <Link href="/?planner=1" style={{ background: "#E06A63", color: "#fff", textDecoration: "none", whiteSpace: "nowrap", fontWeight: 800, padding: "8px 16px", borderRadius: 999 }}>✨ Plan Trip</Link>
           </nav>
         </div>

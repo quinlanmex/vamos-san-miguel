@@ -9,7 +9,8 @@ const PLACE_COLS = ["status", "editorial", "list_key", "name", "desc_en", "desc_
   "audience", "diet", "cuisine", "area", "lat", "lng", "origin_name", "origin_url", "google_place_id",
   "source_ref", "photo_url", "photos", "phone", "hours", "price_level", "tip", "business_status", "featured", "featured_rank",
   "why_love", "what_to_order", "best_time",
-  "tip_es", "why_love_es", "what_to_order_es", "best_time_es", "priority"];
+  "tip_es", "why_love_es", "what_to_order_es", "best_time_es", "priority",
+  "local_take", "local_take_es", "caveat_internal", "vibe", "occasion", "pairs_with", "last_verified"];
 
 function clean(record, cols) {
   const out = {};

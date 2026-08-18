@@ -6,6 +6,7 @@ import { run as driveTimes } from "../drive-times/route";
 import { run as enrichPicks } from "../enrich-picks/route";
 import { run as draftPicks } from "../draft-picks/route";
 import { run as enrichAiNotes } from "../enrich-ai-notes/route";
+import { run as enrichLocal } from "../enrich-local/route";
 import { run as syncDocs } from "../sync-docs/route";
 import { runCheck as checkClosures } from "../check-closures/route";
 
@@ -26,6 +27,7 @@ async function runAll() {
     ["enrichPicks", enrichPicks],         // pull hours + practical attributes for picks
     ["draftPicks", draftPicks],           // draft editorial notes for picks that lack them
     ["enrichAiNotes", enrichAiNotes],     // synthesize an AI-facing profile from reviews + site
+    ["enrichLocal", enrichLocal],         // draft opinionated local take, vibe, occasion, internal caveat
     ["syncDocs", syncDocs],               // pull guide edits from Google Docs
     ["checkClosures", checkClosures],     // hide permanently-closed picks
   ];
