@@ -17,6 +17,7 @@ import "leaflet/dist/leaflet.css";
 import { fetchEvents, fetchPlaces } from "../lib/supabase";
 import { CUISINES, GOODFOR } from "../components/cuisines";
 import GuidesDropdown from "../components/GuidesDropdown";
+import MobileGuidesTab from "../components/MobileGuidesTab";
 
 /* ------------------------------------------------------------------ *
  *  Qué Pasa · San Miguel  —  working-name prototype
@@ -1839,32 +1840,31 @@ export default function App() {
         <p style={{ textAlign: "center", fontSize: 12, color: P.inkSoft, marginTop: 34, lineHeight: 1.6 }}>{t.footer}</p>
       </main>
 
-      {/* Mobile bottom tab bar */}
+      {/* Mobile bottom tab bar — Plan + Move Here collapse into one Guides tab (matches desktop). */}
       <nav className="viewnav-bottom" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 900,
         background: P.card, borderTop: `1px solid ${P.line}`, boxShadow: "0 -2px 14px rgba(13,20,40,.09)",
         justifyContent: "space-around", padding: "8px 0 calc(8px + env(safe-area-inset-bottom))" }}>
-        {[["faves", t.faves, MapPin], ["events", t.events, Clock], ["planner", lang === "es" ? "Viaje" : "Plan Trip", Sparkles], ["plan", lang === "es" ? "Planea" : "Plan", MapIcon], ["move", lang === "es" ? "Mudarse" : "Move Here", Home], ["saved", t.savedTab, Heart]].map(([k, label, Ic]) => {
+        {[["faves", t.faves, MapPin], ["events", t.events, Clock]].map(([k, label, Ic]) => {
           const tabStyle = { border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
             color: view === k ? P.coral : P.inkSoft, fontSize: 10, fontWeight: 700, position: "relative", minWidth: 46, textDecoration: "none" };
-          if (k === "planner") return (
-            <button key={k} onClick={() => setShowPlanner(true)} style={tabStyle}>
-              <Ic size={21} /> {label}
-            </button>
-          );
-          if (k === "plan" || k === "move") return (
-            <a key={k} href={k === "plan" ? "/plan" : "/move"} style={{ ...tabStyle, color: P.inkSoft }}>
-              <Ic size={21} /> {label}
-            </a>
-          );
           return (
             <button key={k} onClick={() => setView(k)} aria-pressed={view === k} style={tabStyle}>
-              <Ic size={21} fill={k === "saved" && view === k ? P.coral : "none"} />
-              {label}
-              {k === "saved" && (saved.size + savedPlaces.size) > 0 &&
-                <span style={{ position: "absolute", top: -3, right: 14, fontSize: 10, fontWeight: 700, color: "#fff", background: P.coral, borderRadius: 999, padding: "0 5px" }}>{saved.size + savedPlaces.size}</span>}
+              <Ic size={21} /> {label}
             </button>
           );
         })}
+        <MobileGuidesTab active={view === "walks"} onWalks={() => setView("walks")} lang={lang} />
+        <button onClick={() => setView("saved")} aria-pressed={view === "saved"}
+          style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: view === "saved" ? P.coral : P.inkSoft, fontSize: 10, fontWeight: 700, position: "relative", minWidth: 46 }}>
+          <Heart size={21} fill={view === "saved" ? P.coral : "none"} />
+          {t.savedTab}
+          {(saved.size + savedPlaces.size) > 0 &&
+            <span style={{ position: "absolute", top: -3, right: 14, fontSize: 10, fontWeight: 700, color: "#fff", background: P.coral, borderRadius: 999, padding: "0 5px" }}>{saved.size + savedPlaces.size}</span>}
+        </button>
+        <button onClick={() => setShowPlanner(true)}
+          style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: P.inkSoft, fontSize: 10, fontWeight: 700, minWidth: 46 }}>
+          <Sparkles size={21} /> {lang === "es" ? "Viaje" : "Plan Trip"}
+        </button>
       </nav>
 
       {/* Mobile: floating Filters pill (Local Picks only) */}
