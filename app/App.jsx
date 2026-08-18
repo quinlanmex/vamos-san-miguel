@@ -228,7 +228,7 @@ const T = {
     saved: "Guardados", clear: "Limpiar filtros", results: "resultados",
     savedEmpty: "Aún no guardas nada.", savedHint: "Toca el ♥ en cualquier evento o recomendación para guardarlo aquí.",
     savedEvents: "Eventos guardados", savedPlaces: "Lugares guardados",
-    none: "No hay eventos con esos filtros.", noneHint: "Prueba quitar un filtro o buscar otra cosa.",
+    none: "No hay eventos con esos filtros.", noneHint: "Prueba quitar un filtro o buscar otra cosa.", placesNone: "No hay lugares con esos filtros.",
     source: "Fuente", recurs: "Se repite", savedTip: "Guardar",
     favNote: "Datos de muestra — se reemplazarán con tus listas de Google Maps.",
     footer: "Prototipo · datos de muestra. La personalización y el radio de 1–2 h llegan después.",
@@ -243,7 +243,7 @@ const T = {
     saved: "Saved", clear: "Clear filters", results: "results",
     savedEmpty: "Nothing saved yet.", savedHint: "Tap the ♥ on any event or pick to save it here.",
     savedEvents: "Saved events", savedPlaces: "Saved places",
-    none: "No events match those filters.", noneHint: "Try removing a filter or searching for something else.",
+    none: "No events match those filters.", noneHint: "Try removing a filter or searching for something else.", placesNone: "No places match those filters.",
     source: "Source", recurs: "Recurring", savedTip: "Save",
     favNote: "Sample data — these get replaced by your real Google Maps lists.",
     footer: "Prototype · sample data. Personalization and the 1–2 hr radius come later.",
@@ -1160,14 +1160,17 @@ export default function App() {
   const selGoodfor = [...favCuisine].filter((c) => GOODFOR.includes(c));
   // Wellness is both a type and an amenity: under "Wellness & Spas" also surface any pick
   // (a restaurant, cafe, etc.) tagged with the wellness facet, deduped by name.
+  // Wellness is cross-cutting: picking it as a TYPE or as a good-for FACET surfaces every
+  // wellness pick (a spa, but also a cafe or shop tagged wellness), regardless of its
+  // primary list. Other good-for facets still filter within the chosen type.
+  const goodforFilters = selGoodfor.filter((c) => c !== "wellness");
   let visibleLists;
-  if (favType === "wellness") {
-    const wl = favLists.find((l) => l.key === "wellness") || { key: "wellness", label: { en: "Wellness & Spas", es: "Bienestar y spas" }, items: [] };
+  if (favType === "wellness" || favCuisine.has("wellness")) {
     const seen = new Set(); const items = [];
     favLists.flatMap((l) => l.items).forEach((it) => {
       if ((it.list_key === "wellness" || (it.cuisine || []).includes("wellness")) && !seen.has(it.name)) { seen.add(it.name); items.push(it); }
     });
-    visibleLists = [{ ...wl, items }];
+    visibleLists = [{ key: "wellness", label: { en: "Wellness & Spas", es: "Bienestar y spas" }, items }];
   } else {
     visibleLists = favLists.filter((l) => !favType || l.key === favType);
   }
@@ -1175,7 +1178,7 @@ export default function App() {
     .map((l) => ({ ...l, items: l.items.filter((it) => {
       const cz = it.cuisine || [];
       const cuisineOK = !selCuisines.length || selCuisines.some((c) => cz.includes(c));
-      const goodforOK = selGoodfor.every((g) => cz.includes(g));
+      const goodforOK = goodforFilters.every((g) => cz.includes(g));
       const dietOK = [...favDiet].every((d) => (it.diet || []).includes(d));
       const audOK = !favAud.size || (it.audience || []).some((a) => favAud.has(a));
       return cuisineOK && goodforOK && dietOK && audOK;
@@ -1621,7 +1624,7 @@ export default function App() {
               <PicksMap lists={favFiltered} lang={lang} t={t} P={P} onOpen={setPlaceDetail} />
             ) : favFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: P.inkSoft }}>
-                <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "0 0 6px" }}>{t.none}</p>
+                <p className="disp" style={{ fontSize: 16, fontWeight: 700, color: P.ink, margin: "0 0 6px" }}>{t.placesNone}</p>
                 <p style={{ margin: 0, fontSize: 14 }}>{t.noneHint}</p>
               </div>
             ) : favFiltered.map((list) => {
