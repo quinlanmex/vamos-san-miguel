@@ -50,7 +50,7 @@ async function elevationGain(points, key) {
   } catch { return null; }
 }
 
-const COLS = "id,name,author,summary,points,distance_m,elev_gain_m,created_at";
+const COLS = "id,name,author,summary,points,distance_m,elev_gain_m,official,created_at";
 
 export async function GET(req) {
   const sb = supabaseAdmin();
@@ -60,7 +60,8 @@ export async function GET(req) {
     if (error || !data) return Response.json({ ok: false, error: "Not found" }, { status: 404 });
     return Response.json({ ok: true, path: data });
   }
-  const { data, error } = await sb.from("walking_paths").select(COLS).eq("status", "published").order("created_at", { ascending: false }).limit(200);
+  // Official routes first, then newest.
+  const { data, error } = await sb.from("walking_paths").select(COLS).eq("status", "published").order("official", { ascending: false }).order("created_at", { ascending: false }).limit(200);
   if (error) return Response.json({ ok: false, error: friendly(error.message) }, { status: 500 });
   return Response.json({ ok: true, paths: data || [] });
 }
@@ -78,6 +79,19 @@ export async function POST(req) {
   const sb = supabaseAdmin();
 
   // Admin moderation.
+  if (body.action === "list-admin") {
+    if (body.password !== process.env.ADMIN_PASSWORD) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { data, error } = await sb.from("walking_paths").select(COLS + ",status").order("created_at", { ascending: false }).limit(500);
+    if (error) return Response.json({ ok: false, error: friendly(error.message) }, { status: 500 });
+    return Response.json({ ok: true, paths: data || [] });
+  }
+  if (body.action === "official") {
+    if (body.password !== process.env.ADMIN_PASSWORD) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (!body.id) return Response.json({ error: "id required" }, { status: 400 });
+    const { error } = await sb.from("walking_paths").update({ official: !!body.official }).eq("id", body.id);
+    if (error) return Response.json({ ok: false, error: error.message }, { status: 500 });
+    return Response.json({ ok: true });
+  }
   if (body.action === "delete") {
     if (body.password !== process.env.ADMIN_PASSWORD) return Response.json({ error: "Unauthorized" }, { status: 401 });
     if (!body.id) return Response.json({ error: "id required" }, { status: 400 });

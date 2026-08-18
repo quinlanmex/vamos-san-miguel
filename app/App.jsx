@@ -567,9 +567,16 @@ function WalkCard({ path, lang, P, saved, onToggleSave, onShare, onPlan, shareMs
   const stats = walkStats(path, es);
   return (
     <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, overflow: "hidden" }}>
-      {path.id
-        ? <img src={`/api/walk-map?id=${path.id}`} alt={path.name} loading="lazy" style={{ width: "100%", height: 200, objectFit: "cover", display: "block", background: "#EAE3D4" }} />
-        : <WalkMap points={path.points || []} height={200} />}
+      <div style={{ position: "relative" }}>
+        {path.id
+          ? <img src={`/api/walk-map?id=${path.id}`} alt={path.name} loading="lazy" style={{ width: "100%", height: 200, objectFit: "cover", display: "block", background: "#EAE3D4" }} />
+          : <WalkMap points={path.points || []} height={200} />}
+        {path.official && (
+          <span style={{ position: "absolute", top: 8, left: 8, fontSize: 10.5, fontWeight: 800, color: "#fff", background: "#B4791F", padding: "3px 9px", borderRadius: 999, boxShadow: "0 2px 6px rgba(0,0,0,.3)" }}>
+            ★ {es ? "Oficial" : "Official"}
+          </span>
+        )}
+      </div>
       <div style={{ padding: "12px 14px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
           <h3 style={{ fontFamily: "Georgia, serif", fontSize: 17, margin: 0, color: P.ink }}>{path.name}</h3>
