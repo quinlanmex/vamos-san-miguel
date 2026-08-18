@@ -10,9 +10,15 @@ create table if not exists public.walking_paths (
   author text,
   summary text,
   points jsonb not null default '[]'::jsonb,
+  distance_m int,
+  elev_gain_m int,
   status text not null default 'published',
   created_at timestamptz not null default now()
 );
+
+-- If the table already existed without these columns, add them.
+alter table public.walking_paths add column if not exists distance_m int;
+alter table public.walking_paths add column if not exists elev_gain_m int;
 
 alter table public.walking_paths enable row level security;
 

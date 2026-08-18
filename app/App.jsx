@@ -444,6 +444,17 @@ const walkPinIcon = (n) => L.divIcon({
   iconSize: [26, 26], iconAnchor: [13, 13],
 });
 function WalkClickCatcher({ onAdd }) { useMapEvents({ click(e) { onAdd(e.latlng.lat, e.latlng.lng); } }); return null; }
+// Client-side path length in km (haversine sum), for the live builder readout.
+function walkKm(points) {
+  const R = 6371, tr = (x) => (x * Math.PI) / 180; let m = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1], b = points[i];
+    const dLat = tr(b.lat - a.lat), dLng = tr(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(tr(a.lat)) * Math.cos(tr(b.lat)) * Math.sin(dLng / 2) ** 2;
+    m += 2 * R * Math.asin(Math.sqrt(s));
+  }
+  return m;
+}
 
 // Read-only (or click-to-add) map of a path: numbered markers joined by a circuit line.
 function WalkMap({ points, height = 260, onAdd }) {
@@ -500,6 +511,11 @@ function WalkBuilder({ onClose, onSaved, lang, P }) {
         </div>
         <p style={{ fontSize: 13.5, color: P.inkSoft, margin: "0 0 10px" }}>{es ? "Toca el mapa para agregar paradas en orden. Etiqueta cada una." : "Tap the map to drop stops in order, then label each one."}</p>
         <WalkMap points={points} height={280} onAdd={addPoint} />
+        {points.length > 1 && (
+          <p style={{ fontSize: 13, color: P.cobalt, fontWeight: 700, margin: "8px 0 0" }}>
+            {walkKm(points).toFixed(1)} km · ~{Math.round(walkKm(points) * 12)} min {es ? "a pie" : "walk"} · {points.length} {es ? "paradas" : "stops"}
+          </p>
+        )}
         {points.length > 0 && (
           <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
             {points.map((p, i) => (
@@ -531,18 +547,39 @@ function WalkBuilder({ onClose, onSaved, lang, P }) {
   );
 }
 
-// A card for a walk in the library or Saved page: preview map + save/share.
+// Distance/time/elevation summary chips for a walk.
+function walkStats(path, es) {
+  const parts = [];
+  if (path.distance_m != null) {
+    const km = path.distance_m / 1000;
+    parts.push(km < 1 ? `${Math.round(path.distance_m)} m` : `${km.toFixed(1)} km`);
+    const mins = Math.round(km * 12); // ~12 min per km walking
+    if (mins) parts.push(`${mins} min`);
+  }
+  if (path.elev_gain_m != null && path.elev_gain_m > 0) parts.push(`↑ ${path.elev_gain_m} m`);
+  return parts;
+}
+
+// A card for a walk in the library or Saved page: route picture + stats + save/share.
 function WalkCard({ path, lang, P, saved, onToggleSave, onShare, onPlan, shareMsg }) {
   const es = lang === "es";
   const n = (path.points || []).length;
+  const stats = walkStats(path, es);
   return (
     <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, overflow: "hidden" }}>
-      <WalkMap points={path.points || []} height={200} />
+      {path.id
+        ? <img src={`/api/walk-map?id=${path.id}`} alt={path.name} loading="lazy" style={{ width: "100%", height: 200, objectFit: "cover", display: "block", background: "#EAE3D4" }} />
+        : <WalkMap points={path.points || []} height={200} />}
       <div style={{ padding: "12px 14px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
           <h3 style={{ fontFamily: "Georgia, serif", fontSize: 17, margin: 0, color: P.ink }}>{path.name}</h3>
           <span style={{ fontSize: 12, color: P.inkSoft, whiteSpace: "nowrap" }}>{n} {es ? "paradas" : "stops"}</span>
         </div>
+        {stats.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+            {stats.map((s, i) => <span key={i} style={{ fontSize: 12, fontWeight: 700, color: P.cobalt, background: P.chipBg, border: `1px solid ${P.line}`, padding: "2px 9px", borderRadius: 999 }}>{s}</span>)}
+          </div>
+        )}
         {path.summary && <p style={{ fontSize: 13.5, color: P.inkSoft, lineHeight: 1.45, margin: "5px 0 0" }}>{path.summary}</p>}
         {path.author && <p style={{ fontSize: 12, color: P.inkSoft, margin: "5px 0 0", fontStyle: "italic" }}>{es ? "Por" : "By"} {path.author}</p>}
         <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
@@ -1601,7 +1638,7 @@ export default function App() {
             <div className="picks-layout">
               <div className="filters-inline filter-rail">
                 <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
+                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
               </div>
               <div className="picks-main">
             {/* Toolbar: count on the left, List/Map toggle on the right */}
@@ -1872,7 +1909,7 @@ export default function App() {
             </div>
             <div style={{ padding: "16px 18px 12px" }}>
               <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} />
+                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
             </div>
             <div style={{ position: "sticky", bottom: 0, background: P.sheet, display: "flex", gap: 10, padding: "12px 18px calc(14px + env(safe-area-inset-bottom))", borderTop: `1px solid ${P.line}` }}>
               <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); }}
@@ -2238,7 +2275,7 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
 
 /* ---- Filter groups (shared by desktop inline + mobile sheet) ----- */
 const GREEN = "#2F7A63";
-function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet, setFavDiet, lang, t, P }) {
+function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet, setFavDiet, lang, t, P, onWalks }) {
   const flip = (setter, set, k) => setter(() => { const s = new Set(set); s.has(k) ? s.delete(k) : s.add(k); return s; });
   const clearType = (k) => { setFavType(k); if (k !== "rest") { setFavCuisine(new Set()); setFavDiet(new Set()); } };
   const Label = ({ children }) => (
@@ -2270,6 +2307,12 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
               </button>
             );
           })}
+          {onWalks && (
+            <button onClick={onWalks}
+              style={{ ...base, padding: "7px 15px", fontSize: 14, fontWeight: 700, border: `1px solid ${P.coral}`, background: P.chipBg, color: P.coral }}>
+              🚶 {lang === "es" ? "Caminatas" : "Walking paths"}
+            </button>
+          )}
         </div>
       </div>
 
