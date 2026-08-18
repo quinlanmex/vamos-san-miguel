@@ -1053,6 +1053,152 @@ const loadSet = (key) => {
   try { return new Set(JSON.parse(localStorage.getItem(key) || "[]")); } catch { return new Set(); }
 };
 
+/* ---- Home hero: ask Vamos AI, get a saveable shortlist ------------------------- */
+function HomeAsk({ lang, P, favLists, savedPlaces, onToggleSave, onOpenPick, onOpenPlanner }) {
+  const es = lang === "es";
+  const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState("");
+  const CHIPS = es
+    ? ["cena en rooftop", "café tranquilo y galerías", "mejores tacos", "algo romántico", "primera vez, 3 días"]
+    : ["rooftop dinner", "quiet coffee + galleries", "best tacos al pastor", "something romantic", "first time, 3 days"];
+  const LOAD = es
+    ? ["Pensando como local…", "Buscando lo mejor para ti…", "Afinando tu lista…"]
+    : ["Thinking like a local…", "Finding the best fits…", "Polishing your shortlist…"];
+  const [loadIdx, setLoadIdx] = useState(0);
+  useEffect(() => { if (!loading) return; const id = setInterval(() => setLoadIdx((i) => (i + 1) % LOAD.length), 1400); return () => clearInterval(id); }, [loading]);
+  const pickByName = (name) => favLists.flatMap((l) => l.items || []).find((x) => x.name === name);
+
+  async function ask(query) {
+    const s = (query ?? q).trim(); if (!s || loading) return;
+    setQ(s); setLoading(true); setErr(""); setResult(null);
+    try {
+      const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: s, lang }) });
+      const j = await r.json();
+      if (j.ok && j.items) setResult({ intro: j.intro, items: j.items, query: s });
+      else setErr(j.error || (es ? "No pude con eso. Intenta de nuevo." : "Couldn't do that. Try again."));
+    } catch { setErr(es ? "Error de red." : "Network error."); }
+    setLoading(false);
+  }
+
+  return (
+    <section style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 18, padding: "20px 20px 18px", marginBottom: 26, boxShadow: "0 6px 24px rgba(13,20,40,.06)" }}>
+      <style>{`@keyframes qp-spin{to{transform:rotate(360deg)}}`}</style>
+      <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: P.coral, margin: "0 0 8px" }}>✨ {es ? "Pregúntale a Vamos AI" : "Ask Vamos AI"}</p>
+      <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(22px, 3.4vw, 30px)", margin: "0 0 12px", lineHeight: 1.12, color: P.ink }}>
+        {es ? "Dime qué se te antoja y te doy la lista." : "Tell me what you're in the mood for, and I'll give you the shortlist."}
+      </h1>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") ask(); }}
+          placeholder={es ? "p. ej. cena en rooftop con vista al atardecer" : "e.g. rooftop dinner with a sunset view"}
+          style={{ flex: 1, minWidth: 220, padding: "13px 15px", borderRadius: 12, border: `1px solid ${P.line}`, fontSize: 15.5, fontFamily: "inherit", background: P.plaster, color: P.ink }} />
+        <button onClick={() => ask()} disabled={loading || !q.trim()}
+          style={{ border: "none", background: loading || !q.trim() ? P.inkSoft : P.coral, color: "#fff", cursor: loading ? "default" : "pointer", fontWeight: 800, fontSize: 15.5, padding: "13px 24px", borderRadius: 12, whiteSpace: "nowrap" }}>
+          {es ? "Buscar" : "Ask"}
+        </button>
+      </div>
+      {!result && !loading && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 12 }}>
+          {CHIPS.map((c) => (
+            <button key={c} onClick={() => ask(c)} style={{ border: `1px solid ${P.line}`, background: P.chipBg, color: P.inkSoft, cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "6px 13px", borderRadius: 999 }}>{c}</button>
+          ))}
+        </div>
+      )}
+      {loading && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, color: P.coral, fontWeight: 700, fontSize: 14.5 }}>
+          <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${P.line}`, borderTopColor: P.coral, display: "inline-block", animation: "qp-spin .8s linear infinite" }} />
+          {LOAD[loadIdx]}
+        </div>
+      )}
+      {err && <p style={{ color: P.coral, fontSize: 13.5, margin: "12px 0 0" }}>{err}</p>}
+      {result && (
+        <div style={{ marginTop: 16 }}>
+          {result.intro && <p style={{ fontSize: 14.5, lineHeight: 1.5, color: P.ink, margin: "0 0 12px" }}>{result.intro}</p>}
+          {result.items.length === 0 && <p style={{ color: P.inkSoft, fontSize: 14 }}>{es ? "No encontré algo que encaje. Prueba otra cosa." : "Nothing matched. Try another ask."}</p>}
+          <div style={{ display: "grid", gap: 10 }}>
+            {result.items.map((it, i) => {
+              const saved = savedPlaces.has(it.name);
+              return (
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: P.plaster, border: `1px solid ${P.line}`, borderRadius: 12, padding: "10px 12px" }}>
+                  {it.photo_url && <img src={it.photo_url} alt="" loading="lazy" onClick={() => onOpenPick(it.name)} style={{ width: 60, height: 60, borderRadius: 9, objectFit: "cover", flexShrink: 0, cursor: "pointer" }} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <button onClick={() => onOpenPick(it.name)} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, textAlign: "left", fontWeight: 800, fontSize: 15, color: P.ink }}>{it.name}</button>
+                    {it.area && <span style={{ fontSize: 12, color: P.inkSoft, marginLeft: 8 }}>{it.area}</span>}
+                    {it.why && <p style={{ fontSize: 13, color: P.inkSoft, lineHeight: 1.45, margin: "3px 0 0" }}>{it.why}</p>}
+                  </div>
+                  <button onClick={() => onToggleSave(it.name)} title={saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
+                    style={{ flexShrink: 0, border: `1px solid ${saved ? P.coral : P.line}`, background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.inkSoft, cursor: "pointer", borderRadius: 999, width: 34, height: 34, display: "grid", placeItems: "center" }}>
+                    <Heart size={15} fill={saved ? "#fff" : "none"} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {result.items.length > 0 && (
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+              <button onClick={() => { result.items.forEach((it) => { if (!savedPlaces.has(it.name)) onToggleSave(it.name); }); }}
+                style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
+                <Heart size={13} /> {es ? "Guardar todo" : "Save all to my trip"}
+              </button>
+              <button onClick={() => onOpenPlanner()} style={{ border: `1px solid ${P.coral}`, background: P.chipBg, color: P.coral, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
+                ✨ {es ? "Hazlo un plan del día" : "Make it a day plan"}
+              </button>
+              <button onClick={() => { setResult(null); setQ(""); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, color: P.inkSoft, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
+                {es ? "Preguntar otra cosa" : "Ask something else"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---- Home best-of rails: one decisive winner per intent + "and 2 more" ---------- */
+function BestOfRails({ lang, P, savedPlaces, onToggleSave, onOpenPick }) {
+  const es = lang === "es";
+  const [cats, setCats] = useState([]);
+  useEffect(() => { (async () => { try { const r = await fetch("/api/best-of"); const j = await r.json(); if (j.ok) setCats((j.categories || []).filter((c) => c.winner)); } catch {} })(); }, []);
+  if (!cats.length) return null;
+  return (
+    <section style={{ marginBottom: 30 }}>
+      <h2 className="disp" style={{ fontFamily: "Georgia, serif", fontSize: 22, margin: "0 0 4px", color: P.ink }}>{es ? "Los mejores, elegidos" : "The best of, decided"}</h2>
+      <p style={{ fontSize: 13.5, color: P.inkSoft, margin: "0 0 16px" }}>{es ? "Un ganador por antojo. Elegidos a mano, nunca pagados." : "One winner per craving. Hand-picked, never paid for."}</p>
+      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+        {cats.map((c) => {
+          const w = c.winner;
+          const saved = savedPlaces.has(w.name);
+          return (
+            <div key={c.slug} style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 14, overflow: "hidden" }}>
+              {w.photo_url && <img src={w.photo_url} alt="" loading="lazy" onClick={() => onOpenPick(w.name)} style={{ width: "100%", height: 150, objectFit: "cover", display: "block", cursor: "pointer", background: P.chipBg }} />}
+              <div style={{ padding: "12px 14px" }}>
+                <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: P.coral, margin: "0 0 6px" }}>{(es && c.label_es) ? c.label_es : c.label_en}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                  <button onClick={() => onOpenPick(w.name)} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, textAlign: "left", fontFamily: "Georgia, serif", fontSize: 18, fontWeight: 700, color: P.ink }}>{w.name}</button>
+                  <button onClick={() => onToggleSave(w.name)} title={saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
+                    style={{ flexShrink: 0, border: `1px solid ${saved ? P.coral : P.line}`, background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.inkSoft, cursor: "pointer", borderRadius: 999, width: 32, height: 32, display: "grid", placeItems: "center" }}>
+                    <Heart size={14} fill={saved ? "#fff" : "none"} />
+                  </button>
+                </div>
+                {(w.local_take || w.desc_en) && <p style={{ fontSize: 13, color: P.inkSoft, lineHeight: 1.45, margin: "5px 0 0" }}>{(w.local_take || w.desc_en).slice(0, 130)}</p>}
+                {c.runners && c.runners.length > 0 && (
+                  <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px dashed ${P.line}` }}>
+                    <span style={{ fontSize: 11.5, color: P.inkSoft, fontWeight: 700 }}>{es ? "Y también:" : "Also great:"} </span>
+                    {c.runners.map((r, i) => (
+                      <button key={r.name} onClick={() => onOpenPick(r.name)} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, fontSize: 12.5, fontWeight: 600, color: P.cobalt }}>{r.name}{i < c.runners.length - 1 ? ", " : ""}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [lang, setLang] = useState("en");
   const [theme, setTheme] = useState("light");
@@ -1552,6 +1698,15 @@ export default function App() {
               </div>
             ) : (
             <>
+            {/* AI-first home: ask Vamos AI, then the decisive best-of rails. The full browse
+                (featured pick + lists below) stays as the "see everything" layer. */}
+            <HomeAsk lang={lang} P={P} favLists={favLists} savedPlaces={savedPlaces}
+              onToggleSave={toggleSavePlace}
+              onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
+              onOpenPlanner={() => setShowPlanner(true)} />
+            <BestOfRails lang={lang} P={P} savedPlaces={savedPlaces}
+              onToggleSave={toggleSavePlace}
+              onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }} />
             {/* Editorial page header */}
             <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: P.marigold, margin: "0 0 7px" }}>
               San Miguel de Allende <span style={{ color: P.inkSoft }}>· {lang === "es" ? "Recomendaciones locales" : "Local Picks"}</span>
