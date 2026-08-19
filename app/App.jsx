@@ -2507,7 +2507,9 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
   const Label = ({ children }) => (
     <div style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.inkSoft, margin: "0 0 8px" }}>{children}</div>
   );
-  const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 };
+  // appearance:none stops iOS Safari from painting its native (grey) button chrome over a
+  // selected chip's custom background, so an "on" chip reads as filled, not deselected.
+  const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, WebkitAppearance: "none", appearance: "none" };
   const cuisines = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
   const active = favType !== "" || favCuisine.size > 0 || favDiet.size > 0 || (favPrice && favPrice.size > 0);
   const clearAll = () => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavPrice && setFavPrice(new Set()); };
