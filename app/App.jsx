@@ -2591,14 +2591,15 @@ const PLACE_TYPE = {
   shopping: { en: "Shopping", es: "Compras", Icon: ShoppingBag },
 };
 
-// Price as 3 dollar signs, filled green up to the tier and grey for the rest (so $$ reads
-// clearly as 2 of 3). Google's 0-4 level is capped to a friendly 1-3 scale.
-function priceDots(price, P) {
+// Price as a pill of 3 dollar signs, so it's clear it's out of 3: filled green up to the
+// tier, grey for the rest (so $$ reads as 2 of 3). Google's 0-4 level caps to a 1-3 scale.
+function priceDots(price, P, big) {
   if (price == null || price < 1) return null;
   const tier = Math.min(3, price);
   return (
-    <span title={`${tier} of 3`} aria-label={`Price ${tier} of 3`} style={{ display: "inline-flex", fontWeight: 800, fontSize: 13.5, letterSpacing: "-.5px", flexShrink: 0 }}>
-      {[1, 2, 3].map((i) => <span key={i} style={{ color: i <= tier ? (P.green || "#3F8F6B") : "#CFC6B5" }}>$</span>)}
+    <span title={`${tier} of 3`} aria-label={`Price, ${tier} of 3`}
+      style={{ display: "inline-flex", alignItems: "center", gap: 1, flexShrink: 0, border: `1px solid ${P.line}`, background: P.chipBg, borderRadius: 999, padding: big ? "3px 10px" : "2px 8px", fontWeight: 800, fontSize: big ? 15 : 13 }}>
+      {[1, 2, 3].map((i) => <span key={i} style={{ color: i <= tier ? "#2F7A63" : "#C7BCA6" }}>$</span>)}
     </span>
   );
 }
@@ -2727,8 +2728,9 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
         <div style={{ padding: "16px 18px 22px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: P.coral, textTransform: "uppercase", letterSpacing: ".05em" }}>
-                {ty[lang]}{priceStr && <span style={{ color: P.inkSoft, marginLeft: 8 }}>{priceStr}</span>}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+                <span style={{ fontSize: 11.5, fontWeight: 700, color: P.coral, textTransform: "uppercase", letterSpacing: ".05em" }}>{ty[lang]}</span>
+                {hasPrice(it) && priceDots(it.price, P)}
               </span>
               <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, margin: "3px 0 4px", lineHeight: 1.12 }}>{it.name}</h2>
               <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, display: "flex", alignItems: "center", gap: 5 }}><MapPin size={13} /> {areaLabel(it, lang)}</p>
