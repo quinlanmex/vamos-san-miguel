@@ -157,8 +157,10 @@ export async function POST(req) {
   }
 
   const loc = d.geometry && d.geometry.location;
-  const photoRefs = (d.photos || []).slice(0, 4).map((p) => p.photo_reference).filter(Boolean);
-  const photos = photoRefs.map((ref) => `/api/place-photo?ref=${encodeURIComponent(ref)}`);
+  const photoObjs = (d.photos || []).slice(0, 4).filter((p) => p && p.photo_reference);
+  const photos = photoObjs.map((p) => `/api/place-photo?ref=${encodeURIComponent(p.photo_reference)}`);
+  // Google requires displaying each photo's attribution; store it aligned with photos[].
+  const photoAttributions = photoObjs.map((p) => (Array.isArray(p.html_attributions) ? p.html_attributions.join(" ") : ""));
   const hoursText = d.opening_hours && Array.isArray(d.opening_hours.weekday_text)
     ? d.opening_hours.weekday_text.join("\n")
     : null;
@@ -185,6 +187,7 @@ export async function POST(req) {
     google_place_id: d.place_id || place_id,
     photo_url: photos[0] || null,
     photos,
+    photo_attributions: photoAttributions,
     phone: d.formatted_phone_number || null,
     origin_url: d.website || null,
     hours: hoursText,

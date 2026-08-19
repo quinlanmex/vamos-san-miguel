@@ -1474,6 +1474,9 @@ export default function App() {
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(13,20,40,.10), 0 22px 44px rgba(13,20,40,.14); }
         .chip { transition: background .14s ease, color .14s ease, border-color .14s ease; }
         .catrow { display: flex; flex-wrap: wrap; gap: 7px; padding-bottom: 4px; }
+        .photo-attr, .photo-attr a { color: inherit; }
+        .photo-attr a { text-decoration: none; }
+        .photo-attr a:hover { text-decoration: underline; }
         .brandlogo { height: 58px; width: auto; max-width: 66vw; display: block; }
         @media (min-width: 680px) { .brandlogo { height: 92px; max-width: 440px; } }
         /* Stopgap: clip the baked-in tagline band off the bottom of the logo image.
@@ -2695,9 +2698,15 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
 /* ---- Place detail sheet (Local Picks) ---------------------------- */
 function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
-  const gallery = [it.img, ...(it.photos || [])].filter(Boolean);
+  // Prefer the photos[] array (each carries its Google attribution); fall back to the single
+  // hero image for older records. Each gallery item is { url, attr } so we can show the
+  // required per-photo attribution as the visitor swipes.
+  const galleryUrls = (it.photos && it.photos.length) ? it.photos : (it.img ? [it.img] : []);
+  const gallery = galleryUrls.filter(Boolean).map((url, i) => ({ url, attr: (it.photo_attributions || [])[i] || "" }));
   const [idx, setIdx] = useState(0);
-  const cur = gallery[Math.min(idx, gallery.length - 1)];
+  const curItem = gallery[Math.min(idx, gallery.length - 1)] || null;
+  const cur = curItem ? curItem.url : undefined;
+  const curAttr = curItem ? curItem.attr : "";
 
   useEffect(() => {
     const onKey = (ev) => { if (ev.key === "Escape") onClose(); };
@@ -2751,6 +2760,12 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
                 ))}
               </div>
             </>
+          )}
+          {/* Google requires each photo's attribution be shown; kept small and subtle. */}
+          {curAttr && (
+            <div className="photo-attr"
+              style={{ position: "absolute", right: 11, bottom: 7, maxWidth: "66%", fontSize: 9.5, lineHeight: 1.25, textAlign: "right", color: "rgba(255,255,255,.8)", textShadow: "0 1px 3px rgba(0,0,0,.9)", zIndex: 2 }}
+              dangerouslySetInnerHTML={{ __html: curAttr }} />
           )}
         </div>
 
