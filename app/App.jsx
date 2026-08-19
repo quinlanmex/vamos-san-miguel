@@ -2550,7 +2550,7 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
               const on = favPrice.has(tier);
               return (
                 <button key={tier} onClick={() => flip(setFavPrice, favPrice, tier)} title={`${tier} ${lang === "es" ? "de" : "of"} 3`}
-                  style={{ ...base, padding: "6px 15px", fontSize: 15, fontWeight: 800, letterSpacing: "-.5px", border: `1px solid ${on ? P.green : P.line}`, background: on ? P.green : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                  style={{ ...base, padding: "6px 15px", fontSize: 15, fontWeight: 800, letterSpacing: "-.5px", border: `1px solid ${on ? GREEN : P.line}`, background: on ? GREEN : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
                   {"$".repeat(tier)}
                 </button>
               );
