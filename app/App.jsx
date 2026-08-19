@@ -922,7 +922,7 @@ function EmailBar({ es, P, email, setEmail, emailIt, emailMsg, emailing }) {
 }
 
 // Saved itinerary shown as a day planner, with a chat to ask questions / tweak it in place.
-function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, savedNames, photoFor }) {
+function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, savedNames, photoFor, weaveIn, onWove }) {
   const es = lang === "es";
   const [messages, setMessages] = useState([]); // {role, content}
   const [input, setInput] = useState("");
@@ -934,9 +934,9 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
   const [thinkIdx, setThinkIdx] = useState(0);
   useEffect(() => { if (!busy) return; const id = setInterval(() => setThinkIdx((i) => (i + 1) % thinkList.length), 1400); return () => clearInterval(id); }, [busy]);
 
-  async function send() {
-    const msg = input.trim(); if (!msg || busy) return;
-    setInput(""); setBusy(true);
+  async function runChat(msg) {
+    if (!msg || busy) return;
+    setBusy(true);
     const history = messages.slice(-8);
     setMessages((m) => [...m, { role: "user", content: msg }]);
     try {
@@ -950,6 +950,19 @@ function SavedItinerary({ itin, setItin, lang, t, P, onOpenPick, onOpenEvent, sa
     } catch { setMessages((m) => [...m, { role: "assistant", content: es ? "Error de red." : "Network error." }]); }
     setBusy(false);
   }
+  async function send() { const msg = input.trim(); if (!msg) return; setInput(""); await runChat(msg); }
+
+  // "Make it a day plan" then "Refine": auto-ask the AI to weave the just-saved spots in.
+  useEffect(() => {
+    if (!weaveIn || !weaveIn.length) return;
+    const names = weaveIn.slice(0, 12);
+    if (onWove) onWove(); // consume once
+    const msg = es
+      ? `Acabo de guardar estos lugares: ${names.join(", ")}. Intégralos en el itinerario donde encajen y ajusta lo necesario.`
+      : `I just saved these spots: ${names.join(", ")}. Please weave them into the itinerary where they fit and adjust as needed.`;
+    runChat(msg);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weaveIn]);
   async function emailIt() {
     if (!email.trim()) return; setEmailing(true); setEmailMsg("");
     try {
@@ -1141,7 +1154,7 @@ function HomeAsk({ lang, P, favLists, savedPlaces, onToggleSave, onOpenPick, onO
                 style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
                 <Heart size={13} /> {es ? "Guardar todo" : "Save all to my trip"}
               </button>
-              <button onClick={() => { result.items.forEach((it) => { if (!savedPlaces.has(it.name)) onToggleSave(it.name); }); onOpenPlanner(); }}
+              <button onClick={() => { result.items.forEach((it) => { if (!savedPlaces.has(it.name)) onToggleSave(it.name); }); onOpenPlanner(result.items.map((it) => it.name)); }}
                 style={{ border: `1px solid ${P.coral}`, background: P.chipBg, color: P.coral, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
                 ✨ {es ? "Hazlo un plan del día" : "Make it a day plan"}
               </button>
@@ -1248,6 +1261,7 @@ export default function App() {
   const [sharedWalk, setSharedWalk] = useState(null);
   const [walkShareMsg, setWalkShareMsg] = useState({});
   const [plannerWalk, setPlannerWalk] = useState(null); // a walk to plan a day around
+  const [pendingWeave, setPendingWeave] = useState([]); // shortlist names to weave in on refine
   const t = T[lang];
   const P = PALETTES[theme];
 
@@ -1720,7 +1734,7 @@ export default function App() {
             <HomeAsk lang={lang} P={P} favLists={favLists} savedPlaces={savedPlaces}
               onToggleSave={toggleSavePlace}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
-              onOpenPlanner={() => setShowPlanner(true)} />
+              onOpenPlanner={(names) => { setPendingWeave(Array.isArray(names) ? names : []); setShowPlanner(true); }} />
             <BestOfRails lang={lang} P={P} savedPlaces={savedPlaces}
               onToggleSave={toggleSavePlace}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }} />
@@ -1920,6 +1934,7 @@ export default function App() {
               one exists; otherwise invite building one from the saved spots below. */}
           {savedItinerary ? (
             <SavedItinerary itin={savedItinerary} setItin={setSavedItinerary} lang={lang} t={t} P={P} savedNames={[...savedPlaces]}
+              weaveIn={pendingWeave} onWove={() => setPendingWeave([])}
               photoFor={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); return it ? (it.photo_url || (Array.isArray(it.photos) && it.photos[0]) || null) : null; }}
               onOpenPick={(name) => { const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === name); if (it) setPlaceDetail(it); }}
               onOpenEvent={(name) => { const e = events.find((x) => x.title?.en === name || x.title?.[lang] === name); if (e) setDetail(e); }} />
@@ -2123,7 +2138,7 @@ export default function App() {
       )}
       {showPlanner && (
         <TripPlanner
-          onClose={() => { setShowPlanner(false); setPlannerWalk(null); }}
+          onClose={() => { setShowPlanner(false); setPlannerWalk(null); setPendingWeave([]); }}
           existingItinerary={savedItinerary}
           walk={plannerWalk}
           onRefine={() => { setShowPlanner(false); setView("saved"); }}
@@ -2137,6 +2152,7 @@ export default function App() {
             if (names.length) setSavedPlaces((s) => new Set([...s, ...names]));
             if (ids.length) setSaved((s) => new Set([...s, ...ids]));
             setSavedItinerary({ ...res, _ctx: ctx || null }); // keep the schedule + inputs for chat tweaks
+            setPendingWeave([]); // a fresh plan already includes the saved spots
             setShowPlanner(false); setView("saved");
           }} />
       )}
