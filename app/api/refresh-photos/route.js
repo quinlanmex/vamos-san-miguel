@@ -26,7 +26,7 @@ function mapPhotos(arr) {
 
 // Place Details photos for one id. Returns { urls, attrs } (possibly empty) or null if the
 // lookup itself failed, so a transient error never wrongly clears a good photo.
-async function detailsPhotos(placeId, key) {
+export async function detailsPhotos(placeId, key) {
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${key}`;
   const r = await fetch(url);
   const j = await r.json().catch(() => ({}));
@@ -38,7 +38,7 @@ async function detailsPhotos(placeId, key) {
 // When a pick's linked listing has no photos (usually a stale/wrong place_id), find the right
 // place by name in San Miguel and return its place_id, but only if the top result's name
 // matches, so we never relink a pick to a different same-named business.
-async function findPlaceId(name, key) {
+export async function findPlaceId(name, key) {
   const q = `${name}, San Miguel de Allende, Mexico`;
   const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=mx&key=${key}`;
   const r = await fetch(url);

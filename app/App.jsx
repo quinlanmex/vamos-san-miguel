@@ -3007,7 +3007,7 @@ function EventDetail({ e, lang, t, P, saved, onSave, onClose }) {
               <Ic size={15} />
               <span style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>{cat[lang]}</span>
               {e.recurring && <span style={{ fontSize: 11, opacity: .95, display: "flex", alignItems: "center", gap: 3 }}>
-                <Repeat size={12} /> {t.recurs}</span>}
+                <Repeat size={12} /> {recurWhen(e, lang, t)}</span>}
             </div>
             <button onClick={onClose} aria-label={t.back}
               style={{ border: "none", background: "rgba(0,0,0,.5)", color: "#fff", cursor: "pointer",
@@ -3015,6 +3015,12 @@ function EventDetail({ e, lang, t, P, saved, onSave, onClose }) {
               <X size={18} />
             </button>
           </div>
+          {/* Google photo attribution for the venue image, kept small and subtle. */}
+          {e.imgAttr && (
+            <div className="photo-attr"
+              style={{ position: "absolute", right: 11, bottom: 7, maxWidth: "66%", fontSize: 9.5, lineHeight: 1.25, textAlign: "right", color: "rgba(255,255,255,.8)", textShadow: "0 1px 3px rgba(0,0,0,.9)", zIndex: 2 }}
+              dangerouslySetInnerHTML={{ __html: e.imgAttr }} />
+          )}
         </div>
 
         <div style={{ padding: "16px 18px 22px" }}>

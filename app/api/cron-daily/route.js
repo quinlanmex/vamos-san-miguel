@@ -3,6 +3,7 @@ import { run as dedupEvents } from "../dedup-events/route";
 import { run as inferRecurrence } from "../infer-recurrence/route";
 import { run as ingestNewsletters } from "../ingest-newsletters/route";
 import { run as geocodeEvents } from "../geocode-events/route";
+import { run as eventPhotos } from "../event-photos/route";
 import { run as driveTimes } from "../drive-times/route";
 import { run as enrichPicks } from "../enrich-picks/route";
 import { run as draftPicks } from "../draft-picks/route";
@@ -48,6 +49,7 @@ async function runAll() {
     ["dedupEvents", dedupEvents],         // merge duplicate/recurring events into one listing
     ["inferRecurrence", inferRecurrence], // learn which weekdays recurring events repeat on
     ["geocodeEvents", geocodeEvents],     // fill event map coordinates
+    ["eventPhotos", eventPhotos],         // give events a photo of their venue from Google
     ["driveTimes", driveTimes],           // fill drive time from Centro for out-of-town picks
     ["enrichPicks", enrichPicks],         // pull hours + practical attributes + price for picks
     ["draftPicks", draftPicks],           // draft editorial notes for picks that lack them
