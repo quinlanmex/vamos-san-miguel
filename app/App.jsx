@@ -256,11 +256,20 @@ const T = {
     approxLoc: "Approximate location", back: "Back" },
 };
 
-const TODAY = new Date(2026, 6, 29); // Wed Jul 29 2026
+// Anchor every event date filter to the real current day (recomputed each page load), so
+// "past", "Today", "This weekend" and "This week" stay correct without a hardcoded date.
+const _now = new Date();
+const TODAY = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
 const d = (s) => { const [y, m, day] = s.split("-").map(Number); return new Date(y, m - 1, day); };
 const overlaps = (aS, aE, bS, bE) => aS <= bE && bS <= aE;
-const WEEKEND_S = new Date(2026, 7, 1), WEEKEND_E = new Date(2026, 7, 2);
-const WEEK_E = new Date(2026, 7, 5);
+// This weekend = the nearest Sat+Sun. On Sunday, still counts the Sat just passed so
+// today's events show; any other day points at the upcoming Saturday and Sunday.
+const _dow = TODAY.getDay(); // 0 Sun ... 6 Sat
+const _satOffset = _dow === 0 ? -1 : (6 - _dow);
+const WEEKEND_S = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + _satOffset);
+const WEEKEND_E = new Date(WEEKEND_S.getFullYear(), WEEKEND_S.getMonth(), WEEKEND_S.getDate() + 1);
+// This week = today through the next 7 days.
+const WEEK_E = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + 7);
 
 const MONTHS = {
   es: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
@@ -1189,9 +1198,10 @@ function BestOfRails({ lang, P, savedPlaces, onToggleSave, onOpenPick }) {
                 {w.photo_url
                   ? <img src={w.photo_url} alt="" loading="lazy" onClick={() => onOpenPick(w.name)} style={{ width: "100%", height: 160, objectFit: "cover", display: "block", cursor: "pointer", background: P.chipBg }} />
                   : <div style={{ height: 58, background: `linear-gradient(135deg, ${P.coral}, ${P.marigold})` }} />}
-                <span style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 5, background: P.coral, color: "#fff", fontWeight: 800, fontSize: 12.5, letterSpacing: ".03em", textTransform: "uppercase", padding: "6px 13px", borderRadius: 999, boxShadow: "0 3px 12px rgba(13,20,40,.4)" }}>
+                <a href={`/best/${c.slug.replace(/^best_/, "").replace(/_/g, "-")}`} title={es ? "Ver la lista completa" : "See the full list"}
+                  style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 5, background: P.coral, color: "#fff", fontWeight: 800, fontSize: 12.5, letterSpacing: ".03em", textTransform: "uppercase", padding: "6px 13px", borderRadius: 999, boxShadow: "0 3px 12px rgba(13,20,40,.4)", textDecoration: "none" }}>
                   ★ {(es && c.label_es) ? c.label_es : c.label_en}
-                </span>
+                </a>
               </div>
               <div style={{ padding: "14px", flex: 1, display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
@@ -1252,6 +1262,7 @@ export default function App() {
   const [savedPlaces, setSavedPlaces] = useState(() => loadSet("qp_saved_places"));
   const [detail, setDetail] = useState(null); // event object or null
   const [placeDetail, setPlaceDetail] = useState(null); // pick object or null
+  const [pendingPlaceName, setPendingPlaceName] = useState(null); // pick to open once lists load (from /?place=)
   const [filterSheet, setFilterSheet] = useState(false); // mobile filter sheet
   const [events, setEvents] = useState(SEED_EVENTS);
   const [favLists, setFavLists] = useState(SEED_FAV_LISTS);
@@ -1334,9 +1345,11 @@ export default function App() {
       }
       if (cats.size && !cats.has(e.cat)) return false;
       if (aud.size && !e.audience.some((a) => aud.has(a))) return false;
-      if (dateF === "today" && !overlaps(s, en, TODAY, TODAY)) return false;
-      if (dateF === "weekend" && !overlaps(s, en, WEEKEND_S, WEEKEND_E)) return false;
-      if (dateF === "week" && !overlaps(s, en, TODAY, WEEK_E)) return false;
+      // Recurring events (markets, tours, weekly classes) run on an ongoing basis, so they
+      // count as being on today / this weekend / this week regardless of their stored date.
+      if (dateF === "today" && !e.recurring && !overlaps(s, en, TODAY, TODAY)) return false;
+      if (dateF === "weekend" && !e.recurring && !overlaps(s, en, WEEKEND_S, WEEKEND_E)) return false;
+      if (dateF === "week" && !e.recurring && !overlaps(s, en, TODAY, WEEK_E)) return false;
       if (query.trim()) {
         const q = query.toLowerCase();
         const hay = (e.title[lang] + " " + e.venue + " " + e.blurb[lang]).toLowerCase();
@@ -1347,9 +1360,9 @@ export default function App() {
   }, [events, cats, aud, dateF, query, lang]);
 
   const todayCount = useMemo(
-    () => events.filter((e) => overlaps(d(e.start), d(e.end), TODAY, TODAY)).length, [events]);
+    () => events.filter((e) => e.recurring || overlaps(d(e.start), d(e.end), TODAY, TODAY)).length, [events]);
   const weekendCount = useMemo(
-    () => events.filter((e) => overlaps(d(e.start), d(e.end), WEEKEND_S, WEEKEND_E)).length, [events]);
+    () => events.filter((e) => e.recurring || overlaps(d(e.start), d(e.end), WEEKEND_S, WEEKEND_E)).length, [events]);
 
   const anyFilter = cats.size || aud.size || dateF !== "all" || query.trim();
 
@@ -1412,6 +1425,8 @@ export default function App() {
       const v = params.get("view");
       if (v === "events" || v === "saved" || v === "walks" || v === "faves") { setView(v); window.history.replaceState({}, "", window.location.pathname); }
       if (params.get("planner")) { setShowPlanner(true); window.history.replaceState({}, "", window.location.pathname); }
+      const place = params.get("place");
+      if (place) { setView("faves"); setPendingPlaceName(place); window.history.replaceState({}, "", window.location.pathname); }
       const walkId = params.get("walk");
       if (walkId) {
         setView("walks");
@@ -1433,6 +1448,12 @@ export default function App() {
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Open a pick linked from a best-of SEO page (/?place=Name) once the real lists have loaded.
+  useEffect(() => {
+    if (!pendingPlaceName) return;
+    const it = favLists.flatMap((l) => l.items || []).find((x) => x.name === pendingPlaceName);
+    if (it) { setPlaceDetail(it); setPendingPlaceName(null); }
+  }, [pendingPlaceName, favLists]);
   async function shareTrip() {
     const payload = { p: [...savedPlaces], e: [...saved], ...(stay ? { s: stay } : {}) };
     const url = `${window.location.origin}/?trip=${b64u.enc(payload)}`;

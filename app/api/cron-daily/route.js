@@ -18,8 +18,29 @@ export const maxDuration = 300; // Pro allows up to 300s; Hobby caps at 60s (bes
 // and we stay within Vercel Hobby's cron-count limit. Each job is fill-blanks / update-auto
 // only and never touches manually set values. Jobs run sequentially and independently — one
 // failing never blocks the others.
+// Archive non-recurring events whose last day has passed. The public feed already hides them
+// (fetchEvents filters by date), but this keeps the table and admin tidy so stale listings do
+// not linger. Status change only, never a hard delete, so anything can be restored.
+async function archivePastEvents() {
+  try {
+    const sb = supabaseAdmin();
+    const todayStr = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, server local
+    // Events with a real end_date that has passed.
+    const a = await sb.from("events").update({ status: "archived" })
+      .eq("status", "published").eq("recurring", false)
+      .not("end_date", "is", null).lt("end_date", todayStr).select("id");
+    // Single-day events (no end_date) whose start_date has passed.
+    const b = await sb.from("events").update({ status: "archived" })
+      .eq("status", "published").eq("recurring", false)
+      .is("end_date", null).not("start_date", "is", null).lt("start_date", todayStr).select("id");
+    const error = (a.error && a.error.message) || (b.error && b.error.message) || null;
+    return { ok: !error, archived: (a.data?.length || 0) + (b.data?.length || 0), error };
+  } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+}
+
 async function runAll() {
   const jobs = [
+    ["archivePastEvents", archivePastEvents], // hide events whose date has already passed
     ["discoverEvents", discoverEvents],   // pull new future events from public sources
     ["ingestNewsletters", ingestNewsletters], // parse event newsletters from the shared inbox
     ["dedupEvents", dedupEvents],         // merge duplicate/recurring events into one listing
