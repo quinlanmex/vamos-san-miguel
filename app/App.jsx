@@ -1710,9 +1710,14 @@ export default function App() {
                   San Miguel de Allende <span style={{ color: P.inkSoft }}>· {lang === "es" ? "Recomendaciones locales" : "Local Picks"}</span>
                 </p>
                 <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(24px, 4vw, 34px)", margin: "0 0 8px", letterSpacing: "-.01em", lineHeight: 1.08 }}>
-                  {lang === "es"
-                    ? `Nuestros ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()} favoritos`
-                    : `Our favorite ${TYPE_LABEL_PLURAL[favType][lang].toLowerCase()}`}
+                  {(() => {
+                    // favType can be "" (All) while a price/cuisine/diet filter is active, so fall
+                    // back to a generic label instead of indexing TYPE_LABEL_PLURAL[""] (undefined).
+                    const tl = (favType && TYPE_LABEL_PLURAL[favType])
+                      ? TYPE_LABEL_PLURAL[favType][lang].toLowerCase()
+                      : (lang === "es" ? "lugares" : "places");
+                    return lang === "es" ? `Nuestros ${tl} favoritos` : `Our favorite ${tl}`;
+                  })()}
                 </h1>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "0 0 12px" }}>
                   <p style={{ color: P.inkSoft, margin: 0, fontSize: 14.5, lineHeight: 1.5 }}>
