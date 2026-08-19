@@ -34,7 +34,9 @@ export async function POST(req) {
 
   const arr = (v) => (Array.isArray(v) ? v.filter(Boolean).join(",") : "");
   const line = (p) => {
-    const note = (p.local_take || p.ai_notes || p.desc_en || "").replace(/\s+/g, " ").slice(0, 220);
+    // Full understanding: the curator take PLUS the review/website synthesis, so the AI has
+    // the real picture (what it is known for, setting, who it is for, honest caveats).
+    const note = [p.local_take, p.ai_notes || p.desc_en].filter(Boolean).join(" ").replace(/\s+/g, " ").slice(0, 360);
     const cav = (p.caveat_internal || "").replace(/\s+/g, " ").slice(0, 140);
     // Humanize the best_of slugs so the model never echoes a raw tag like "best_rooftop".
     const awards = (Array.isArray(p.best_of) ? p.best_of : []).map((s) => s.replace(/^best[_-]/, "").replace(/[_-]+/g, " ")).filter(Boolean).join(",");

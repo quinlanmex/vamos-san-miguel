@@ -34,7 +34,7 @@ async function synthesize(anthropic, ctx) {
   const reviewBlob = (ctx.reviews || []).map((r) => (r.text || "")).join("\n---\n").slice(0, 6000);
   const prompt = `You are building an internal profile of a place in San Miguel de Allende, for an AI concierge to use when planning trips and answering questions. Synthesize the sources below into a compact, factual profile. Do NOT copy review sentences verbatim; write your own synthesis. If the sources conflict or are thin, say what you can support and no more.
 
-Return plain text (no markdown headers), ~120 words max, covering as available: what it's known for / signature items, the vibe and setting, who it's best for (couples, families, groups, remote work), price feel, standout positives, and any recurring caveat (slow service, cash only, gets busy, hard to find). Neutral, useful, honest.
+Return plain text (no markdown headers), ~150 words max, covering as available: what it's known for / signature items, the vibe and setting (be precise about views: does it actually have a view, and of what, or none), who it's best for AND who it is NOT for, price feel, standout positives, and any recurring caveat (slow service, cash only, gets busy, hard to find, overrated for X). Neutral, useful, honest. If reviews reveal a common misconception (for example, it is a rooftop but has no real view, or it is better for brunch than dinner), state it plainly, since the concierge relies on this profile to avoid over-claiming.
 
 PLACE: ${ctx.name} (${ctx.list_key}), ${ctx.area || "San Miguel de Allende"}
 OUR NOTE: ${ctx.desc || ""}
@@ -42,7 +42,7 @@ GOOGLE EDITORIAL: ${ctx.gsum || ""}
 ATTRIBUTES: ${JSON.stringify(ctx.attrs || {})}
 REVIEW SIGNAL (synthesize, do not quote): ${reviewBlob}
 WEBSITE: ${ctx.site || ""}`;
-  const msg = await anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 400, messages: [{ role: "user", content: prompt }] });
+  const msg = await anthropic.messages.create({ model: "claude-haiku-4-5-20251001", max_tokens: 550, messages: [{ role: "user", content: prompt }] });
   return (msg.content || []).map((b) => (b.type === "text" ? b.text : "")).join("").trim();
 }
 
