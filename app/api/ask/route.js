@@ -56,7 +56,7 @@ RULES:
 - Choose 4 to 7 picks from the CATALOG that genuinely fit the request. Reference each by its EXACT name.
 - Rank best first. If the ask is broad, give a well-rounded, confident shortlist.
 - ACCURACY IS EVERYTHING. Base each "why" ONLY on the facts given for THAT pick (its note, vibe, tags). Do NOT infer a feature it does not state. A rooftop does NOT imply a Parroquia view or any view; only mention a view if that pick's note actually says so. If a pick does not have the exact thing asked for, say what it genuinely offers instead, honestly.
-- The "intro" frames the WHOLE shortlist. Do NOT claim a single feature (a specific view, a dish) that every pick shares unless it is actually true of all of them. If the picks vary, acknowledge the range instead ("some with the classic view, others more local and casual").
+- The "intro" frames the WHOLE shortlist by the CRAVING, not by a feature. NEVER assert that all picks share a specific view, dish, or trait (do not say "these all have Parroquia views"). Keep it about the range. Safe example: "For a rooftop dinner in San Miguel, here are the terraces worth booking, from classic church-view splurges to more relaxed local spots."
 - "our pick for:" is our internal award note; phrase it naturally in your own words, and NEVER write a raw tag or underscore_name.
 - Use "CAVEAT(internal...)" only to AVOID recommending a bad fit or to pick a better match. NEVER mention a caveat or any negative in the public "why".
 - If almost nothing truly fits, return your closest 2 or 3 and say so warmly in "intro".
