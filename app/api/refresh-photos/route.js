@@ -13,14 +13,35 @@ export const maxDuration = 60;
 const GGL = "/api/place-photo?ref=";
 const isGoogleSourced = (u) => !u || String(u).startsWith(GGL); // null or our proxy = refreshable
 
-// Place Details (photos only) -> up to 4 fresh photo proxy URLs.
-async function fetchPhotos(placeId, key) {
+// Normalize a name for comparison: lowercase, strip accents + non-alphanumerics.
+const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+// Up to 4 photo-reference proxy URLs from a Google photos array.
+const refsToUrls = (arr) => (arr || []).slice(0, 4).map((p) => p.photo_reference).filter(Boolean).map((ref) => `${GGL}${encodeURIComponent(ref)}`);
+
+// Place Details (photos only) -> array of proxy URLs ([] if the listing has none), or null if
+// the lookup itself failed (so we can retry rather than wrongly clearing a photo).
+async function detailsPhotos(placeId, key) {
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${key}`;
   const r = await fetch(url);
   const j = await r.json().catch(() => ({}));
+  if (j.status === "NOT_FOUND" || j.status === "INVALID_REQUEST") return { photos: [], badId: true };
   if (j.status !== "OK" || !j.result) return null;
-  const refs = (j.result.photos || []).slice(0, 4).map((p) => p.photo_reference).filter(Boolean);
-  return refs.map((ref) => `${GGL}${encodeURIComponent(ref)}`);
+  return { photos: refsToUrls(j.result.photos), badId: false };
+}
+
+// Fallback when the linked listing has no photos (usually a stale/wrong place_id): find the
+// place by name in San Miguel and return its photos + place_id, but only if the top result's
+// name actually matches, so we never relink a pick to a different same-named business.
+async function textSearchPhotos(name, key) {
+  const q = `${name}, San Miguel de Allende, Mexico`;
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(q)}&region=mx&key=${key}`;
+  const r = await fetch(url);
+  const j = await r.json().catch(() => ({}));
+  if (j.status !== "OK" || !j.results || !j.results.length) return null;
+  const p = j.results[0];
+  const a = norm(name), b = norm(p.name);
+  if (!a || !b || !(a === b || a.includes(b) || b.includes(a))) return null; // name mismatch: skip
+  return { photos: refsToUrls(p.photos), place_id: p.place_id || null };
 }
 
 // limit caps how many picks we touch per run (Google latency vs. the 60s function budget).
@@ -42,20 +63,34 @@ export async function run(limit = 25) {
     .limit(limit);
   if (error) return { ok: false, error: error.message };
 
-  let refreshed = 0, cleared = 0, skipped = 0, failed = 0;
+  let refreshed = 0, cleared = 0, skipped = 0, failed = 0, relinked = 0;
   const now = new Date().toISOString();
   for (const p of rows || []) {
     if (!isGoogleSourced(p.photo_url)) { skipped++; continue; } // manual photo: leave it
-    let photos;
-    try { photos = await fetchPhotos(p.google_place_id, key); } catch { failed++; continue; }
-    if (photos === null) { failed++; continue; } // Google lookup failed, try again next run
+    let res;
+    try { res = await detailsPhotos(p.google_place_id, key); } catch { failed++; continue; }
+    if (res === null) { failed++; continue; } // lookup failed (rate limit etc): retry next run
+    let photos = res.photos;
+    let newPlaceId = null;
+    // Linked listing has no photos (or a dead id): try to find the right place by name.
+    if (photos.length === 0) {
+      try {
+        const ts = await textSearchPhotos(p.name, key);
+        if (ts && ts.photos.length) {
+          photos = ts.photos;
+          if (ts.place_id && ts.place_id !== p.google_place_id) newPlaceId = ts.place_id;
+        }
+      } catch { /* keep empty; leave as cleared */ }
+    }
     const photo_url = photos[0] || null;
-    const { error: e } = await sb.from("places")
-      .update({ photos, photo_url, updated_at: now }).eq("id", p.id);
+    const update = { photos, photo_url, updated_at: now };
+    if (newPlaceId) update.google_place_id = newPlaceId; // correct a stale/wrong link
+    const { error: e } = await sb.from("places").update(update).eq("id", p.id);
     if (e) { failed++; continue; }
-    if (photo_url) refreshed++; else cleared++; // cleared = Google now has no photos for it
+    if (newPlaceId) relinked++;
+    if (photo_url) refreshed++; else cleared++; // cleared = no Google photo found at all
   }
-  return { ok: true, considered: (rows || []).length, refreshed, cleared, skipped, failed };
+  return { ok: true, considered: (rows || []).length, refreshed, relinked, cleared, skipped, failed };
 }
 
 // Cron entry (via cron-daily import) also reachable directly with the CRON token.
