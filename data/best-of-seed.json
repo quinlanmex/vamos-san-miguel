@@ -1,0 +1,6 @@
+[
+  { "slug": "best_cocktails",  "winner": "Luna Rooftop Tapas Bar San Miguel de Allende", "runners": ["Bar Nomada San Miguel de Allende", "El Manantial San Miguel de Allende"] },
+  { "slug": "best_mezcal",     "winner": "El Grito Mezcal House San Miguel de Allende",    "runners": ["Bar Nomada San Miguel de Allende"] },
+  { "slug": "best_live_music", "winner": "Mama Mia San Miguel de Allende",                 "runners": ["Florios San Miguel de Allende", "Berlin Bar San Miguel de Allende"] },
+  { "slug": "best_spa",        "winner": "Sense A Rosewood Spa San Miguel de Allende",     "runners": ["Matcha Spa San Miguel de Allende", "Encanto Spa San Miguel de Allende"] }
+]

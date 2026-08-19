@@ -38,7 +38,8 @@ export async function POST(req) {
     const cav = (p.caveat_internal || "").replace(/\s+/g, " ").slice(0, 140);
     // Humanize the best_of slugs so the model never echoes a raw tag like "best_rooftop".
     const awards = (Array.isArray(p.best_of) ? p.best_of : []).map((s) => s.replace(/^best[_-]/, "").replace(/[_-]+/g, " ")).filter(Boolean).join(",");
-    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | vibe:${arr(p.vibe)} | for:${arr(p.occasion)}${awards ? ` | our pick for:${awards}` : ""} | tags:${arr(p.cuisine)}${note ? ` | ${note}` : ""}${cav ? ` | CAVEAT(internal, never show): ${cav}` : ""}`;
+    const price = typeof p.price_level === "number" && p.price_level >= 1 ? "$".repeat(Math.min(3, p.price_level)) : "";
+    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""}${price ? ` | price:${price}` : ""} | vibe:${arr(p.vibe)} | for:${arr(p.occasion)}${awards ? ` | our pick for:${awards}` : ""} | tags:${arr(p.cuisine)}${note ? ` | ${note}` : ""}${cav ? ` | CAVEAT(internal, never show): ${cav}` : ""}`;
   };
   const catalog = cap.map(line).join("\n");
   const byName = new Map();
@@ -58,6 +59,7 @@ RULES:
 - ACCURACY IS EVERYTHING. Base each "why" ONLY on the facts given for THAT pick (its note, vibe, tags). Do NOT infer a feature it does not state. A rooftop does NOT imply a Parroquia view or any view; only mention a view if that pick's note actually says so. If a pick does not have the exact thing asked for, say what it genuinely offers instead, honestly.
 - The "intro" frames the WHOLE shortlist by the CRAVING, not by a feature. NEVER assert that all picks share a specific view, dish, or trait (do not say "these all have Parroquia views"). Keep it about the range. Safe example: "For a rooftop dinner in San Miguel, here are the terraces worth booking, from classic church-view splurges to more relaxed local spots."
 - "our pick for:" is our internal award note; phrase it naturally in your own words, and NEVER write a raw tag or underscore_name.
+- BUDGET: "price:" shows the dollar tier ($ cheapest to $$$ priciest). If the ask mentions cheap, affordable, budget, or a deal, favor $ and $$. If it mentions splurge, fancy, special occasion, or fine dining, favor $$$. Otherwise mix sensibly.
 - Use "CAVEAT(internal...)" only to AVOID recommending a bad fit or to pick a better match. NEVER mention a caveat or any negative in the public "why".
 - If almost nothing truly fits, return your closest 2 or 3 and say so warmly in "intro".
 - One short sentence per "why". Never use em-dashes or en-dashes; use commas, periods, or "and".

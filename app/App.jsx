@@ -1233,6 +1233,7 @@ export default function App() {
   const [favAud, setFavAud] = useState(new Set());
   const [favDiet, setFavDiet] = useState(new Set());
   const [favCuisine, setFavCuisine] = useState(new Set());
+  const [favPrice, setFavPrice] = useState(new Set()); // price tiers 1/2/3 to include
   const [dateF, setDateF] = useState("all");
   const [saved, setSaved] = useState(() => loadSet("qp_saved_events"));
   const [savedPlaces, setSavedPlaces] = useState(() => loadSet("qp_saved_places"));
@@ -1364,12 +1365,13 @@ export default function App() {
       const goodforOK = goodforFilters.every((g) => cz.includes(g));
       const dietOK = [...favDiet].every((d) => (it.diet || []).includes(d));
       const audOK = !favAud.size || (it.audience || []).some((a) => favAud.has(a));
-      return cuisineOK && goodforOK && dietOK && audOK;
+      const priceOK = !favPrice.size || (it.price != null && favPrice.has(Math.min(3, it.price)));
+      return cuisineOK && goodforOK && dietOK && audOK && priceOK;
     }) }))
     .filter((l) => l.items.length);
 
   const shownCount = favFiltered.reduce((n, l) => n + l.items.length, 0);
-  const favActive = favType !== "" || favCuisine.size > 0 || favDiet.size > 0;
+  const favActive = favType !== "" || favCuisine.size > 0 || favDiet.size > 0 || favPrice.size > 0;
 
   const savedEvents = useMemo(
     () => events.filter((e) => saved.has(e.id)).sort((a, b) => d(a.start) - d(b.start)), [saved, events]);
@@ -1479,7 +1481,7 @@ export default function App() {
         <div style={{ height: 8, background: `repeating-linear-gradient(135deg, ${P.cobalt} 0 8px, transparent 8px 16px), repeating-linear-gradient(45deg, ${P.rosa} 0 8px, ${P.marigold} 8px 16px)`, backgroundBlendMode: "multiply" }} />
         <div className="wrap720" style={{ padding: "9px 18px", display: "flex", alignItems: "center", gap: 22 }}>
           <button type="button" aria-label={lang === "es" ? "Inicio" : "Home"}
-            onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setSeeAll(false); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            onClick={() => { setView("faves"); setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavPrice(new Set()); setSeeAll(false); setPicksLayout("list"); setQuery(""); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); }}
             style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", display: "block" }}>
             <span className="brandlogo-crop">
               <img
@@ -1687,7 +1689,7 @@ export default function App() {
                     style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.cobalt}`, background: P.chipBg, cursor: "pointer", color: P.cobalt, fontWeight: 700, fontSize: 13, padding: "5px 13px", borderRadius: 999 }}>
                     <SlidersHorizontal size={14} /> {lang === "es" ? "Cambiar" : "Change"}
                   </button>
-                  <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); }}
+                  <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavPrice(new Set()); }}
                     style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${P.line}`, background: P.chipBg, cursor: "pointer", color: P.inkSoft, fontWeight: 600, fontSize: 13, padding: "5px 13px", borderRadius: 999 }}>
                     <X size={14} /> {lang === "es" ? "Limpiar" : "Clear"}
                   </button>
@@ -1818,7 +1820,7 @@ export default function App() {
             <div className="picks-layout">
               <div className="filters-inline filter-rail">
                 <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
+                  setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} favPrice={favPrice} setFavPrice={setFavPrice} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
               </div>
               <div className="picks-main">
             <>
@@ -2091,10 +2093,10 @@ export default function App() {
             </div>
             <div style={{ padding: "16px 18px 12px" }}>
               <FilterGroups favType={favType} setFavType={setFavType} favCuisine={favCuisine}
-                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
+                setFavCuisine={setFavCuisine} favDiet={favDiet} setFavDiet={setFavDiet} favPrice={favPrice} setFavPrice={setFavPrice} lang={lang} t={t} P={P} onWalks={() => setView("walks")} />
             </div>
             <div style={{ position: "sticky", bottom: 0, background: P.sheet, display: "flex", gap: 10, padding: "12px 18px calc(14px + env(safe-area-inset-bottom))", borderTop: `1px solid ${P.line}` }}>
-              <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); }}
+              <button onClick={() => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavPrice(new Set()); }}
                 style={{ flexShrink: 0, border: `1px solid ${P.line}`, background: P.chipBg, color: P.ink, cursor: "pointer", fontWeight: 700, fontSize: 14, padding: "12px 16px", borderRadius: 12 }}>{lang === "es" ? "Limpiar" : "Clear"}</button>
               <button onClick={() => setFilterSheet(false)}
                 style={{ flex: 1, border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 15, padding: "12px 16px", borderRadius: 12 }}>
@@ -2457,7 +2459,7 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
 
 /* ---- Filter groups (shared by desktop inline + mobile sheet) ----- */
 const GREEN = "#2F7A63";
-function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet, setFavDiet, lang, t, P, onWalks }) {
+function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet, setFavDiet, favPrice, setFavPrice, lang, t, P, onWalks }) {
   const flip = (setter, set, k) => setter(() => { const s = new Set(set); s.has(k) ? s.delete(k) : s.add(k); return s; });
   const clearType = (k) => { setFavType(k); if (k !== "rest") { setFavCuisine(new Set()); setFavDiet(new Set()); } };
   const Label = ({ children }) => (
@@ -2465,8 +2467,8 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
   );
   const base = { cursor: "pointer", borderRadius: 999, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 };
   const cuisines = Object.keys(CUISINES).filter((k) => !GOODFOR.includes(k)).sort((a, b) => CUISINES[a][lang].localeCompare(CUISINES[b][lang]));
-  const active = favType !== "" || favCuisine.size > 0 || favDiet.size > 0;
-  const clearAll = () => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); };
+  const active = favType !== "" || favCuisine.size > 0 || favDiet.size > 0 || (favPrice && favPrice.size > 0);
+  const clearAll = () => { setFavType(""); setFavCuisine(new Set()); setFavDiet(new Set()); setFavPrice && setFavPrice(new Set()); };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
       {active && (
@@ -2497,6 +2499,23 @@ function FilterGroups({ favType, setFavType, favCuisine, setFavCuisine, favDiet,
           )}
         </div>
       </div>
+
+      {(favType === "" || favType === "rest" || favType === "bar") && setFavPrice && (
+        <div>
+          <Label>{lang === "es" ? "Precio" : "Price"}</Label>
+          <div className="catrow">
+            {[1, 2, 3].map((tier) => {
+              const on = favPrice.has(tier);
+              return (
+                <button key={tier} onClick={() => flip(setFavPrice, favPrice, tier)} title={`${tier} ${lang === "es" ? "de" : "of"} 3`}
+                  style={{ ...base, padding: "6px 15px", fontSize: 15, fontWeight: 800, letterSpacing: "-.5px", border: `1px solid ${on ? P.green : P.line}`, background: on ? P.green : P.chipBg, color: on ? "#fff" : P.inkSoft }}>
+                  {"$".repeat(tier)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {favType === "rest" && (
         <div>
@@ -2556,6 +2575,19 @@ const PLACE_TYPE = {
   shopping: { en: "Shopping", es: "Compras", Icon: ShoppingBag },
 };
 
+// Price as 3 dollar signs, filled green up to the tier and grey for the rest (so $$ reads
+// clearly as 2 of 3). Google's 0-4 level is capped to a friendly 1-3 scale.
+function priceDots(price, P) {
+  if (price == null || price < 1) return null;
+  const tier = Math.min(3, price);
+  return (
+    <span title={`${tier} of 3`} aria-label={`Price ${tier} of 3`} style={{ display: "inline-flex", fontWeight: 800, fontSize: 13.5, letterSpacing: "-.5px", flexShrink: 0 }}>
+      {[1, 2, 3].map((i) => <span key={i} style={{ color: i <= tier ? (P.green || "#3F8F6B") : "#CFC6B5" }}>$</span>)}
+    </span>
+  );
+}
+const hasPrice = (it) => (it.list_key === "rest" || it.list_key === "bar") && it.price != null && it.price >= 1;
+
 function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
   const cat = CATS[it.cat] || { c: P.coral, es: "", en: "", Icon: Utensils };
   const ty = PLACE_TYPE[it.list_key] || PLACE_TYPE.rest;
@@ -2600,7 +2632,10 @@ function PlaceCard({ it, lang, t, P, saved, onSave, onOpen }) {
         </button>
       </div>
       <div style={{ padding: "12px 15px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: cat.c, textTransform: "uppercase", letterSpacing: ".05em" }}>{typeLabel}</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: cat.c, textTransform: "uppercase", letterSpacing: ".05em" }}>{typeLabel}</span>
+          {hasPrice(it) && priceDots(it.price, P)}
+        </div>
         <h3 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 18, fontWeight: 700, margin: "3px 0 5px", lineHeight: 1.15, letterSpacing: "-.01em" }}>{it.name}</h3>
         {it[lang] && <p style={{ fontSize: 13, color: P.inkSoft, margin: "0 0 10px", lineHeight: 1.45 }}>{it[lang]}</p>}
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: P.inkSoft }}>
