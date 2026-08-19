@@ -329,8 +329,11 @@ function dateLabelFor(e, lang, t) {
   if (e.recurring) return recurLabel(e.recurDays, lang, t);
   const sD = d(e.start), eD = d(e.end);
   const multi = e.start !== e.end;
+  const end = `${eD.getDate()} ${MONTHS[lang][eD.getMonth()]}`;
+  // A multi-day event already underway: lead with that it is on now, and when it ends.
+  if (multi && sD <= TODAY && eD >= TODAY) return lang === "es" ? `En curso, hasta el ${end}` : `On now, through ${end}`;
   return multi
-    ? `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]} ${t.dateThru} ${eD.getDate()} ${MONTHS[lang][eD.getMonth()]}`
+    ? `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]} ${t.dateThru} ${end}`
     : `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]}`;
 }
 
@@ -2477,7 +2480,10 @@ function TripMap({ places, events, stay, setStay, lang, t, P, onOpenPlace, onOpe
 function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
   const cat = CATS[e.cat];
   const Ic = cat.Icon;
-  const sD = d(e.start);
+  const sD = d(e.start), eD = d(e.end);
+  // A multi-day event that has already started but not ended is happening NOW; showing its
+  // past start date makes it look stale, so the rail shows "Now" instead.
+  const inProgress = !e.recurring && e.start !== e.end && sD <= TODAY && eD >= TODAY;
 
   return (
     <article className="card" onClick={onOpen} role="button" tabIndex={0}
@@ -2491,6 +2497,11 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
           <>
             <Repeat size={20} style={{ opacity: .95 }} />
             <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1, textAlign: "center" }}>{lang === "es" ? "En curso" : "Ongoing"}</span>
+          </>
+        ) : inProgress ? (
+          <>
+            <Ic size={16} style={{ opacity: .9 }} />
+            <span style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1.1, textAlign: "center" }}>{lang === "es" ? "Ahora" : "Now"}</span>
           </>
         ) : (
           <>
