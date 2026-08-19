@@ -2750,6 +2750,7 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
   const galleryUrls = (it.photos && it.photos.length) ? it.photos : (it.img ? [it.img] : []);
   const gallery = galleryUrls.filter(Boolean).map((url, i) => ({ url, attr: (it.photo_attributions || [])[i] || "" }));
   const [idx, setIdx] = useState(0);
+  const [copied, setCopied] = useState(false);
   const curItem = gallery[Math.min(idx, gallery.length - 1)] || null;
   const cur = curItem ? curItem.url : undefined;
   const curAttr = curItem ? curItem.attr : "";
@@ -2759,6 +2760,15 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  // Share a deep link that opens this exact pick in the app.
+  const sharePlace = async () => {
+    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/?place=${encodeURIComponent(it.name)}`;
+    if (typeof navigator !== "undefined" && navigator.share) { try { await navigator.share({ title: it.name, text: it.name, url }); } catch { /* dismissed */ } }
+    else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try { await navigator.clipboard.writeText(`${it.name} - ${url}`); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* ignore */ }
+    }
+  };
 
   const tagItems = [
     ...(it.cuisine || []).map((c) => CUISINES[c] && { label: CUISINES[c][lang], Icon: CUISINES[c].Icon }),
@@ -2825,10 +2835,16 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
               <h2 style={{ fontFamily: "Georgia, serif", fontSize: 24, margin: "3px 0 4px", lineHeight: 1.12 }}>{it.name}</h2>
               <p style={{ margin: 0, fontSize: 13.5, color: P.inkSoft, display: "flex", alignItems: "center", gap: 5 }}><MapPin size={13} /> {areaLabel(it, lang)}</p>
             </div>
-            <button onClick={onSave} aria-pressed={saved}
-              style={{ flexShrink: 0, border: `1px solid ${saved ? P.coral : P.line}`, cursor: "pointer", background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.ink, fontWeight: 700, fontSize: 13.5, padding: "9px 14px", borderRadius: 11, display: "flex", alignItems: "center", gap: 6 }}>
-              <Heart size={15} fill={saved ? "#fff" : "none"} /> {saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0, alignItems: "stretch" }}>
+              <button onClick={onSave} aria-pressed={saved}
+                style={{ border: `1px solid ${saved ? P.coral : P.line}`, cursor: "pointer", background: saved ? P.coral : P.chipBg, color: saved ? "#fff" : P.ink, fontWeight: 700, fontSize: 13.5, padding: "9px 14px", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <Heart size={15} fill={saved ? "#fff" : "none"} /> {saved ? (es ? "Guardado" : "Saved") : (es ? "Guardar" : "Save")}
+              </button>
+              <button onClick={sharePlace}
+                style={{ border: `1px solid ${P.line}`, cursor: "pointer", background: P.chipBg, color: P.ink, fontWeight: 700, fontSize: 13.5, padding: "9px 14px", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                {copied ? <Check size={15} /> : <Share2 size={15} />} {copied ? t.copied : t.share}
+              </button>
+            </div>
           </div>
 
           {/* Tags */}
