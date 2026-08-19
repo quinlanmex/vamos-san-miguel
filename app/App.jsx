@@ -2127,8 +2127,8 @@ export default function App() {
         <div onClick={() => setFilterSheet(false)} role="dialog" aria-modal="true" aria-label={lang === "es" ? "Filtros" : "Filters"}
           style={{ position: "fixed", inset: 0, background: P.scrim, display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
           <div className="sheet" onClick={(e) => e.stopPropagation()}
-            style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "88vh", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
-            <div style={{ position: "sticky", top: 0, background: P.sheet, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${P.line}` }}>
+            style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "min(88vh, 88dvh)", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
+            <div style={{ position: "sticky", top: 0, background: P.sheet, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${P.line}`, zIndex: 3 }}>
               <h2 style={{ fontFamily: "Georgia, serif", fontSize: 20, margin: 0 }}>{lang === "es" ? "Filtros" : "Filters"}</h2>
               <button onClick={() => setFilterSheet(false)} aria-label={t.back} style={{ border: "none", background: "transparent", cursor: "pointer", color: P.inkSoft, display: "grid", placeItems: "center" }}><X size={22} /></button>
             </div>
@@ -2725,13 +2725,14 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label={it.name}
       style={{ position: "fixed", inset: 0, background: P.scrim, display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
       <div className="sheet" onClick={(ev) => ev.stopPropagation()}
-        style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
+        style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "min(92vh, 92dvh)", overflowY: "auto", borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
         {/* Hero gallery */}
         <div style={{ position: "relative" }}>
           <Media img={cur} cat={it.cat} iconSize={56} style={{ width: "100%", height: 220 }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,.4), rgba(0,0,0,0) 40%)" }} />
+          {/* Offset by the safe-area inset so the close button clears the notch / browser bar. */}
           <button onClick={onClose} aria-label={t.back}
-            style={{ position: "absolute", top: 12, right: 12, width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 6px rgba(0,0,0,.25)" }}>
+            style={{ position: "absolute", top: "calc(12px + env(safe-area-inset-top))", right: 12, width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 1px 6px rgba(0,0,0,.25)", zIndex: 2 }}>
             <X size={18} color={P.ink} />
           </button>
           {gallery.length > 1 && (
@@ -2896,15 +2897,16 @@ function EventDetail({ e, lang, t, P, saved, onSave, onClose }) {
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label={e.title[lang]}
       style={{ position: "fixed", inset: 0, background: P.scrim, display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000 }}>
       <div className="sheet" onClick={(ev) => ev.stopPropagation()}
-        style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto",
+        style={{ background: P.sheet, color: P.ink, width: "100%", maxWidth: 560, maxHeight: "min(92vh, 92dvh)", overflowY: "auto",
           borderRadius: "20px 20px 0 0", boxShadow: "0 -8px 40px rgba(0,0,0,.28)" }}>
         {/* Hero image with overlaid category chip + close */}
         <div style={{ position: "relative" }}>
           <Media img={e.img} cat={e.cat} iconSize={56} style={{ width: "100%", height: 190 }} />
           <div style={{ position: "absolute", inset: 0,
             background: "linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0) 42%)" }} />
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "14px 16px",
-            display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          {/* Top padding includes the safe-area inset so the close button clears the browser bar. */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "calc(14px + env(safe-area-inset-top)) 16px 14px",
+            display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, zIndex: 2 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7, color: "#fff",
               background: cat.c, padding: "5px 11px", borderRadius: 999, boxShadow: "0 2px 8px rgba(0,0,0,.25)" }}>
               <Ic size={15} />

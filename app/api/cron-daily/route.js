@@ -7,6 +7,7 @@ import { run as enrichPicks } from "../enrich-picks/route";
 import { run as draftPicks } from "../draft-picks/route";
 import { run as enrichAiNotes } from "../enrich-ai-notes/route";
 import { run as enrichLocal } from "../enrich-local/route";
+import { run as refreshPhotos } from "../refresh-photos/route";
 import { run as syncDocs } from "../sync-docs/route";
 import { runCheck as checkClosures } from "../check-closures/route";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin";
@@ -50,6 +51,7 @@ async function runAll() {
     ["draftPicks", draftPicks],           // draft editorial notes for picks that lack them
     ["enrichAiNotes", enrichAiNotes],     // synthesize an AI-facing profile from reviews + site
     ["enrichLocal", enrichLocal],         // draft opinionated local take, vibe, occasion, internal caveat
+    ["refreshPhotos", refreshPhotos],     // re-fetch Google photos so expiring refs never go blank
     ["syncDocs", syncDocs],               // pull guide edits from Google Docs
     ["checkClosures", checkClosures],     // hide permanently-closed picks
   ];
