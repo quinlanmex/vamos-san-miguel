@@ -1141,7 +1141,8 @@ function HomeAsk({ lang, P, favLists, savedPlaces, onToggleSave, onOpenPick, onO
                 style={{ border: "none", background: P.cobalt, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
                 <Heart size={13} /> {es ? "Guardar todo" : "Save all to my trip"}
               </button>
-              <button onClick={() => onOpenPlanner()} style={{ border: `1px solid ${P.coral}`, background: P.chipBg, color: P.coral, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
+              <button onClick={() => { result.items.forEach((it) => { if (!savedPlaces.has(it.name)) onToggleSave(it.name); }); onOpenPlanner(); }}
+                style={{ border: `1px solid ${P.coral}`, background: P.chipBg, color: P.coral, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
                 ✨ {es ? "Hazlo un plan del día" : "Make it a day plan"}
               </button>
               <button onClick={() => { setResult(null); setQ(""); }} style={{ border: `1px solid ${P.line}`, background: P.chipBg, color: P.inkSoft, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: "10px 16px", borderRadius: 11 }}>
