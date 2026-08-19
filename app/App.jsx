@@ -302,10 +302,31 @@ function gcalUrl(e, lang) {
   return `https://www.google.com/calendar/render?${params.toString()}`;
 }
 
+const WEEKDAY_FULL = {
+  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  es: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+};
+// Human label for a recurring event's weekdays. Falls back to a generic "recurring" label
+// when we don't yet know the days (recurDays empty).
+function recurLabel(days, lang, t) {
+  const es = lang === "es";
+  const set = Array.isArray(days) ? [...new Set(days)].filter((n) => n >= 0 && n <= 6).sort((a, b) => a - b) : [];
+  if (!set.length) return t.recurs || (es ? "Cada semana" : "Weekly");
+  if (set.length === 7) return es ? "Todos los días" : "Daily";
+  if (set.length === 5 && [1, 2, 3, 4, 5].every((x) => set.includes(x))) return es ? "Entre semana" : "Weekdays";
+  if (set.length === 2 && set.includes(0) && set.includes(6)) return es ? "Fines de semana" : "Weekends";
+  const names = set.map((dd) => WEEKDAY_FULL[lang][dd]);
+  return es ? names.join(", ") : names.map((n) => n + "s").join(", ");
+}
+// Does a recurring event occur on a given weekday / the weekend? Unknown days (empty) => yes,
+// so we never hide an event whose recurrence pattern we haven't learned yet.
+const recurOnDow = (e, dow) => !e.recurDays || e.recurDays.length === 0 || e.recurDays.includes(dow);
+const recurOnWeekend = (e) => !e.recurDays || e.recurDays.length === 0 || e.recurDays.includes(0) || e.recurDays.includes(6);
+
 function dateLabelFor(e, lang, t) {
   // Recurring events keep their original (often long-past) start_date only as a marker, so
-  // never show it as if it were the next occurrence: show the recurring label instead.
-  if (e.recurring) return t.recurs || (lang === "es" ? "Cada semana" : "Weekly");
+  // never show it as if it were the next occurrence: show the recurrence weekdays instead.
+  if (e.recurring) return recurLabel(e.recurDays, lang, t);
   const sD = d(e.start), eD = d(e.end);
   const multi = e.start !== e.end;
   return multi
@@ -1348,11 +1369,12 @@ export default function App() {
       }
       if (cats.size && !cats.has(e.cat)) return false;
       if (aud.size && !e.audience.some((a) => aud.has(a))) return false;
-      // Recurring events (markets, tours, weekly classes) run on an ongoing basis, so they
-      // count as being on today / this weekend / this week regardless of their stored date.
-      if (dateF === "today" && !e.recurring && !overlaps(s, en, TODAY, TODAY)) return false;
-      if (dateF === "weekend" && !e.recurring && !overlaps(s, en, WEEKEND_S, WEEKEND_E)) return false;
-      if (dateF === "week" && !e.recurring && !overlaps(s, en, TODAY, WEEK_E)) return false;
+      // Date filters. A recurring event matches Today/Weekend by its known recurrence weekdays
+      // (recurDays); when those are unknown (empty) it stays visible under every filter. "This
+      // week" always includes recurring events (every weekday falls within the next 7 days).
+      if (dateF === "today") { if (!(e.recurring ? recurOnDow(e, TODAY.getDay()) : overlaps(s, en, TODAY, TODAY))) return false; }
+      if (dateF === "weekend") { if (!(e.recurring ? recurOnWeekend(e) : overlaps(s, en, WEEKEND_S, WEEKEND_E))) return false; }
+      if (dateF === "week") { if (!(e.recurring ? true : overlaps(s, en, TODAY, WEEK_E))) return false; }
       if (query.trim()) {
         const q = query.toLowerCase();
         const hay = (e.title[lang] + " " + e.venue + " " + e.blurb[lang]).toLowerCase();
@@ -1363,9 +1385,9 @@ export default function App() {
   }, [events, cats, aud, dateF, query, lang]);
 
   const todayCount = useMemo(
-    () => events.filter((e) => e.recurring || overlaps(d(e.start), d(e.end), TODAY, TODAY)).length, [events]);
+    () => events.filter((e) => e.recurring ? recurOnDow(e, TODAY.getDay()) : overlaps(d(e.start), d(e.end), TODAY, TODAY)).length, [events]);
   const weekendCount = useMemo(
-    () => events.filter((e) => e.recurring || overlaps(d(e.start), d(e.end), WEEKEND_S, WEEKEND_E)).length, [events]);
+    () => events.filter((e) => e.recurring ? recurOnWeekend(e) : overlaps(d(e.start), d(e.end), WEEKEND_S, WEEKEND_E)).length, [events]);
 
   const anyFilter = cats.size || aud.size || dateF !== "all" || query.trim();
 
