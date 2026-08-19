@@ -113,9 +113,12 @@ export async function POST(req) {
   const pickLines = capPicks.map((p) => {
     const tags = Array.isArray(p.cuisine) ? p.cuisine.filter(Boolean).join(",") : "";
     const note = (p.ai_notes || p.desc_en || "").replace(/\s+/g, " ").slice(0, 200);
-    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
+    // loc lets the model order stops by proximity and spot picks that share a building/complex.
+    const loc = (p.lat != null && p.lng != null) ? ` | loc:${Number(p.lat).toFixed(4)},${Number(p.lng).toFixed(4)}` : "";
+    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""}${loc} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
   });
-  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.start_date || "recurring"} | ${e.category || ""} | pri:${e.priority || 3} | venue:${e.venue || ""}`);
+  // Mark recurring events explicitly so the model can obey the "no dates -> recurring only" rule.
+  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.recurring ? "RECURRING (weekly/ongoing)" : (e.start_date || "no date")} | ${e.category || ""} | pri:${e.priority || 3} | venue:${e.venue || ""}`);
   const catalog = pickLines.concat(eventLines).join("\n");
 
   // Resolution maps (case-insensitive) so we can validate + attach coords later.
@@ -144,10 +147,10 @@ RULES:
 - Do NOT invent places or events. If unsure, leave it out.
 - RANKING (important): each PICK and EVENT has "pri:" = importance (1 = essential/iconic, 2 = highly recommended, 3 = optional). ALWAYS include every pri:1 essential that fits the party, ideally early in the trip. Include pri:2 when it fits the days and interests. Use pri:3 to fill remaining gaps. Favor pri:1 and pri:2 events over pri:3 events when dates allow.
 - "FAR" marks an out-of-town spot. Only include FAR picks for trips of 3 or more days, and only when they match the party and interests (e.g. a FAR family spot for a family on a longer trip). For 1 to 2 day trips, keep everything in and around town.
-- Cluster each day by neighborhood/area to minimize travel.
+- PROXIMITY (important): each PICK has "loc:lat,lng". Cluster every day around one neighborhood, and ORDER the stops within a day so each is a short walk from the one before it. If two picks share almost identical coordinates they are in the SAME building or complex (for example a cafe or eatery inside a gallery, market, or art center): place them back to back, never with an unrelated stop in between, and put the coffee/lighter stop right before the meal there.
 - If lodging coordinates are given, start and end each day near there.
 - Spread meals sensibly across each day: a breakfast/cafe, a lunch, and a dinner.
-- Include EVENTs only if their date falls on one of the TRIP DATES above (or, for recurring events, on a matching weekday) AND they match the traveler's interests. Put each event on the day its date matches. If no trip dates are given, include an event only if its date plausibly falls within a ${days}-day trip starting around ${todayStr}.
+- EVENTS: an event is either RECURRING (weekly/ongoing) or has a specific one-off date. If TRIP DATES are given, include a one-off event only when its date falls on one of them, and a recurring event only on a matching weekday, and put it on that day. If NO trip dates are given, include ONLY recurring events (never one-off dated events), because we cannot know whether the traveler will be in town on a specific date. Only include events that match the traveler's interests.
 - Some picks are weekday-specific (their note may say "Saturdays only" or similar). Place these only on the day whose weekday matches.
 - MUST INCLUDE: the "must include" names are places the traveler already saved and chose. Include EVERY one of them somewhere in the trip, each on a sensible day. Do not omit any saved spot.
 - Match the party (kid-friendly choices for families) and the pace.

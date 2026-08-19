@@ -117,9 +117,10 @@ export async function POST(req) {
   const pickLines = capPicks.map((p) => {
     const tags = Array.isArray(p.cuisine) ? p.cuisine.filter(Boolean).join(",") : "";
     const note = (p.ai_notes || p.desc_en || "").replace(/\s+/g, " ").slice(0, 200);
-    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
+    const loc = (p.lat != null && p.lng != null) ? ` | loc:${Number(p.lat).toFixed(4)},${Number(p.lng).toFixed(4)}` : "";
+    return `PICK | ${p.name} | type:${p.list_key || ""} | area:${p.area || ""}${loc} | pri:${p.priority || 3}${farOf(p) ? " | FAR" : ""} | tags:${tags}${note ? ` | ${note}` : ""}`;
   });
-  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.start_date || "recurring"} | ${e.category || ""} | pri:${e.priority || 3} | venue:${e.venue || ""}`);
+  const eventLines = capEvents.map((e) => `EVENT | ${e.title_en} | ${e.recurring ? "RECURRING (weekly/ongoing)" : (e.start_date || "no date")} | ${e.category || ""} | pri:${e.priority || 3} | venue:${e.venue || ""}`);
   const catalog = pickLines.concat(eventLines).join("\n");
 
   // Resolution maps (case-insensitive) so we can validate + attach coords later.
@@ -230,8 +231,8 @@ RULES:
 - Do NOT invent places or events. If unsure, leave it out.
 - RANKING (important): each PICK has "pri:" = importance (1 = essential/iconic, 2 = highly recommended, 3 = optional). Keep pri:1 essentials in the plan. Use pri:2 and pri:3 to fill gaps when revising.
 - "FAR" marks an out-of-town spot. Only include FAR picks for trips of 3 or more days, and only when they match the party and interests. For 1 to 2 day trips, keep everything in and around town.
-- Cluster each day by neighborhood/area to minimize travel. If lodging coordinates are given, start and end each day near there.
-- Include EVENTs only if their date plausibly falls within a ${days}-day trip starting around ${todayStr} AND they match the traveler's interests. Recurring events are fine.
+- PROXIMITY (important): each PICK has "loc:lat,lng". Cluster every day around one neighborhood, and ORDER the stops within a day so each is a short walk from the one before it. If two picks share almost identical coordinates they are in the SAME building or complex (for example a cafe or eatery inside a gallery, market, or art center): place them back to back, never with an unrelated stop in between, and put the coffee/lighter stop right before the meal there. If lodging coordinates are given, start and end each day near there.
+- EVENTS: an event is either RECURRING (weekly/ongoing) or has a specific one-off date. If TRIP DATES are given, include a one-off event only when its date falls on one of them, and a recurring event only on a matching weekday. If NO trip dates are given, include ONLY recurring events (never one-off dated events). Only include events that match the traveler's interests.
 - Keep each "why" to ONE short sentence (about 12 to 18 words).
 - Never use em-dashes or en-dashes. Use commas, periods, or "and" instead.
 - ${langLine}
