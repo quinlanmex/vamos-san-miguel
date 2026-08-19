@@ -323,10 +323,19 @@ function recurLabel(days, lang, t) {
 const recurOnDow = (e, dow) => !e.recurDays || e.recurDays.length === 0 || e.recurDays.includes(dow);
 const recurOnWeekend = (e) => !e.recurDays || e.recurDays.length === 0 || e.recurDays.includes(0) || e.recurDays.includes(6);
 
+// The best available "when" for a recurring event: the human-readable note if we have one
+// (handles monthly etc.), otherwise a label derived from the known weekdays, otherwise generic.
+function recurWhen(e, lang, t) {
+  const note = e.recurNote && (e.recurNote[lang] || e.recurNote.en);
+  return note || recurLabel(e.recurDays, lang, t);
+}
+// Do we actually know the schedule (vs. just "it recurs")?
+const recurKnown = (e) => !!(e.recurNote && (e.recurNote.en || e.recurNote.es)) || (Array.isArray(e.recurDays) && e.recurDays.length > 0);
+
 function dateLabelFor(e, lang, t) {
   // Recurring events keep their original (often long-past) start_date only as a marker, so
-  // never show it as if it were the next occurrence: show the recurrence weekdays instead.
-  if (e.recurring) return recurLabel(e.recurDays, lang, t);
+  // never show it as if it were the next occurrence: show the recurrence schedule instead.
+  if (e.recurring) return recurWhen(e, lang, t);
   const sD = d(e.start), eD = d(e.end);
   const multi = e.start !== e.end;
   const end = `${eD.getDate()} ${MONTHS[lang][eD.getMonth()]}`;
@@ -2495,8 +2504,12 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
         alignItems: "center", justifyContent: "center", padding: "10px 4px", gap: 4 }}>
         {e.recurring ? (
           <>
-            <Repeat size={20} style={{ opacity: .95 }} />
-            <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1, textAlign: "center" }}>{lang === "es" ? "En curso" : "Ongoing"}</span>
+            <Repeat size={18} style={{ opacity: .95 }} />
+            {/* Show the actual schedule ("Every Wed", "1st of the month") when known; the more
+                generic "Ongoing" only until we learn the days. */}
+            {recurKnown(e)
+              ? <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".01em", lineHeight: 1.18, textAlign: "center" }}>{recurWhen(e, lang, t)}</span>
+              : <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1, textAlign: "center" }}>{lang === "es" ? "En curso" : "Ongoing"}</span>}
           </>
         ) : inProgress ? (
           <>

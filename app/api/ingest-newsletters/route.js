@@ -53,7 +53,8 @@ async function extract(anthropic, text, subject, todayStr) {
   const prompt = `Today is ${todayStr}. Below is an email newsletter about San Miguel de Allende (Mexico) events, subject "${subject || ""}". Extract only REAL events with a clear future date (today through ~16 weeks). Never include events before ${todayStr}. Do NOT invent anything. Return ONLY a JSON array. Each item:
 Provide BOTH English and natural Mexican-Spanish for the title and blurb.
 For "recur_days" (recurring events only): the weekdays it repeats on as integers 0=Sunday..6=Saturday (e.g. "every Tuesday" -> [2], "weekends" -> [0,6], "daily" -> [0,1,2,3,4,5,6]); null if not recurring or the days are not stated. Do NOT guess from a single sample date.
-{"title_en": string, "title_es": string, "blurb_en": string, "blurb_es": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "recur_days": array of integers 0-6 | null, "venue": string|null, "area": string|null, "price_en": string|null, "price_es": string|null}
+For "recur_note"/"recur_note_es" (recurring only): a SHORT human-readable schedule as stated, in English and Mexican Spanish (e.g. "Every Wednesday"/"Cada miércoles", "1st Sunday of the month"/"1er domingo del mes", "Daily"/"Diario"); null if not recurring or not stated.
+{"title_en": string, "title_es": string, "blurb_en": string, "blurb_es": string, "category": one of ${JSON.stringify(CATS)}, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD"|null, "start_time": "HH:MM"|null, "recurring": boolean, "recur_days": array of integers 0-6 | null, "recur_note": string|null, "recur_note_es": string|null, "venue": string|null, "area": string|null, "price_en": string|null, "price_es": string|null}
 If none, return [].
 
 EMAIL:
@@ -110,7 +111,10 @@ export async function run() {
         blurb_en: e.blurb_en || null, blurb_es: e.blurb_es || null, price_en: e.price_en || null, price_es: e.price_es || null,
         category: e.category, audience: [], start_date: e.start_date || null,
         end_date: e.end_date || e.start_date || null, start_time: e.start_time || null,
-        recurring: !!e.recurring, recur_days: e.recurring ? cleanDays(e.recur_days) : null, venue: e.venue || null, area: e.area || null,
+        recurring: !!e.recurring, recur_days: e.recurring ? cleanDays(e.recur_days) : null,
+        recur_note: e.recurring && typeof e.recur_note === "string" && e.recur_note.trim() ? e.recur_note.trim().slice(0, 80) : null,
+        recur_note_es: e.recurring && typeof e.recur_note_es === "string" && e.recur_note_es.trim() ? e.recur_note_es.trim().slice(0, 80) : null,
+        venue: e.venue || null, area: e.area || null,
         origin_name: "Newsletter", origin_url: null, discovered_via: "newsletter", photo_url: null, lat: null, lng: null,
       });
     }
@@ -121,8 +125,8 @@ export async function run() {
   let error = null;
   if (rows.length) {
     let { data, error: er } = await sb.from("events").insert(rows).select("id");
-    if (er && /recur_days/.test(er.message || "")) {
-      const stripped = rows.map(({ recur_days, ...r }) => r);
+    if (er && /recur_days|recur_note/.test(er.message || "")) {
+      const stripped = rows.map(({ recur_days, recur_note, recur_note_es, ...r }) => r);
       ({ data, error: er } = await sb.from("events").insert(stripped).select("id"));
     }
     if (er) error = er.message; else added = data.length;

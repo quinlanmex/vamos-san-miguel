@@ -26,8 +26,10 @@ export async function run(limit = 60) {
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const list = rows.map((r, i) => `${i}. ${r.title_en}${r.venue ? ` @ ${r.venue}` : ""}${r.blurb_en ? ` - ${r.blurb_en.slice(0, 160)}` : ""}`).join("\n");
-  const prompt = `For each recurring San Miguel de Allende event below, determine which weekdays it repeats on, using ONLY explicit clues in its own title or description (for example "Tuesday market", "every Saturday", "daily", "weekends", "Monday to Friday"). Weekdays are integers 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday.
-Return ONLY a JSON array, one object per numbered item: {"i": number, "days": array of integers 0-6 | null}. Use null when the days are not clearly stated. Do NOT guess from anything other than an explicit statement of the day(s).
+  const prompt = `For each recurring San Miguel de Allende event below, determine when it repeats, using ONLY explicit clues in its own title or description (for example "Tuesday market", "every Saturday", "daily", "weekends", "1st Sunday of the month").
+- "days": the weekdays as integers 0=Sunday..6=Saturday (e.g. [2] for Tuesdays, [0,6] for weekends, [0,1,2,3,4,5,6] for daily); null if the days are not stated or the pattern is not weekly (e.g. monthly).
+- "note"/"note_es": a SHORT human-readable schedule as stated, in English and Mexican Spanish (e.g. "Every Tuesday"/"Cada martes", "1st Sunday of the month"/"1er domingo del mes"); null if not stated.
+Return ONLY a JSON array, one object per numbered item: {"i": number, "days": array | null, "note": string | null, "note_es": string | null}. Do NOT guess anything not explicitly stated.
 
 EVENTS:
 ${list}`;
@@ -41,16 +43,21 @@ ${list}`;
   } catch { return { ok: false, error: "inference failed" }; }
   if (!Array.isArray(parsed)) parsed = [];
 
+  const noteOf = (s) => (typeof s === "string" && s.trim()) ? s.trim().slice(0, 80) : null;
   let resolved = 0, unknown = 0, failed = 0;
   for (let idx = 0; idx < rows.length; idx++) {
     const item = parsed.find((p) => Number(p && p.i) === idx);
     const days = cleanDays(item && item.days); // null if unclear
+    const note = noteOf(item && item.note);
     // Store [] when unknown so this event is marked checked (not re-queried) but still shows
     // under all date filters via the app's empty-days fallback.
-    const value = days || [];
-    const { error: e } = await sb.from("events").update({ recur_days: value }).eq("id", rows[idx].id);
+    const patch = { recur_days: days || [] };
+    if (note) { patch.recur_note = note; const ne = noteOf(item && item.note_es); if (ne) patch.recur_note_es = ne; }
+    let { error: e } = await sb.from("events").update(patch).eq("id", rows[idx].id);
+    // If recur_note column is missing, still record the days.
+    if (e && /recur_note/.test(e.message || "")) ({ error: e } = await sb.from("events").update({ recur_days: days || [] }).eq("id", rows[idx].id));
     if (e) { failed++; if (/recur_days/.test(e.message || "")) return { ok: false, error: "run data/add-recur-days.sql first" }; continue; }
-    if (days) resolved++; else unknown++;
+    if (days || note) resolved++; else unknown++;
   }
   return { ok: true, considered: rows.length, resolved, unknown, failed };
 }
