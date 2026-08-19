@@ -82,8 +82,13 @@ export async function run() {
   // never insert punctuation-only duplicates. Recurring events dedupe on title alone.
   const nt = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
   const dkey = (title, date, recurring) => (recurring ? `${nt(title)}|recurring` : `${nt(title)}|${date || ""}`);
-  const { data: existing } = await sb.from("events").select("title_en,start_date,recurring");
-  const have = new Set((existing || []).map((e) => dkey(e.title_en, e.start_date, e.recurring)));
+  let { data: existing, error: exErr } = await sb.from("events").select("id,title_en,start_date,recurring,recur_days,start_time");
+  // If recur_days does not exist yet, fall back so dedupe still works (no backfill this run).
+  if (exErr) ({ data: existing } = await sb.from("events").select("id,title_en,start_date,recurring,start_time"));
+  // Map by dedupe key so a re-scrape can BACKFILL fields we did not have before (recurrence
+  // weekdays, start time) onto events already stored, without creating duplicates.
+  const have = new Map((existing || []).map((e) => [dkey(e.title_en, e.start_date, e.recurring), e]));
+  const updates = [];
 
   let found = 0;
   const rows = [];
@@ -102,8 +107,18 @@ export async function run() {
       }
       found++;
       const key = dkey(e.title_en, e.start_date, e.recurring);
-      if (have.has(key)) continue;
-      have.add(key);
+      const ex = have.get(key);
+      if (ex) {
+        // Already stored: fill in recurrence weekdays / start time if the source now provides
+        // them and we do not have them yet. Never overwrites values we already hold.
+        const patch = {};
+        const days = e.recurring ? cleanDays(e.recur_days) : null;
+        if (days && (!Array.isArray(ex.recur_days) || ex.recur_days.length === 0)) patch.recur_days = days;
+        if (e.start_time && !ex.start_time) patch.start_time = e.start_time;
+        if (Object.keys(patch).length) updates.push({ id: ex.id, patch });
+        continue;
+      }
+      have.set(key, { id: null, recur_days: e.recurring ? cleanDays(e.recur_days) : null, start_time: e.start_time || null });
       rows.push({
         status: "published",
         title_en: e.title_en, title_es: e.title_es || null,
@@ -132,7 +147,18 @@ export async function run() {
     }
     if (e) error = e.message; else added = data.length;
   }
-  return { ok: !error, found, added, skipped: found - added, error };
+
+  // Backfill recurrence days / times onto existing events (best effort; ignore column-missing).
+  let backfilled = 0;
+  for (const u of updates) {
+    const { error: e } = await sb.from("events").update(u.patch).eq("id", u.id);
+    if (!e) backfilled++;
+    else if (/recur_days/.test(e.message || "") && u.patch.start_time) {
+      const { error: e2 } = await sb.from("events").update({ start_time: u.patch.start_time }).eq("id", u.id);
+      if (!e2) backfilled++;
+    }
+  }
+  return { ok: !error, found, added, backfilled, skipped: found - added, error };
 }
 
 // Scheduled (Vercel cron) — protected by x-vercel-cron or a token.
