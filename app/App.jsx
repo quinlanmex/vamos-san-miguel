@@ -275,10 +275,6 @@ const MONTHS = {
   es: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
   en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };
-const WEEKDAYS_ABBR = {
-  es: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
-  en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-};
 
 /* ---- helpers ----------------------------------------------------- */
 const pad = (n) => String(n).padStart(2, "0");
@@ -2471,8 +2467,8 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
         alignItems: "center", justifyContent: "center", padding: "10px 4px", gap: 4 }}>
         {e.recurring ? (
           <>
-            <Repeat size={18} style={{ opacity: .95 }} />
-            <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", lineHeight: 1 }}>{WEEKDAYS_ABBR[lang][sD.getDay()]}</span>
+            <Repeat size={20} style={{ opacity: .95 }} />
+            <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1, textAlign: "center" }}>{lang === "es" ? "En curso" : "Ongoing"}</span>
           </>
         ) : (
           <>
