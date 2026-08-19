@@ -275,6 +275,10 @@ const MONTHS = {
   es: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
   en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };
+const WEEKDAYS_ABBR = {
+  es: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+  en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+};
 
 /* ---- helpers ----------------------------------------------------- */
 const pad = (n) => String(n).padStart(2, "0");
@@ -303,6 +307,9 @@ function gcalUrl(e, lang) {
 }
 
 function dateLabelFor(e, lang, t) {
+  // Recurring events keep their original (often long-past) start_date only as a marker, so
+  // never show it as if it were the next occurrence: show the recurring label instead.
+  if (e.recurring) return t.recurs || (lang === "es" ? "Cada semana" : "Weekly");
   const sD = d(e.start), eD = d(e.end);
   const multi = e.start !== e.end;
   return multi
@@ -2458,12 +2465,22 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
     <article className="card" onClick={onOpen} role="button" tabIndex={0}
       onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onOpen(); } }}
       style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 16, overflow: "hidden", display: "flex", cursor: "pointer" }}>
-      {/* Date rail */}
+      {/* Date rail — recurring events show a repeat mark + representative weekday instead of a
+          stale specific date; one-off events show the day + month. */}
       <div style={{ background: cat.c, color: "#fff", width: 62, flexShrink: 0, display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", padding: "10px 4px", gap: 4 }}>
-        <Ic size={16} style={{ opacity: .9 }} />
-        <span className="disp" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{sD.getDate()}</span>
-        <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em" }}>{MONTHS[lang][sD.getMonth()]}</span>
+        {e.recurring ? (
+          <>
+            <Repeat size={18} style={{ opacity: .95 }} />
+            <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", lineHeight: 1 }}>{WEEKDAYS_ABBR[lang][sD.getDay()]}</span>
+          </>
+        ) : (
+          <>
+            <Ic size={16} style={{ opacity: .9 }} />
+            <span className="disp" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{sD.getDate()}</span>
+            <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em" }}>{MONTHS[lang][sD.getMonth()]}</span>
+          </>
+        )}
       </div>
 
       <div style={{ padding: "13px 14px", flex: 1, minWidth: 0 }}>
@@ -2847,19 +2864,24 @@ function PlaceDetail({ it, lang, t, P, saved, onSave, onClose }) {
           <div style={{ marginTop: 14 }}>
             {(() => {
               const st = openStatus(it.hoursJson, lang);
-              const week = it.hoursJson && it.hoursJson.weekday_text;
-              if (!st && !week && !it.hours) return null;
+              // Prefer the structured weekday_text; otherwise split the stored hours string
+              // (newline-joined) into one line per day so it never renders as a run-on blob.
+              // Normalize en/em dashes to a plain hyphen to match our house style.
+              const cleanDash = (s) => String(s).replace(/\s*[–—]\s*/g, " - ");
+              const week = (it.hoursJson && it.hoursJson.weekday_text)
+                || (it.hours ? String(it.hours).split(/\r?\n/).map((l) => l.trim()).filter(Boolean) : null);
+              if (!st && !(week && week.length)) return null;
               return (
                 <details style={{ marginBottom: 4 }}>
-                  <summary style={{ display: "flex", alignItems: "center", gap: 9, cursor: week ? "pointer" : "default", listStyle: "none", fontSize: 14, color: P.inkSoft, padding: "5px 0" }}>
+                  <summary style={{ display: "flex", alignItems: "center", gap: 9, cursor: (week && week.length) ? "pointer" : "default", listStyle: "none", fontSize: 14, color: P.inkSoft, padding: "5px 0" }}>
                     <Clock3 size={15} style={{ flexShrink: 0, color: P.inkSoft }} />
                     {st && <span style={{ fontWeight: 700, color: st.open ? "#2F7A63" : "#C0554E" }}>{st.text}</span>}
-                    {st && (week || it.hours) && <span style={{ color: "#B9AE9C" }}>·</span>}
-                    <span>{it.hours || (es ? "Ver horario" : "See hours")}</span>
+                    {st && week && week.length > 0 && <span style={{ color: "#B9AE9C" }}>·</span>}
+                    {(!st || (week && week.length)) && <span>{es ? "Ver horario" : "See hours"}</span>}
                   </summary>
-                  {week && (
+                  {week && week.length > 0 && (
                     <div style={{ padding: "6px 0 4px 24px", display: "grid", gap: 2 }}>
-                      {week.map((line, i) => <span key={i} style={{ fontSize: 13, color: P.inkSoft }}>{line}</span>)}
+                      {week.map((line, i) => <span key={i} style={{ fontSize: 13, color: P.inkSoft }}>{cleanDash(line)}</span>)}
                     </div>
                   )}
                 </details>
