@@ -7,10 +7,12 @@ export const maxDuration = 120;
 // Public San Miguel event sources to scan (static-HTML listings). Add more over time.
 // Note: many local sources (Biblioteca taquilla, Facebook, Eventbrite) are JS-rendered
 // and can't be scraped this way — those still come in via the admin paste-to-publish flow.
+// DiscoverSMA lists ~12 events per page sorted by date, so we page through the first several
+// pages (the soonest events) instead of only page 1.
+const DISCOVERSMA_PAGES = 6;
 const SOURCES = [
   "https://discoversma.com/events/",
-  "https://discoversma.com/events/list/",
-  "https://discoversma.com/events/month/",
+  ...Array.from({ length: DISCOVERSMA_PAGES - 1 }, (_, i) => `https://discoversma.com/events/page/${i + 2}/`),
   "https://labibliotecapublica.org/taquilla/",
   "https://mexiconewsdaily.com/events/san-miguel-de-allende/",
 ];
@@ -93,6 +95,7 @@ export async function run() {
   // weekdays, start time) onto events already stored, without creating duplicates.
   const have = new Map((existing || []).map((e) => [dkey(e.title_en, e.start_date, e.recurring), e]));
   const updates = [];
+  const roll = new Map(); // existing recurring event id -> soonest upcoming { start_date, start_time, end_date }
 
   let found = 0;
   const rows = [];
@@ -121,6 +124,15 @@ export async function run() {
         if (e.recurring && noteOf(e.recur_note) && !ex.recur_note) { patch.recur_note = noteOf(e.recur_note); if (noteOf(e.recur_note_es)) patch.recur_note_es = noteOf(e.recur_note_es); }
         if (e.start_time && !ex.start_time) patch.start_time = e.start_time;
         if (Object.keys(patch).length) updates.push({ id: ex.id, patch });
+        // Roll a recurring event's displayed date to the SOONEST upcoming occurrence the source
+        // lists (pages are date-sorted, so page 1 has the nearest one). Gives a concrete "next"
+        // date instead of a stale one; the app then shows and filters by it.
+        if (e.recurring && /^\d{4}-\d{2}-\d{2}$/.test(e.start_date || "") && e.start_date >= todayStr) {
+          const cur = roll.get(ex.id);
+          if (!cur || e.start_date < cur.start_date) {
+            roll.set(ex.id, { start_date: e.start_date, start_time: e.start_time || null, end_date: e.end_date || e.start_date });
+          }
+        }
         continue;
       }
       have.set(key, { id: null, recur_days: e.recurring ? cleanDays(e.recur_days) : null, start_time: e.start_time || null });
@@ -155,17 +167,27 @@ export async function run() {
     if (e) error = e.message; else added = data.length;
   }
 
-  // Backfill recurrence days / times onto existing events (best effort; ignore column-missing).
+  // Merge the soonest-upcoming dates into the per-event patches.
+  for (const [id, r] of roll) {
+    let u = updates.find((x) => x.id === id);
+    if (!u) { u = { id, patch: {} }; updates.push(u); }
+    u.patch.start_date = r.start_date;
+    u.patch.end_date = r.end_date;
+    if (r.start_time) u.patch.start_time = r.start_time;
+  }
+
+  // Apply updates onto existing events (best effort; tolerate missing recur_* columns).
   let backfilled = 0;
   for (const u of updates) {
-    const { error: e } = await sb.from("events").update(u.patch).eq("id", u.id);
-    if (!e) backfilled++;
-    else if (/recur_days/.test(e.message || "") && u.patch.start_time) {
-      const { error: e2 } = await sb.from("events").update({ start_time: u.patch.start_time }).eq("id", u.id);
-      if (!e2) backfilled++;
+    let { error: e } = await sb.from("events").update(u.patch).eq("id", u.id);
+    if (e && /recur_days|recur_note/.test(e.message || "")) {
+      const { recur_days, recur_note, recur_note_es, ...safe } = u.patch;
+      if (Object.keys(safe).length) ({ error: e } = await sb.from("events").update(safe).eq("id", u.id));
+      else e = null;
     }
+    if (!e) backfilled++;
   }
-  return { ok: !error, found, added, backfilled, skipped: found - added, error };
+  return { ok: !error, found, added, backfilled, rolled: roll.size, skipped: found - added, error };
 }
 
 // Scheduled (Vercel cron) — protected by x-vercel-cron or a token.
