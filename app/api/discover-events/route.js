@@ -99,11 +99,15 @@ export async function run() {
 
   let found = 0;
   const rows = [];
-  for (const source of SOURCES) {
+  // Fetch every source AND run its extraction in parallel — sequential calls across ~8 pages
+  // blow past the 60s function limit, but concurrent ones finish in a few seconds.
+  const perSource = await Promise.all(SOURCES.map(async (source) => {
     const text = await fetchText(source);
-    if (!text) continue;
-    let events = [];
-    try { events = await extract(anthropic, text, source, todayStr); } catch { continue; }
+    if (!text) return { source, events: [] };
+    try { return { source, events: await extract(anthropic, text, source, todayStr) }; }
+    catch { return { source, events: [] }; }
+  }));
+  for (const { source, events } of perSource) {
     for (const e of Array.isArray(events) ? events : []) {
       if (!e || !e.title_en || !CATS.includes(e.category)) continue;
       if (!e.recurring && !/^\d{4}-\d{2}-\d{2}$/.test(e.start_date || "")) continue;
