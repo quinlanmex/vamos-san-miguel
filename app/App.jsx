@@ -330,22 +330,38 @@ const recurKnown = (e) => !!(e.recurNote && (e.recurNote.en || e.recurNote.es)) 
 
 // True when a recurring event has a concrete upcoming occurrence date (rolled forward from the
 // source); false when its date is stale/unknown and we should show the generic schedule instead.
-const hasNextDate = (e) => { const eD = d(e.end); return e.recurring && !isNaN(eD) && eD >= TODAY; };
-// Sort key: a recurring event with no known upcoming date is "ongoing", so treat it as today
-// instead of letting its stale original date sort it to the very top of the list.
-const effEventDate = (e) => { if (e.recurring && !hasNextDate(e)) return TODAY; const s = d(e.start); return isNaN(s) ? TODAY : s; };
+// The concrete upcoming date an event happens on, used for display, filtering and sorting:
+// a real/rolled future date (or today if a multi-day event is already underway), else computed
+// from its recurrence weekdays, else null when we genuinely cannot place it.
+function nextOccurrence(e) {
+  const sD = d(e.start), eD = d(e.end);
+  if (!isNaN(eD) && eD >= TODAY && !isNaN(sD)) return sD < TODAY ? TODAY : sD; // dated / in-progress
+  if (e.recurring && Array.isArray(e.recurDays) && e.recurDays.length) {
+    for (let i = 0; i < 7; i++) {
+      const c = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + i);
+      if (e.recurDays.includes(c.getDay())) return c; // soonest upcoming matching weekday
+    }
+  }
+  return null;
+}
+const hasNextDate = (e) => e.recurring && !!nextOccurrence(e);
+// Sort key: events we cannot date sort as today so a stale original date never jumps them up.
+const effEventDate = (e) => nextOccurrence(e) || TODAY;
 
+const dayName = (dt, lang) => WEEKDAY_FULL[lang][dt.getDay()];
 function dateLabelFor(e, lang, t) {
   const sD = d(e.start), eD = d(e.end);
-  // Recurring event with no known upcoming date: show its schedule ("Every Wed", "Monthly").
-  if (e.recurring && !hasNextDate(e)) return recurWhen(e, lang, t);
+  const occ = nextOccurrence(e);
+  // Recurring event we cannot place on a date: show its schedule ("Every Wed", "Monthly").
+  if (e.recurring && !occ) return recurWhen(e, lang, t);
   const multi = e.start !== e.end;
   const end = `${eD.getDate()} ${MONTHS[lang][eD.getMonth()]}`;
   // A multi-day event already underway: lead with that it is on now, and when it ends.
   if (multi && sD <= TODAY && eD >= TODAY) return lang === "es" ? `En curso, hasta el ${end}` : `On now, through ${end}`;
-  return multi
-    ? `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]} ${t.dateThru} ${end}`
-    : `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]}`;
+  if (multi) return `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]} ${t.dateThru} ${end}`;
+  // Single-day: for a recurring event, show its computed next occurrence with the weekday.
+  if (e.recurring && occ) return `${dayName(occ, lang)} ${occ.getDate()} ${MONTHS[lang][occ.getMonth()]}`;
+  return `${sD.getDate()} ${MONTHS[lang][sD.getMonth()]}`;
 }
 
 // Location label for picks. In-town spots show their colonia (assigned by nearest OSM
@@ -1374,22 +1390,24 @@ export default function App() {
 
   const filtered = useMemo(() => {
     return events.filter((e) => {
-      const s = d(e.start), en = d(e.end);
-      // One-time events must not have already ended. Recurring events always show under "All".
+      const eD = d(e.end);
+      // One-time events must not have already ended. Recurring events stay under "All".
       if (!e.recurring) {
         const last = d(e.end || e.start);
         if (last && !isNaN(last) && last < TODAY) return false;
       }
       if (cats.size && !cats.has(e.cat)) return false;
       if (aud.size && !e.audience.some((a) => aud.has(a))) return false;
-      // Date filters match every event by its date window — including recurring events, whose
-      // date is their next upcoming occurrence. A recurring event whose next date we don't know
-      // yet (stale/past start) is treated as always-available so it is never hidden.
-      const knowsDate = !e.recurring || (!isNaN(en) && en >= TODAY);
-      if (knowsDate) {
-        if (dateF === "today" && !overlaps(s, en, TODAY, TODAY)) return false;
-        if (dateF === "weekend" && !overlaps(s, en, WEEKEND_S, WEEKEND_E)) return false;
-        if (dateF === "week" && !overlaps(s, en, TODAY, WEEK_E)) return false;
+      // Date filters are strict: an event matches only if its concrete occurrence falls in the
+      // window. The occurrence is a single day (its next date); multi-day events use their range.
+      // Events we cannot place on a date never match a specific-day filter (only "All" shows them).
+      if (dateF !== "all") {
+        const occ = nextOccurrence(e);
+        if (!occ) return false;
+        const occEnd = (!isNaN(eD) && eD >= TODAY) ? eD : occ;
+        if (dateF === "today" && !overlaps(occ, occEnd, TODAY, TODAY)) return false;
+        if (dateF === "weekend" && !overlaps(occ, occEnd, WEEKEND_S, WEEKEND_E)) return false;
+        if (dateF === "week" && !overlaps(occ, occEnd, TODAY, WEEK_E)) return false;
       }
       if (query.trim()) {
         const q = query.toLowerCase();
@@ -1400,12 +1418,14 @@ export default function App() {
     }).sort((a, b) => effEventDate(a) - effEventDate(b));
   }, [events, cats, aud, dateF, query, lang]);
 
-  // Counts mirror the filter: match by the (next-occurrence) date; a recurring event with no
-  // known upcoming date counts as available so the badge never under-reports.
+  // Counts mirror the strict filter: an event counts only if its concrete occurrence is in the
+  // window. Undateable events are not counted for a specific day.
   const matchesWindow = (e, wS, wE) => {
-    const s = d(e.start), en = d(e.end);
-    const knowsDate = !e.recurring || (!isNaN(en) && en >= TODAY);
-    return knowsDate ? overlaps(s, en, wS, wE) : true;
+    const occ = nextOccurrence(e);
+    if (!occ) return false;
+    const eD = d(e.end);
+    const occEnd = (!isNaN(eD) && eD >= TODAY) ? eD : occ;
+    return overlaps(occ, occEnd, wS, wE);
   };
   const todayCount = useMemo(() => events.filter((e) => matchesWindow(e, TODAY, TODAY)).length, [events]);
   const weekendCount = useMemo(() => events.filter((e) => matchesWindow(e, WEEKEND_S, WEEKEND_E)).length, [events]);
@@ -2499,6 +2519,7 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
   const cat = CATS[e.cat];
   const Ic = cat.Icon;
   const sD = d(e.start), eD = d(e.end);
+  const occ = nextOccurrence(e); // concrete upcoming date (rolled or computed from weekdays), or null
   // A multi-day event that has already started but not ended is happening NOW; showing its
   // past start date makes it look stale, so the rail shows "Now" instead.
   const inProgress = !e.recurring && e.start !== e.end && sD <= TODAY && eD >= TODAY;
@@ -2511,20 +2532,18 @@ function EventCard({ e, lang, t, P, saved, onSave, onOpen }) {
           stale specific date; one-off events show the day + month. */}
       <div style={{ background: cat.c, color: "#fff", width: 62, flexShrink: 0, display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", padding: "10px 4px", gap: 4 }}>
-        {e.recurring && hasNextDate(e) ? (
+        {e.recurring && occ ? (
           <>
-            {/* Recurring, and we know the next occurrence: show that date with a small repeat mark. */}
+            {/* Recurring with a concrete next occurrence (rolled or computed): show that date. */}
             <Repeat size={13} style={{ opacity: .9 }} />
-            <span className="disp" style={{ fontSize: 20, fontWeight: 800, lineHeight: 1 }}>{sD.getDate()}</span>
-            <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em" }}>{MONTHS[lang][sD.getMonth()]}</span>
+            <span className="disp" style={{ fontSize: 20, fontWeight: 800, lineHeight: 1 }}>{occ.getDate()}</span>
+            <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".04em" }}>{MONTHS[lang][occ.getMonth()]}</span>
           </>
         ) : e.recurring ? (
           <>
+            {/* Recurring but not datable: show the schedule note if we have one, else just the mark. */}
             <Repeat size={18} style={{ opacity: .95 }} />
-            {/* Schedule known but not a concrete next date ("Every Wed", "Monthly"); else generic. */}
-            {recurKnown(e)
-              ? <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".01em", lineHeight: 1.18, textAlign: "center" }}>{recurWhen(e, lang, t)}</span>
-              : <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".03em", lineHeight: 1, textAlign: "center" }}>{lang === "es" ? "En curso" : "Ongoing"}</span>}
+            {recurKnown(e) && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".01em", lineHeight: 1.18, textAlign: "center" }}>{recurWhen(e, lang, t)}</span>}
           </>
         ) : inProgress ? (
           <>
