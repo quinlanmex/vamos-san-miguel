@@ -19,7 +19,7 @@ export default function PageShell({ children, active }) {
           </Link>
           {/* Identical tab set + Guides dropdown as the home app, centered like home. */}
           <nav className="ps-topnav" style={{ flex: 1, justifyContent: "center", gap: 34, fontSize: 16.5, fontWeight: 700, alignItems: "center", flexWrap: "wrap" }}>
-            {[["/", "Local Picks", "picks"], ["/?view=events", "What's On", "events"]].map(([href, label, key]) => {
+            {[["/", "Local Picks", "picks"], ["/whats-on", "What's On", "events"]].map(([href, label, key]) => {
               const on = key === active;
               return (
                 <Link key={label} href={href}

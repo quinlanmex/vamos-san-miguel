@@ -8,7 +8,7 @@ import MobileGuidesTab from "./MobileGuidesTab";
 // Here are collapsed into one "Guides" tab, matching the desktop dropdown.
 const ITEMS = [
   ["picks", "Local Picks", MapPin, "/"],
-  ["events", "What's On", Clock, "/?view=events"],
+  ["events", "What's On", Clock, "/whats-on"],
   ["saved", "Saved", Heart, "/?view=saved"],
   ["planner", "Plan Trip", Sparkles, "/?planner=1"],
 ];

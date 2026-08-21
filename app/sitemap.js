@@ -7,6 +7,7 @@ export default async function sitemap() {
   const now = new Date();
   const staticPages = [
     { url: `${BASE}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${BASE}/whats-on`, changeFrequency: "daily", priority: 0.95 },
     { url: `${BASE}/best`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/plan`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/move`, changeFrequency: "weekly", priority: 0.9 },
