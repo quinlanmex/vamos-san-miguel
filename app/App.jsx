@@ -331,6 +331,9 @@ const recurKnown = (e) => !!(e.recurNote && (e.recurNote.en || e.recurNote.es)) 
 // True when a recurring event has a concrete upcoming occurrence date (rolled forward from the
 // source); false when its date is stale/unknown and we should show the generic schedule instead.
 const hasNextDate = (e) => { const eD = d(e.end); return e.recurring && !isNaN(eD) && eD >= TODAY; };
+// Sort key: a recurring event with no known upcoming date is "ongoing", so treat it as today
+// instead of letting its stale original date sort it to the very top of the list.
+const effEventDate = (e) => { if (e.recurring && !hasNextDate(e)) return TODAY; const s = d(e.start); return isNaN(s) ? TODAY : s; };
 
 function dateLabelFor(e, lang, t) {
   const sD = d(e.start), eD = d(e.end);
@@ -1394,7 +1397,7 @@ export default function App() {
         if (!hay.includes(q)) return false;
       }
       return true;
-    }).sort((a, b) => d(a.start) - d(b.start));
+    }).sort((a, b) => effEventDate(a) - effEventDate(b));
   }, [events, cats, aud, dateF, query, lang]);
 
   // Counts mirror the filter: match by the (next-occurrence) date; a recurring event with no
