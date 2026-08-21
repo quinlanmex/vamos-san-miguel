@@ -1163,7 +1163,7 @@ function HomeAsk({ lang, P, favLists, savedPlaces, onToggleSave, onOpenPick, onO
       <style>{`@keyframes qp-spin{to{transform:rotate(360deg)}}`}</style>
       <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 14, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: P.coral, margin: "0 0 10px" }}>✨ {es ? "Pregúntale a Vamos AI" : "Ask Vamos AI"}</p>
       <h1 style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "clamp(22px, 3.4vw, 30px)", margin: "0 0 12px", lineHeight: 1.12, color: P.ink }}>
-        {es ? "Dime qué se te antoja y te doy la lista." : "Tell me what you're in the mood for, and I'll give you the shortlist."}
+        {es ? "Dime qué buscas en San Miguel y te doy la lista corta." : "Tell me what you're looking for in San Miguel. I'll give you the short list."}
       </h1>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") ask(); }}
