@@ -115,7 +115,24 @@ export default async function WhatsOnPage() {
         </>
       )}
 
-      <div style={{ marginTop: 20, padding: "20px 22px", background: "#0D1B36", color: "#F7F3EC", borderRadius: 16 }}>
+      {/* Browse by month — internal links to the month archive pages. */}
+      <div style={{ marginTop: 10, marginBottom: 6 }}>
+        <p style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#B4791F", margin: "0 0 10px" }}>Browse by month</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {Array.from({ length: 4 }, (_, i) => {
+            const dt = new Date(today.getFullYear(), today.getMonth() + i, 1);
+            const slug = `${MONTHS[dt.getMonth()].toLowerCase()}-${dt.getFullYear()}`;
+            return (
+              <Link key={slug} href={`/whats-on/${slug}`}
+                style={{ display: "inline-block", background: "#FFFFFF", border: "1px solid #E7DDCB", borderRadius: 999, padding: "7px 15px", fontSize: 13.5, fontWeight: 600, color: "#0D1B36", textDecoration: "none" }}>
+                {MONTHS[dt.getMonth()]} {dt.getFullYear()}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 24, padding: "20px 22px", background: "#0D1B36", color: "#F7F3EC", borderRadius: 16 }}>
         <p style={{ margin: "0 0 6px", fontFamily: "Georgia, serif", fontSize: 19, color: "#fff" }}>See it on the map, save what you like</p>
         <p style={{ margin: "0 0 14px", fontSize: 14.5, lineHeight: 1.55, opacity: .92 }}>
           Filter by today, this weekend, or category, view events on a map, and build a day around them with our planner.
