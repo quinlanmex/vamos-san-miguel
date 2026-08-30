@@ -32,7 +32,7 @@ const PLAN_EXTRAS = {
     heading: "Book these into your three days",
     blocks: [
       { label: "For a meal", kind: "type", key: "rest", limit: 2 },
-      { label: "For a rooftop drink", kind: "facet", key: "views", limit: 2 },
+      { label: "For a rooftop drink", kind: "facet", key: "rooftop", limit: 2 },
       { label: "For a slow reset", kind: "facet", key: "wellness", limit: 1 },
     ],
     events: true,

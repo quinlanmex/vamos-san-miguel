@@ -32,7 +32,7 @@ export default async function ThingsToDoPage() {
     href: `/best/${dbToUrlSlug(c.slug)}`, label: c.label_en, name: c.winner.name, photo_url: c.winner.photo_url,
   }));
   const eats = picksByType(picks, "rest", { limit: 3 });
-  const rooftops = picksByFacet(picks, "views", 3);
+  const rooftops = picksByFacet(picks, "rooftop", 3);
   const bars = rooftops.length ? [] : picksByType(picks, "bar", { limit: 2 });
   const outdoors = picksByFacet(picks, "wellness", 2);
   const weekEvents = events.slice(0, 5);
