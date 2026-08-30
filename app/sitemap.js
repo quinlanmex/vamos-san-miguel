@@ -1,5 +1,6 @@
 import { getMovePages, getPlanPages } from "../lib/content";
 import { getBestOfCategories, dbToUrlSlug } from "../lib/bestOf";
+import { allCollections } from "../lib/collections";
 
 const BASE = "https://vamossanmiguel.com";
 
@@ -10,6 +11,7 @@ export default async function sitemap() {
     { url: `${BASE}/whats-on`, changeFrequency: "daily", priority: 0.95 },
     { url: `${BASE}/best`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/plan`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/guide`, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE}/move`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/ebook`, changeFrequency: "monthly", priority: 0.6 },
   ];
@@ -20,11 +22,12 @@ export default async function sitemap() {
   });
   const plan = getPlanPages().map((p) => ({ url: `${BASE}/plan/${p.slug}`, changeFrequency: "monthly", priority: 0.8 }));
   const move = getMovePages().map((p) => ({ url: `${BASE}/move/${p.slug}`, changeFrequency: "monthly", priority: 0.8 }));
+  const guide = allCollections().map((c) => ({ url: `${BASE}/guide/${c.slug}`, changeFrequency: "weekly", priority: 0.8 }));
   let best = [];
   try {
     best = (await getBestOfCategories())
       .filter((c) => c.winner)
       .map((c) => ({ url: `${BASE}/best/${dbToUrlSlug(c.slug)}`, changeFrequency: "weekly", priority: 0.85 }));
   } catch {}
-  return [...staticPages, ...whatsOnMonths, ...plan, ...move, ...best].map((e) => ({ lastModified: now, ...e }));
+  return [...staticPages, ...whatsOnMonths, ...plan, ...guide, ...move, ...best].map((e) => ({ lastModified: now, ...e }));
 }
