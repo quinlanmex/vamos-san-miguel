@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+
 export const metadata = {
   metadataBase: new URL("https://www.vamossanmiguel.com"),
   title: "Vamos San Miguel — San Miguel de Allende, Gto.",
@@ -14,7 +16,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0 }}>{children}</body>
+      <body style={{ margin: 0 }}>{children}<Analytics /></body>
     </html>
   );
 }
