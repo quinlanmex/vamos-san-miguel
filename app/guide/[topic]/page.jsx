@@ -16,11 +16,17 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const c = getCollection(params.topic);
   if (!c) return { title: "Not found | Vamos San Miguel" };
+  // Don't let Google index a thin, empty shortlist — a batch of "still vetting" pages drags the
+  // whole site's quality signal and feeds "Discovered - not indexed". This auto-flips back to
+  // indexable the moment the collection has real, vouched-for picks (re-evaluated on revalidate).
+  const all = await getPicks().catch(() => []);
+  const hasContent = all.some((p) => matchesCollection(p, c.match) && pickTake(p));
   return {
     title: `${c.title} | Vamos San Miguel`,
     description: c.desc,
     alternates: { canonical: `/guide/${c.slug}` },
     openGraph: { title: c.h1, description: c.desc, type: "article", url: `${BASE}/guide/${c.slug}` },
+    ...(hasContent ? {} : { robots: { index: false, follow: true } }),
   };
 }
 
