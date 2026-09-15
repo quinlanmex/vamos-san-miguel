@@ -6,7 +6,7 @@ import { getUpcomingEvents, eventsBetween, CATEGORY_LABELS, CITY } from "../../l
 // the same live event data as the app, so it stays current for both search and AI engines.
 export const revalidate = 1800;
 
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const fmtDay = (dt) => `${WEEKDAYS[dt.getDay()]}, ${MONTHS[dt.getMonth()]} ${dt.getDate()}`;

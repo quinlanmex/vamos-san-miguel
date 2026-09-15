@@ -5,7 +5,7 @@ import { getBestOfCategories, dbToUrlSlug } from "../../lib/bestOf";
 // Hub page linking every published best-of category. Fresh from the same data as the app.
 export const revalidate = 1800;
 
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 const CITY = "San Miguel de Allende";
 
 export const metadata = {

@@ -11,7 +11,7 @@ import { allCollections } from "../../../lib/collections";
 // so it is specific, current, and impossible for an AI to reproduce. Refreshes on its own.
 export const revalidate = 1800;
 
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 const CITY = "San Miguel de Allende";
 const TITLE = `The Best Things to Do in ${CITY}`;
 

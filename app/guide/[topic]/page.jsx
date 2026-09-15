@@ -7,7 +7,7 @@ import { allCollections, getCollection, matchesCollection } from "../../../lib/c
 
 // Programmatic "best of" landing pages built from the picks data. See lib/collections.js.
 export const revalidate = 1800;
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 
 export function generateStaticParams() {
   return allCollections().map((c) => ({ topic: c.slug }));

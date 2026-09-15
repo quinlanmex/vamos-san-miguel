@@ -2,7 +2,7 @@ import { getMovePages, getPlanPages } from "../lib/content";
 import { getBestOfCategories, dbToUrlSlug } from "../lib/bestOf";
 import { allCollections } from "../lib/collections";
 
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 
 export default async function sitemap() {
   const now = new Date();

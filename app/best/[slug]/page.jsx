@@ -8,7 +8,7 @@ import { getBestOfCategories, getBestOfBySlug, dbToUrlSlug, urlToDbSlug } from "
 // new category (or a changed winner) shows up here automatically. Revalidated, not static.
 export const revalidate = 1800;
 
-const BASE = "https://vamossanmiguel.com";
+const BASE = "https://www.vamossanmiguel.com";
 const CITY = "San Miguel de Allende";
 
 export async function generateStaticParams() {
