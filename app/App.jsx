@@ -1111,7 +1111,11 @@ function Emblem({ size = 40 }) {
  * Real images arrive later via ingestion (og:image) + the Places API. --------- */
 function Media({ img, cat, style, iconSize = 26 }) {
   const [err, setErr] = useState(false);
-  const c = CATS[cat];
+  // Events use CATS; places use PLACE_TYPE (rest, bar, parks...). Fall back to a neutral
+  // icon so an unknown category can never crash the page when a photo fails to load.
+  const c = CATS[cat]
+    || (PLACE_TYPE[cat] && { c: TYPE_COLOR[cat] || "#C6552E", Icon: PLACE_TYPE[cat].Icon })
+    || { c: "#8A8F98", Icon: ImageIcon };
   if (img && !err) {
     return <img src={img} alt="" loading="lazy" onError={() => setErr(true)}
       style={{ objectFit: "cover", display: "block", ...style }} />;
