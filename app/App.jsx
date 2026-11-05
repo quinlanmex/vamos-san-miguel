@@ -1117,7 +1117,9 @@ function Media({ img, cat, style, iconSize = 26 }) {
     || (PLACE_TYPE[cat] && { c: TYPE_COLOR[cat] || "#C6552E", Icon: PLACE_TYPE[cat].Icon })
     || { c: "#8A8F98", Icon: ImageIcon };
   if (img && !err) {
+    // The ref catches photos that failed before React attached onError (fast 404s).
     return <img src={img} alt="" loading="lazy" onError={() => setErr(true)}
+      ref={(el) => { if (el && el.complete && el.currentSrc && el.naturalWidth === 0) setErr(true); }}
       style={{ objectFit: "cover", display: "block", ...style }} />;
   }
   const Ic = c.Icon;
